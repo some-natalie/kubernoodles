@@ -20,6 +20,7 @@ RUN apt-get update \
     ca-certificates \
     curl \
     git \
+    iptables \
     libyaml-dev \
     locales \
     lsb-release \
