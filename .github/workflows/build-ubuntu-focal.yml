@@ -1,0 +1,57 @@
+name: Build and publish Ubuntu Focal runner
+
+on:
+  schedule:
+    - cron: '15 14 1 * *'  # build once a month unless needed to more frequently
+  workflow_dispatch:  # build on demand
+  push:  # build when changes that'd affect the image are pushed to main
+    branches:
+    - main
+    paths:
+    - 'images/ubuntu-focal.Dockerfile'
+    - '.github/workflows/**-focal.yml'
+    - 'images/**.sh'
+    - 'images/docker/*'
+    - 'images/patched/*'
+    - 'images/software/*'
+    - 'images/supervisor/*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the GitHub hosted runners
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build the image
+        run: |
+          cd images
+          docker build --network=host --file ubuntu-focal.Dockerfile --tag ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest .
+
+      # - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      #   uses: anchore/scan-action@main
+      #   with:
+      #     image: "ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest"
+      #     fail-build: false
+      #     acs-report-enable: true
+
+      # - name: Upload Anchore Scan Report
+      #   uses: github/codeql-action/upload-sarif@v1
+      #   with:
+      #     sarif_file: results.sarif
+
+      # - name: Generate SBOM for the Ubuntu Focal (20.04 LTS) runner
+      #   uses: anchore/sbom-action@v0
+      #   with:
+      #     image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
+
+      - name: Push to GitHub Packages
+        run: docker push ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
