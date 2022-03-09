@@ -19,6 +19,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest  # Use the GitHub hosted runners
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout
@@ -28,8 +31,8 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build the image
         run: |
