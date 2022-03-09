@@ -60,7 +60,7 @@ fi
 sudo chown -R runner:docker /runner
 mv /runnertmp/* /runner/
 
-cd /runner
+cd /runner || exit
 ./config.sh --unattended --replace --name "${RUNNER_NAME}" --url "${GITHUB_URL}${ATTACH}" --token "${RUNNER_TOKEN}" ${RUNNER_GROUP_ARG} ${LABEL_ARG} ${WORKDIR_ARG}
 mkdir ./externals
 # Hack due to the DinD volumes
