@@ -2,7 +2,7 @@
 
 Kubernetes runners for GitHub Actions, built on top of [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller).
 
-This is a reference implementation, designed for you to take and tweak to your own liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](github.com) (SaaS), [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server) (self-hosted), and [GitHub AE](https://docs.github.com/en/github-ae@latest) from Docker Desktop, a Raspberry Pi cluster for `arm64`, and other random platforms as needed.  Your implementation may look wildly different, etc.
+This is a reference implementation, designed for you to take and tweak to your own liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS), [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server) (self-hosted), and [GitHub AE](https://docs.github.com/en/github-ae@latest) from Docker Desktop, a Raspberry Pi cluster for `arm64`, and other random platforms as needed.  Your implementation may look wildly different, etc.
 
 Pull requests welcome! :heart:
 
