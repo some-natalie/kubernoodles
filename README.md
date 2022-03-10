@@ -11,7 +11,7 @@ Pull requests welcome! :heart:
 You should read these, as they're all excellent and can provide more insight into the customization options and updates than are available in this repository.
 
 - Kubernetes controller for self-hosted runners, on [GitHub](https://github.com/actions-runner-controller/actions-runner-controller), is the glue that makes this entire solution possible.
-- Docker image for runners that can automatically join, which solved a good bit of getting the runner agent started automatically on each pod, [Write up](https://sanderknape.com/2020/03/self-hosted-github-actions-runner-kubernetes/) and [GitHub](https://github.com/SanderKnape/github-runner).
+- Docker image for runners that can automatically join, which solved a good bit of getting the runner agent started automatically on each pod, [write up](https://sanderknape.com/2020/03/self-hosted-github-actions-runner-kubernetes/) and [GitHub](https://github.com/SanderKnape/github-runner).
 - GitHub's repository used to generate the hosted runners' images ([GitHub](https://github.com/actions/virtual-environments)), where I got the idea of using shell scripts to layer discrete dependency management on top of a base image.  The [software](../images/software) scripts are (mostly) copy/pasted directly out of that repo.
 
 ### Learn more
@@ -26,7 +26,3 @@ You should read these, as they're all excellent and can provide more insight int
 - [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller)
 - [cert-manager](cert-manager.io)
 - [Yelp dumb-init](https://github.com/Yelp/dumb-init)
-
-### Original inspiration
-
-This diverges from [boozallen/goobernetes](https://github.com/boozallen/goobernetes).  I chose to break the fork network as it's significantly different in design and implementation, and I don't wish to introduce breaking changes to something I have no insight into.
