@@ -39,22 +39,22 @@ jobs:
           cd images
           docker build --network=host --file ubuntu-focal.Dockerfile --tag ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest .
 
-      # - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-      #   uses: anchore/scan-action@main
-      #   with:
-      #     image: "ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest"
-      #     fail-build: false
-      #     acs-report-enable: true
+      - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+        uses: anchore/scan-action@main
+        with:
+          image: "ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest"
+          fail-build: false
+          acs-report-enable: true
 
-      # - name: Upload Anchore Scan Report
-      #   uses: github/codeql-action/upload-sarif@v1
-      #   with:
-      #     sarif_file: results.sarif
+      - name: Upload Anchore Scan Report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results.sarif
 
-      # - name: Generate SBOM for the Ubuntu Focal (20.04 LTS) runner
-      #   uses: anchore/sbom-action@v0
-      #   with:
-      #     image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
+      - name: Generate SBOM for the Ubuntu Focal (20.04 LTS) runner
+        uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
 
       - name: Push to GitHub Packages
         run: docker push ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
