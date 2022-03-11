@@ -18,7 +18,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use the GitHub hosted runners
+    runs-on: ubuntu-latest  # use the GitHub hosted runners
     permissions:
       contents: read
       packages: write  # for uploading the finished container
