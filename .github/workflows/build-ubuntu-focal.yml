@@ -18,10 +18,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use the GitHub hosted runners
+    runs-on: ubuntu-latest  # use the GitHub hosted runners
     permissions:
       contents: read
-      packages: write
+      packages: write  # for uploading the finished container
+      security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
 
     steps:
       - name: Checkout
@@ -40,7 +41,8 @@ jobs:
           docker build --network=host --file ubuntu-focal.Dockerfile --tag ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest .
 
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-        uses: anchore/scan-action@main
+        uses: anchore/scan-action@v3
+        id: scan
         with:
           image: "ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest"
           fail-build: false
@@ -49,7 +51,7 @@ jobs:
       - name: Upload Anchore Scan Report
         uses: github/codeql-action/upload-sarif@v1
         with:
-          sarif_file: results.sarif
+          sarif_file: ${{ steps.scan.outputs.sarif }}
 
       - name: Generate SBOM for the Ubuntu Focal (20.04 LTS) runner
         uses: anchore/sbom-action@v0
