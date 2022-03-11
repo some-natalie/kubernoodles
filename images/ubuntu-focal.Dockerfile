@@ -19,6 +19,7 @@ RUN apt-get update \
     apt-utils \
     ca-certificates \
     curl \
+    gcc \
     git \
     iptables \
     libyaml-dev \
@@ -101,7 +102,9 @@ RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && curl -L -o runner.tar.gz https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${ARCH}-${RUNNER_VERSION}.tar.gz \
     && tar xzf ./runner.tar.gz \
     && rm runner.tar.gz \
-    && ./bin/installdependencies.sh
+    && ./bin/installdependencies.sh \
+    && apt-get autoclean \
+    && apt-get autoremove
 
 RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
   && mkdir /opt/hostedtoolcache \
@@ -121,8 +124,6 @@ RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && chmod +x /usr/local/bin/dumb-init
 
 VOLUME /var/lib/docker
-
-COPY --chown=runner:docker patched $RUNNER_ASSETS_DIR/patched
 
 # No group definition, as that makes it harder to run docker.
 USER runner
