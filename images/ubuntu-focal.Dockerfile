@@ -1,8 +1,12 @@
 FROM ubuntu:20.04
 
-LABEL org.opencontainers.image.source https://github.com/some-natalie/kubernoodles
-LABEL org.opencontainers.image.title ubuntu-focal-runner
-LABEL org.opencontainers.image.description "An Ubuntu Focal (20.04 LTS) based runner image for GitHub Actions"
+LABEL \ 
+    org.opencontainers.image.source https://github.com/some-natalie/kubernoodles \
+    org.opencontainers.image.title ubuntu-focal-runner \
+    org.opencontainers.image.description "An Ubuntu Focal (20.04 LTS) based runner image for GitHub Actions" \
+    org.opencontainers.image.authors "Natalie Somersall (@some-natalie)" \
+    org.opencontainers.image.licenses=MIT \
+    org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
 
 # Set environment variables needed at build
 ENV DEBIAN_FRONTEND=noninteractive
