@@ -60,17 +60,11 @@ fi
 sudo chown -R runner:docker /runner
 mv /runnertmp/* /runner/
 
-cd /runner || exit
+cd /runner || exit 2
 ./config.sh --unattended --replace --name "${RUNNER_NAME}" --url "${GITHUB_URL}${ATTACH}" --token "${RUNNER_TOKEN}" ${RUNNER_GROUP_ARG} ${LABEL_ARG} ${WORKDIR_ARG}
 mkdir ./externals
 # Hack due to the DinD volumes
 mv ./externalstmp/* ./externals/
-
-for f in runsvc.sh RunnerService.js; do
-  diff {bin,patched}/${f} || :
-  sudo mv bin/${f}{,.bak}
-  sudo mv {patched,bin}/${f}
-done
 
 unset RUNNER_NAME RUNNER_REPO RUNNER_TOKEN
 exec ./bin/runsvc.sh --once
