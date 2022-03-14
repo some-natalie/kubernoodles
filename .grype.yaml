@@ -1,5 +1,0 @@
-exclude:
-  - '/runnertmp/**'
-
-search:
-  scope: "squashed"
