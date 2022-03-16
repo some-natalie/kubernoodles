@@ -1,34 +1,30 @@
-# Admin's (draft) guide to implementing GitHub Actions #
+# Admin's (draft) guide to implementing self-hosted GitHub Actions
 
-## Introduction ##
+## Introduction
 
-Audience - GitHub Enterprise administrators, regardless of if you're [Enterprise Cloud](https://docs.github.com/en/enterprise-cloud@latest) (SaaS) or [Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted) or [GitHub AE](https://docs.github.com/en/github-ae@latest) (dedicated, isolated SaaS).  The guidance will change a little bit depending on which product you're on and any changes will be noted as needed.  If you're not one of those, you're still welcome!  You might find helpful tips and tricks nonetheless.  :tada:
+Audience - GitHub Enterprise administrators wanting to self-host compute for GitHub Actions, especially for [Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted) or [GitHub AE](https://docs.github.com/en/github-ae@latest) (dedicated, isolated SaaS).  The guidance changes some depending on which product, so any differences will be noted.  If you're not one of those, you're still welcome!  You might find helpful tips and tricks nonetheless.  :tada:
 
 This piece is going to take a look at what this feature is and a quick overview of how it works, then go through some key decisions you should think through as you set it up.  A bunch of experience running this at scale went into this project, and opinions from that experience is noted in the last paragraph of each key decision on _why_ this problem is approached the way it is in this solution.
 
 We're _not_ covering the details of which Enterprise version you should be on or any future roadmap items.  If that's of interest, reach out to the friendly [Sales](https://github.com/enterprise/contact) or [Support](https://enterprise.github.com/support) teams.
 
-### What's GitHub Actions? ###
+### What's GitHub Actions?
 
-Glad you asked!  You can learn all about it [here](https://docs.github.com/en/actions), but the tl;dr awesome video version is in the YouTube video below.
-
-[![GitHub Actions - Supercharge your GitHub Flow](http://img.youtube.com/vi/cP0I9w2coGU/0.jpg)](http://www.youtube.com/watch?v=cP0I9w2coGU "GitHub Actions - Supercharge your GitHub Flow")
-
-It's amazing at continuous integration, but useful for so much more too.  It's a tool that can be used to automate all sorts of other stuff done manually or locally, like:
+Glad you asked!  You can learn all about it [here](https://docs.github.com/en/actions), but the tl;dr awesome video version is in [this YouTube video](https://www.youtube.com/watch?v=cP0I9w2coGU).  It's a tool that can be used to automate all sorts of other stuff done manually or locally, like:
 
 - Regression testing
 - Deploying software
 - Linting code
 - Running security tools
 - Git branch management and other chores
-- Welcome new users with cat gifs (no, [really](https://github.com/ruairidhwm/action-cats))
+- Reward users with cat gifs (no, [really](https://github.com/ruairidhwm/action-cats))
 - Close stale issues and pull requests ([link](https://github.com/actions/stale))
 - Integrate with pretty much any other thing that could ever possibly use GitHub
 - ... and a lot more ...
 
 There's a whole [marketplace](https://github.com/marketplace?type=actions) full of building blocks of automation to use - over 12,000 of them as of March 2022.  You can also [create your own](https://docs.github.com/en/actions/creating-actions) to further help robots do all the work.
 
-### Why self-hosted? ###
+### Why self-hosted?
 
 GitHub provides hosted, managed runners that you can use out of the box - but only for users within GitHub.com.  Information on features, hardware specs, and pricing for this compute can be found [here](https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/about-github-hosted-runners).  They're super easy to use and offer a wide variety of software built-in, which can be customized as detailed [here](https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/customizing-github-hosted-runners).  While great, the managed runners don't fit everyone's use case, so bring-your-own compute is also fully supported.  It's a straightforward process to install the [runner agent](https://github.com/actions/runner) on the compute needed.  Common reasons for choosing self-hosted runners include:
 
@@ -39,13 +35,13 @@ GitHub provides hosted, managed runners that you can use out of the box - but on
 - Needing to run jobs in a specific environment such as "gold load" type imaged machines
 - Because you _want_ to and I'm not here to judge that :)
 
-This means that you, intrepid Enterprise administrator, are responsible for setting up and maintaining the compute needed for this service.  The [documentation](https://docs.github.com/en/enterprise-cloud@latest/actions/hosting-your-own-runners) to do this is fantastic.  If you're used to running your own enterprise-wide CI system, GitHub Actions is probably easier than it seems.  If you aren't, or are starting from scratch, it can be a bit daunting.  That's where this guide comes in.  The next section is all about some key decisions to make that will determine how to set up self-hosted compute for GitHub Actions.
+This means that you, intrepid Enterprise administrator, are responsible for setting up and maintaining the compute needed for this service.  The [documentation](https://docs.github.com/en/actions/hosting-your-own-runners) to do this is fantastic.  If you're used to running your own enterprise-wide CI system, GitHub Actions is probably easier than it seems.  If you aren't, or are starting from scratch, it can be a bit daunting.  That's where this guide comes in.  The next section is all about some key decisions to make that will determine how to set up self-hosted compute for GitHub Actions.
 
 ---
 
-## Key decisions ##
+## Key decisions
 
-### Scaling ###
+### Scaling
 
 How do you want or need to scale up?  By using the runners provided by GitHub, this is handled invisibly to users without any additional fiddling.  Self-hosted runners don't have the same "magic hardware budgeting" out of the box.  Some things to keep in mind:
 
@@ -56,7 +52,7 @@ How do you want or need to scale up?  By using the runners provided by GitHub, t
 
 :information_desk_person: **Opinion** - This is one of those cases where the balance between infrastructure costs and the time a user will spend waiting for a runner to pick up a job can really swing how they perceive the service.  I went with Kubernetes to provide fast scaling of variable-spec compute on a wide variety of platforms.  In the [example deployment](../deployments/README.md), each pod starts out pretty small, but can scale to a maximum size as needed.  This means small tasks get small compute and bigger tasks (such as code security scans) will get bigger compute.  The downside of the choice to use Kubernetes is that it's more complicated than other platform options, detailed in the next section.
 
-### Platform ###
+### Platform
 
 What platform do you want to run on?  The runner agent for GitHub Actions works in modern versions of Mac OS, Windows, and most major distributions of Linux.  This leaves a lot of flexibility for what the platform to offer to your userbase looks like.  The diagram below offers an overview of the options to consider.
 
@@ -72,19 +68,21 @@ What platform do you want to run on?  The runner agent for GitHub Actions works 
 
 :information_desk_person: **Opinion** - Whatever is currently in use is probably the best path forward.  I hesitate to recommend a total infrastructure rebuild for a few more servers in racks, or VMs, or container deployments.  Managed providers of VM infrastructure or Kubernetes clusters take away the hardware management aspect of this.  This solution relies on Kubernetes and the [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller) community project.
 
-### Persistence ###
+### Persistence
 
 How persistent or transient do you want the environment that is building the code to be?  Should the state of one random job that runs on this machine/container affect any other random job?
 
-There's a lot to unpack here, but this analogy really helps me out:
+There's a lot to unpack here, so here's a helpful analogy:
 
-> A build environment is like a kitchen.  You can make all sorts of food in a kitchen, not just the one dish that you want at any given time.  If it's just you and some reasonable roommates, you can all agree to a shared standard of cleanliness.  The moment one unreasonable houseguest cooks for the team and leaves a mess, it's a bunch of work to get things back in order (broken builds).  There could also be food safety issues (or code safety issues) when things are left to get fuzzy and gross.  Imagine being able to snap your fingers and get a brand new identical kitchen at every meal - that's the power of ephemeral build environments.  Now imagine being able to track changes to those tools in that kitchen to ensure the knives are sharp and produce is fresh - that's putting your build environment in some sort of infrastructure-as-code solution.
+> A build environment is like a kitchen.  You can make all sorts of food in a kitchen, not just the one dish that you want at any given time.  If it's just you and some reasonable roommates, you can all agree to a shared standard of cleanliness.  The moment one unreasonable houseguest cooks for the team and leaves a mess, it's a bunch of work to get things back in order (broken builds).  There could also be food safety issues (code safety issues) when things are left to get fuzzy and gross.
+>
+> Imagine being able to snap your fingers and get a brand new identical kitchen at every meal - that's the power of ephemeral build environments.  Now imagine being able to track changes to those tools in that kitchen to ensure the knives are sharp and produce is fresh - that's putting your build environment in some sort of infrastructure-as-code solution.
 
 The persistence here is somewhat independent of the platform chosen.  Bare metal ephemeral runners are possible, but may require more effort than a solution based on virtual machines or containers.  The _exact_ way this gets implemented depends a lot on the other parts and pieces of your unique platform.
 
-:information_desk_person: **Opinion** - The more ephemeral and version-controlled, the better!  This solution uses containers that are used once, then redeployed from the specified container in a registry.  In my experience, persistent environments tend to work alright for single projects and start to have problems when the project needs change.  Persistence leads to configuration drift even with the best config management practices, meaning that "it works on my machine", and the work required to maintain everything doesn't always happen.  It can work great, but scales poorly if not well-cared for.  Additionally, software updates can be breaking hazards, discouraging good security practices.
+:information_desk_person: **Opinion** - The more ephemeral and version-controlled, the better!  This solution uses containers that are used once, then redeployed from the specified container in a registry.  In my experience, persistent environments tend to work alright for single projects and start to have problems when the project needs change.  Persistence leads to configuration drift even with the best config management practices, meaning that "it works on my machine" and the work required to maintain everything doesn't always happen.
 
-### Compute design ###
+### Compute design
 
 This decision depends a lot on how persistent or ephemeral the compute is and the particulars of the environment it lives in, but the goal here is to figure out how large or lean the environment is at runtime.
 
@@ -95,13 +93,13 @@ This decision depends a lot on how persistent or ephemeral the compute is and th
 
 :information_desk_person: **Opinion** - This isn't a binary choice and can always change as the project/enterprise needs change.  I wouldn't spend too much time on this, but have tended to prefer larger images with more things in them to minimize traffic out of the corporate network at the cost of bandwidth between the Kubernetes cluster and the private image registry that hosts the container images.
 
-### Compute scope ###
+### Compute scope
 
-GitHub Enterprise can have runners that are only available to an individual repository, all or select repositories within an organization, or enterprise wide (detailed [here](https://docs.github.com/en/enterprise-server@latest/actions/hosting-your-own-runners/about-self-hosted-runners)).  What is the ideal state for your company?
+GitHub Enterprise can have runners that are only available to an individual repository, all or select repositories within an organization, or enterprise-wide (detailed [here](https://docs.github.com/en/enterprise-server@latest/actions/hosting-your-own-runners/about-self-hosted-runners)).  What is the ideal state for your company?
 
 :information_desk_person: **Opinion** - All of the above is likely going to happen with any sufficiently diverse user base, so let's make this as secure and easily governable as needed.  Some teams will bring their own hardware and not want to share, which is reasonable, so will join their compute to only accept jobs from their code repositories.  This also means that admins can do some networking shenanigans to allow only runners from X subnet to reach Y addresses to meet rules around isolation if needed.  Likewise, as an enterprise-wide administrator, I wanted to make the most commonly-used Linux compute available and usable to most users for most jobs.  This solution defaults to enterprise-wide availability, but will also demonstrate organization or repository specific compute.
 
-### Policy and compliance ###
+### Policy and compliance
 
 Is there any policy you need to consider while building this out?  Examples could be scan your containers/VMs/bare metal machines with some security tool, to have no critical vulnerabilities in production, project isolation, standards from an industry body or government, etc.
 
@@ -109,7 +107,7 @@ Is there any policy you need to consider while building this out?  Examples coul
 
 ---
 
-## Recommendations ##
+## Recommendations
 
 Here's a few general recommendations that don't fall neatly into the above, but were learned from experience:
 
@@ -120,3 +118,9 @@ Here's a few general recommendations that don't fall neatly into the above, but 
 - Ship your logs somewhere.  You can view job logs in GitHub and that's handy for developers to troubleshoot their stuff, but it's hard to see trends at scale there.  We'll talk about this more in a later writeup.
 - Everything is made better by a managed provider and Kubernetes doubly so.  Kubernetes is super powerful and very extensible, but I wouldn't call it easy for anyone to pick up and DIY.
 - Have a central-ish place for users to look for information.  This could be wherever the rest of the documentation for your company lives.  In this case, this repository has a [`README.md`](../README.md) file and uses documentation in the repository.
+
+---
+
+## Next steps
+
+:boom: Ready for some scalable, Kubernetes-based ephemeral runners for GitHub Actions?  Let's move to the [setup](admin-setup.md) guide!
