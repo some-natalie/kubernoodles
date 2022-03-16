@@ -2,9 +2,9 @@
 
 ## Introduction ##
 
-Audience - GitHub Enterprise administrators, regardless of if you're Cloud (SaaS) or Server (self-hosted) or GitHub AE (dedicated, isolated SaaS).  The guidance will change a little bit depending on which product you're on and any changes will be noted as needed.  If you're not one of those, you're still welcome!  You might find helpful tips and tricks nonetheless.  :tada:
+Audience - GitHub Enterprise administrators, regardless of if you're [Enterprise Cloud](https://docs.github.com/en/enterprise-cloud@latest) (SaaS) or [Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted) or [GitHub AE](https://docs.github.com/en/github-ae@latest) (dedicated, isolated SaaS).  The guidance will change a little bit depending on which product you're on and any changes will be noted as needed.  If you're not one of those, you're still welcome!  You might find helpful tips and tricks nonetheless.  :tada:
 
-This piece is going to take a look at what this feature is and a quick overview of how it works, then go through some key decisions you should think through as you set it up.  I have some experience running this at scale and opinions, which I'll note in the last paragraph of each key decision on _why_ I solved this problem in the way I did.
+This piece is going to take a look at what this feature is and a quick overview of how it works, then go through some key decisions you should think through as you set it up.  A bunch of experience running this at scale went into this project, and opinions from that experience is noted in the last paragraph of each key decision on _why_ this problem is approached the way it is in this solution.
 
 We're _not_ covering the details of which Enterprise version you should be on or any future roadmap items.  If that's of interest, reach out to the friendly [Sales](https://github.com/enterprise/contact) or [Support](https://enterprise.github.com/support) teams.
 
@@ -16,24 +16,25 @@ Glad you asked!  You can learn all about it [here](https://docs.github.com/en/ac
 
 It's amazing at continuous integration, but useful for so much more too.  It's a tool that can be used to automate all sorts of other stuff done manually or locally, like:
 
-- Testing
-- Linting
-- Welcome new users with cat gifs
-- Close stale issues and pull requests
-- Integrate with pretty much any other thing you can do with GitHub
-- TODO add more here
+- Regression testing
+- Deploying software
+- Linting code
+- Running security tools
+- Git branch management and other chores
+- Welcome new users with cat gifs (no, [really](https://github.com/ruairidhwm/action-cats))
+- Close stale issues and pull requests ([link](https://github.com/actions/stale))
+- Integrate with pretty much any other thing that could ever possibly use GitHub
+- ... and a lot more ...
 
 There's a whole [marketplace](https://github.com/marketplace?type=actions) full of building blocks of automation to use - over 12,000 of them as of March 2022.  You can also [create your own](https://docs.github.com/en/actions/creating-actions) to further help robots do all the work.
 
 ### Why self-hosted? ###
 
-GitHub provides hosted, managed runners that you can use out of the box - but only for users within GitHub.com.  Information on features, hardware specs, and pricing for this compute can be found [here](https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/about-github-hosted-runners).  They're super easy to use and offer a wide variety of software built-in, which can be customized as detailed [here](https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/customizing-github-hosted-runners).  
-
-While great, the managed runners don't fit everyone's use case, so bring-your-own compute is also fully supported.  It's a straightforward process to install the [runner agent](https://github.com/actions/runner) on the compute needed.  Common reasons for choosing self-hosted runners include:
+GitHub provides hosted, managed runners that you can use out of the box - but only for users within GitHub.com.  Information on features, hardware specs, and pricing for this compute can be found [here](https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/about-github-hosted-runners).  They're super easy to use and offer a wide variety of software built-in, which can be customized as detailed [here](https://docs.github.com/en/enterprise-cloud@latest/actions/using-github-hosted-runners/customizing-github-hosted-runners).  While great, the managed runners don't fit everyone's use case, so bring-your-own compute is also fully supported.  It's a straightforward process to install the [runner agent](https://github.com/actions/runner) on the compute needed.  Common reasons for choosing self-hosted runners include:
 
 - Custom hardware (like ARM processors or GPU-focused compute)
 - Custom software beyond what's available or installable in the hosted runners
-- You don't have the option to use the managed runners because you are on Enterprise Server or GHAE
+- You don't have the option to use the GitHub-managed runners because you are on [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) or [GitHub AE](https://docs.github.com/en/github-ae@latest).
 - Firewall rules to access stuff won't allow access to/from whatever it is you need to do
 - Needing to run jobs in a specific environment such as "gold load" type imaged machines
 - Because you _want_ to and I'm not here to judge that :)
@@ -51,9 +52,9 @@ How do you want or need to scale up?  By using the runners provided by GitHub, t
 - **GitHub Actions are parallel by default.**  This means that unless you specify "this job depends on that job", they'll both run at the same time ([link](https://docs.github.com/en/actions/using-workflows/advanced-workflow-features#creating-dependent-jobs)).  Jobs will wait in queue if there are no runners available.  The balance to search for here is minimizing job wait time on users without having a ton of extra compute hanging out idle.  Regardless of if you're using a managed cloud provider or bare metal, efficient capacity management governs infrastructure costs.
 - **Users can have multiple tasks kick off simultaneously.**  GitHub Actions is event-driven, meaning that one event can start several processes.  For example, by opening a pull request targeting the main branch, that user is proposing changes into what could be "production" code.  This can and should start some reviews.  Good examples of things that can start at this time include regression testing, security testing, code quality analysis, pinging reviewers in chat, update the project management tool, etc.  These can, but don't necessarily _need_ to, run in parallel.  By encouraging small changes more often, these should run fairly quickly and frequently too, resulting in a faster feedback loop between development and deployment.  However, it means that your usage can appear a bit "peaky" during work hours, with flexibility in job queuing.
 - **GitHub Actions encourages use beyond your legacy CI system.**  It can do more with less code defining your pipeline, users can provide all sorts of additional things for it to do, and it can even run scheduled shell scripts and other operations-centric tasks.  These are all great things, but a project that used X minutes of runtime on Y platform may not linearly translate to the same usage in GitHub Actions.
-- **Migrating to GitHub Actions can be a gradual transition.**  The correllary to above is that while the end state may be more compute than right now, it's a process to get a project to migrate from one system to another and then to grow their usage over time as a project grows.  Without external pressure like "we're turning off the old system on this date", it'll take a while for users to move themselves.  Use this to your advantage to scale your infrastructure if you have long-lead tasks such as provisioning new servers.
+- **Migrating to GitHub Actions can be a gradual transition.**  The corollary to above is that while the end state may be more compute than right now, it's a process to get a project to migrate from one system to another and then to grow their usage over time as a project grows.  Without external pressure like "we're turning off the old system on this date", it'll take a while for users to move themselves.  Use this to your advantage to scale your infrastructure if you have long-lead tasks such as provisioning new servers or appropriating budget.
 
-:information_desk_person: **Opinion** - This is one of those cases where the balance between infrastructure costs and the time a user will spend waiting for a runner to pick up a job can really swing how they perceive the service.  I went with Kubernetes to provide scaling of variable-spec compute on a wide variety of platforms.  In the [example deployment](../deployments/README.md), each pod starts out pretty small, but can scale to a maximum size as needed.  This means small tasks get small compute and bigger tasks (such as code security scans) will get bigger compute.  The downside of the choice to use Kubernetes is that it's more complicated than other platform options, detailed in the next section.
+:information_desk_person: **Opinion** - This is one of those cases where the balance between infrastructure costs and the time a user will spend waiting for a runner to pick up a job can really swing how they perceive the service.  I went with Kubernetes to provide fast scaling of variable-spec compute on a wide variety of platforms.  In the [example deployment](../deployments/README.md), each pod starts out pretty small, but can scale to a maximum size as needed.  This means small tasks get small compute and bigger tasks (such as code security scans) will get bigger compute.  The downside of the choice to use Kubernetes is that it's more complicated than other platform options, detailed in the next section.
 
 ### Platform ###
 
@@ -61,7 +62,7 @@ What platform do you want to run on?  The runner agent for GitHub Actions works 
 
 ![Deployment options](https://d33wubrfki0l68.cloudfront.net/26a177ede4d7b032362289c6fccd448fc4a91174/eb693/images/docs/container_evolution.svg)
 
-**Bare metal** comes with the upside of simpler management for end-user software licenses or supporting specialized hardware.  In a diverse enterprise user base, there is always a project or two that needs a GPU cluster or specialized Mac hardware to their organization or repository.  Supporting this as an enterprise edge case is a good choice.  However, it comes with the cost of owning and operating the hardware 24/7 even if it isn't in use that entire time.  Since one runner agent corresponds to one task, an agent on a beefy machine will still only run one task to completion before picking up the next one.  If the workloads are primarily targeted to the hardware provided, this isn't a problem, but it can be inefficient at an enterprise scale.
+**Bare metal** comes with the upside of simpler management for end-user software licenses or supporting specialized hardware.  In a diverse enterprise user base, there is always a project or two that needs a GPU cluster or specialized Mac hardware to their organization or repository.  Supporting this as an enterprise edge case is a good choice.  However, it comes with the cost of owning and operating the hardware 24/7 even if it isn't in use that entire time.  Since one runner agent corresponds to one job, an agent on a beefy machine will still only run one job to completion before picking up the next one.  If the workloads are primarily targeted to the hardware provided, this isn't a problem, but it can be inefficient at an enterprise scale.
 
 **Virtual machines** are simple to manage using a wide variety of existing enterprise tooling at all stages of their lifecycle.  They can be as isolated or shared across users as you'd like.  Each runner is another VM to manage that isn't fundamentally different than existing CI build agents, web or database servers, etc.  There are some community options to scale them up or down as needed, such as [Terraform](https://github.com/philips-labs/terraform-aws-github-runner) or [Ansible](https://github.com/MonolithProjects/ansible-github_actions_runner), if that's desired.  The hypervisor that manages the VM infrastructure handles resource allocation in the datacenter or it's magically handled by a private cloud provider such as Azure or AWS.
 
@@ -77,13 +78,11 @@ How persistent or transient do you want the environment that is building the cod
 
 There's a lot to unpack here, but this analogy really helps me out:
 
-> A build environment is like a kitchen.  You can make all sorts of food in a kitchen, not just the one dish that you want at any given time.  If it's just you and some reasonable roommates, you can all agree to a shared standard of cleanliness.  The moment one unreasonable houseguest cooks for the team and leaves a mess, it's a bunch of work to get things back in order (broken builds).  There could also be food safety issues (or code safety issues) when things are left to get fuzzy and gross.  Imagine being able to snap your fingers and get a brand new kitchen at every meal - that's the power of ephemeral build environments.  Now imagine being able to track changes to those tools in the kitchen to keep the knives sharp and produce fresh - that's putting your build environment in some sort of infrastructure-as-code solution.
-
-In my experience, persistent environments tend to work alright for single projects and start to have problems when the project needs change.  Persistence can lead to configuration drift, meaning that "it works on my machine", and the work required to maintain everything doesn't always happen.  It can work great, but scales poorly if not well cared for.  Dependency management and updates can be breaking hazards, discouraging software updates.
+> A build environment is like a kitchen.  You can make all sorts of food in a kitchen, not just the one dish that you want at any given time.  If it's just you and some reasonable roommates, you can all agree to a shared standard of cleanliness.  The moment one unreasonable houseguest cooks for the team and leaves a mess, it's a bunch of work to get things back in order (broken builds).  There could also be food safety issues (or code safety issues) when things are left to get fuzzy and gross.  Imagine being able to snap your fingers and get a brand new identical kitchen at every meal - that's the power of ephemeral build environments.  Now imagine being able to track changes to those tools in that kitchen to ensure the knives are sharp and produce is fresh - that's putting your build environment in some sort of infrastructure-as-code solution.
 
 The persistence here is somewhat independent of the platform chosen.  Bare metal ephemeral runners are possible, but may require more effort than a solution based on virtual machines or containers.  The _exact_ way this gets implemented depends a lot on the other parts and pieces of your unique platform.
 
-:information_desk_person: **Opinion** - The more ephemeral and version-controlled, the better!  This solution uses containers that are used once, then redeployed from the specified container in a registry.
+:information_desk_person: **Opinion** - The more ephemeral and version-controlled, the better!  This solution uses containers that are used once, then redeployed from the specified container in a registry.  In my experience, persistent environments tend to work alright for single projects and start to have problems when the project needs change.  Persistence leads to configuration drift even with the best config management practices, meaning that "it works on my machine", and the work required to maintain everything doesn't always happen.  It can work great, but scales poorly if not well-cared for.  Additionally, software updates can be breaking hazards, discouraging good security practices.
 
 ### Compute design ###
 
@@ -98,7 +97,7 @@ This decision depends a lot on how persistent or ephemeral the compute is and th
 
 ### Compute scope ###
 
-GitHub Enterprise can have runners that are only available to an individual repository, all or select repositories within an organization, or enterprise wide (detailed [here](https://docs.github.com/en/enterprise-server@latest/actions/hosting-your-own-runners/about-self-hosted-runners)).
+GitHub Enterprise can have runners that are only available to an individual repository, all or select repositories within an organization, or enterprise wide (detailed [here](https://docs.github.com/en/enterprise-server@latest/actions/hosting-your-own-runners/about-self-hosted-runners)).  What is the ideal state for your company?
 
 :information_desk_person: **Opinion** - All of the above is likely going to happen with any sufficiently diverse user base, so let's make this as secure and easily governable as needed.  Some teams will bring their own hardware and not want to share, which is reasonable, so will join their compute to only accept jobs from their code repositories.  This also means that admins can do some networking shenanigans to allow only runners from X subnet to reach Y addresses to meet rules around isolation if needed.  Likewise, as an enterprise-wide administrator, I wanted to make the most commonly-used Linux compute available and usable to most users for most jobs.  This solution defaults to enterprise-wide availability, but will also demonstrate organization or repository specific compute.
 
