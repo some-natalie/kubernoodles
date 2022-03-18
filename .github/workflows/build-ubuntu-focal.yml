@@ -60,3 +60,27 @@ jobs:
 
       - name: Push to GitHub Packages
         run: docker push ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
+
+  deploy:
+    runs-on: ubuntu-latest  # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
+    # If using GHES or GHAE, use another deployment, such as having CentOS redeploy Ubuntu and vice versa
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Write out the kubeconfig info
+        run: | 
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Remove old deployment and create new one
+        run: |
+          kubectl delete -f deployments/ubuntu-focal.yml
+          sleep 120
+          kubectl apply -f deployments/ubuntu-focal.yml
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
