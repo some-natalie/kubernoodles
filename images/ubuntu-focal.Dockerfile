@@ -115,7 +115,8 @@ RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
 
-COPY modprobe startup.sh /usr/local/bin/
+COPY modprobe.sh  /usr/local/bin/modprobe
+COPY startup.sh /usr/local/bin/
 COPY supervisor/ /etc/supervisor/conf.d/
 COPY logger.sh /opt/bash-utils/logger.sh
 COPY entrypoint.sh /usr/local/bin/
