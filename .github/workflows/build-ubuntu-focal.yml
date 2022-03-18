@@ -75,10 +75,8 @@ jobs:
         run: | 
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
-      - name: Remove old deployment and create new one
+      - name: Update deployment
         run: |
-          kubectl delete -f deployments/ubuntu-focal.yml
-          sleep 120
           kubectl apply -f deployments/ubuntu-focal.yml
         env:
           KUBECONFIG: /tmp/config
