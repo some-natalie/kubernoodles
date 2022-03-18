@@ -1,7 +1,7 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
-  name: ubuntu-focal
+  name: test-ubuntu-focal
   namespace: test-runners
 spec:
   replicas: 1
