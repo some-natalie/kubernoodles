@@ -71,9 +71,9 @@ RUN pwsh powershell-modules.ps1 && rm powershell-modules.ps1
 
 # Runner agent and Docker configs
 ARG TARGETPLATFORM=linux/amd64
-ARG RUNNER_VERSION=2.288.1
+ARG RUNNER_VERSION=2.289.1
 ARG DOCKER_CHANNEL=stable
-ARG DOCKER_VERSION=20.10.12
+ARG DOCKER_VERSION=20.10.13
 ARG DEBUG=false
 
 RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
