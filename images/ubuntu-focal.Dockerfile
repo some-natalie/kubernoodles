@@ -74,6 +74,7 @@ ARG TARGETPLATFORM=linux/amd64
 ARG RUNNER_VERSION=2.289.1
 ARG DOCKER_CHANNEL=stable
 ARG DOCKER_VERSION=20.10.13
+ARG COMPOSE_VERSION=1.29.2
 ARG DEBUG=false
 
 RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
@@ -95,6 +96,11 @@ RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   rm docker.tgz; \
   dockerd --version; \
   docker --version
+
+# Docker-compose installation
+RUN curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose ; \
+  chmod +x /usr/local/bin/docker-compose ; \
+  docker-compose --version
 
 ENV RUNNER_ASSETS_DIR=/runnertmp
 

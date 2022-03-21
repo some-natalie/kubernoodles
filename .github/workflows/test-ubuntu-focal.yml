@@ -81,6 +81,10 @@ jobs:
           docker run hello-world
           docker network inspect bridge
           docker info
+      
+      - name: Docker compose test
+        run: |
+          docker-compose --version
 
       - name: Print environmental variables
         run: printenv
