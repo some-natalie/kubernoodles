@@ -37,6 +37,7 @@ apiVersion: actions.summerwind.dev/v1alpha1
 kind: HorizontalRunnerAutoscaler
 metadata:
   name: ubuntu-focal-autoscaling
+  namespace: runners
 spec:
   scaleTargetRef:
     name: ubuntu-focal
