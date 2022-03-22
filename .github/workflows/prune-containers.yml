@@ -1,0 +1,24 @@
+name: Prune untagged containers
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 22 * * 1'  # Weekly at 22:30 UTC on Mondays
+
+jobs:
+  clean-ghcr:
+    name: Delete old unused container images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Delete untagged containers
+        uses: snok/container-retention-policy@v1
+        with:
+          image-names: ubuntu-focal
+          cut-off: Two hours ago UTC
+          timestamp-to-use: created_at
+          account-type: personal
+          untagged-only: true
+          token: ${{ secrets.PAT }}
