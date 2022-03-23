@@ -36,3 +36,24 @@ There is a whole discussion to be had on the ways you can enable Docker workload
 
 - The good, bad, and ugly of using Docker-in-Docker for CI [here](https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/), arguing that Docker socket bind mounts are better for quite a few use cases that you might use Docker-in-Docker for.
 - Even more reading on using Docker-in-Docker for CI, arguing that for better isolation at scale, this is the better choice - [part 1](https://applatix.com/case-docker-docker-kubernetes-part/) and [part 2](https://applatix.com/case-docker-docker-kubernetes-part-2/).  This is the method chosen for the default in this project, as the problem it's designed to solve is to provide secure, enterprise compute for arbitrary tasks among co-tenanted "internal" projects.  It also allows "out of the box" support for some basic container orchestration through something like `docker compose`, so developers can run multi-container builds in their pod.
+
+## Even more on image customization
+
+PowerShell and the Azure CLI took over 1 GB and added a bunch of time to the image build, so it was removed from the default Dockerfile for Ubuntu.  To add it back, here's the code snippet to add back to `ubuntu-focal.Dockerfile`:
+
+```Dockerfile
+# Set up additional repos
+COPY software/repos-deb.sh repos.sh
+RUN bash repos.sh && rm repos.sh
+
+# Install Powershell and the Azure CLI
+RUN apt-get update \
+    && apt-get install -y powershell --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY software/azure-deb.sh azure.sh
+RUN bash azure.sh && rm azure.sh
+COPY software/powershell-modules.ps1 powershell-modules.ps1
+RUN pwsh powershell-modules.ps1 && rm powershell-modules.ps1
+```

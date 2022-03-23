@@ -10,6 +10,7 @@ if grep -q "Ubuntu\|Debian" "/etc/os-release"; then
   apt-get install gh -y
   apt-get autoclean
   apt-get autoremove
+  rm -rf /var/lib/apt/lists/*
 elif grep -q "CentOS\|Red Hat" "/etc/redhat-release"; then
   yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
   yum install -y gh

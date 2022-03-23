@@ -1,5 +1,20 @@
 FROM ubuntu:20.04
 
+# Target architecture
+ARG TARGETPLATFORM=linux/amd64
+
+# GitHub runner arguments
+ARG RUNNER_VERSION=2.289.1
+
+# Docker and Docker Compose arguments
+ARG DOCKER_CHANNEL=stable
+ARG DOCKER_VERSION=20.10.13
+ARG COMPOSE_VERSION=1.29.2
+
+# Other arguments
+ARG DEBUG=false
+
+# Label all the things!!
 LABEL \ 
     org.opencontainers.image.source https://github.com/some-natalie/kubernoodles \
     org.opencontainers.image.title ubuntu-focal-runner \
@@ -14,11 +29,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Copy in environment variables not needed at build
 COPY .env /.env
 
+# Shell setup
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # Install base software
 RUN apt-get update \
-    && apt-get install -y software-properties-common \
-    && apt-get dist-upgrade -y \
-    && apt-get install -y \
+    && apt-get install -y --no-install-recommends \
     apt-transport-https \
     apt-utils \
     ca-certificates \
@@ -30,6 +46,7 @@ RUN apt-get update \
     locales \
     lsb-release \
     pkg-config \
+    software-properties-common \
     sudo \
     supervisor \
     time \
@@ -37,8 +54,8 @@ RUN apt-get update \
     unzip \
     wget \
     zip \
-    && apt-get autoclean \
-    && apt-get autoremove
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Runner user
 RUN adduser --disabled-password --gecos "" --uid 1000 runner \
@@ -54,28 +71,6 @@ RUN bash gh-cli.sh && rm gh-cli.sh
 # Install kubectl
 COPY software/kubectl.sh kubectl.sh
 RUN bash kubectl.sh && rm kubectl.sh
-
-# Set up additional repos
-COPY software/repos-deb.sh repos.sh
-RUN bash repos.sh && rm repos.sh
-
-# Install Azure CLI
-RUN apt-get update \
-    && apt-get install -y powershell \
-    && apt-get autoclean \
-    && apt-get autoremove
-COPY software/azure-deb.sh azure.sh
-RUN bash azure.sh && rm azure.sh
-COPY software/powershell-modules.ps1 powershell-modules.ps1
-RUN pwsh powershell-modules.ps1 && rm powershell-modules.ps1
-
-# Runner agent and Docker configs
-ARG TARGETPLATFORM=linux/amd64
-ARG RUNNER_VERSION=2.289.1
-ARG DOCKER_CHANNEL=stable
-ARG DOCKER_VERSION=20.10.13
-ARG COMPOSE_VERSION=1.29.2
-ARG DEBUG=false
 
 RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
 
@@ -121,6 +116,11 @@ RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
 
+RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+    && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
+    && curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${ARCH} \
+    && chmod +x /usr/local/bin/dumb-init
+
 COPY modprobe.sh  /usr/local/bin/modprobe
 COPY startup.sh /usr/local/bin/
 COPY supervisor/ /etc/supervisor/conf.d/
@@ -129,11 +129,6 @@ COPY entrypoint.sh /usr/local/bin/
 COPY docker/daemon.json /etc/docker/daemon.json
 
 RUN chmod +x /usr/local/bin/startup.sh /usr/local/bin/entrypoint.sh /usr/local/bin/modprobe
-
-RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
-    && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
-    && curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${ARCH} \
-    && chmod +x /usr/local/bin/dumb-init
 
 VOLUME /var/lib/docker
 
