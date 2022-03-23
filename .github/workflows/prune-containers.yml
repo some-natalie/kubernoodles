@@ -18,7 +18,7 @@ jobs:
       - name: Delete untagged containers
         uses: snok/container-retention-policy@v1
         with:
-          image-names: kubernoodles%2F${{ matrix.runner }}
+          image-names: kubernoodles/${{ matrix.runner }}
           cut-off: Two hours ago UTC
           timestamp-to-use: created_at
           account-type: personal
