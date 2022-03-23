@@ -2,11 +2,19 @@
 
 Kubernetes runners for GitHub Actions, built on top of [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller).
 
-This is a reference implementation, designed for you to take and tweak to your own liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS), [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted), and [GitHub AE](https://docs.github.com/en/github-ae@latest) from Docker Desktop, a Raspberry Pi cluster for `arm64`, and other random platforms as needed.  Your implementation may look wildly different, etc.
+This is an _opinionated_ reference implementation, designed for you to take and tweak to your own liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS), [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted), and [GitHub AE](https://docs.github.com/en/github-ae@latest) from Docker Desktop, a Raspberry Pi cluster for `arm64`, a managed Kubernetes provider, and other random platforms as needed.  Your implementation may look wildly different, etc.
 
 :question: Are you a GitHub Enterprise admin that's new to GitHub Actions?  Don't know how to set up self-hosted runners at scale?  Start [here](docs/admin-introduction.md)!
 
 Pull requests welcome! :heart:
+
+## Design goals and compromises
+
+This is an enterprise-first solution with the primary audience being customers requiring self-hosted runners for GitHub Actions.  There are a few assumptions that go into this that aren't necessarily true or best practices outside of that "walled garden".  It also means this is tested against the latest stable version of GitHub Enterprise Server and GitHub AE.  Being approachable and readable are the most important goals of all code and documentation.  This isn't a turn-key solution, but the amount of fiddling needed should be up to you as much as possible.  Links to the appropriate documentation, resources to learn more where needed, and explainations of design choices will be included!
+
+Co-tenanted business systems tend to have small admin teams running services available to a large group of diverse internal users.  That system places a premium on people-overhead more than computer-overhead.  The implications of that is a bit of an anti-pattern that emerges where there are larger containers doing lots of things instead of discrete, "microservices" type containers.
+
+Moving data around locally is exponentially cheaper and easier than pulling data in from external sources, especially in a larger company.  Big containers are not scary if the registry, the compute, and the entire network path is all within the same datacenter or availability zone.  Caching is important to prevent rate-limiting by upstream providers, which can take down other services and users that rely on them.  This also provides a mechanism ([here](images/README.md), see `.env` file usage) for using a "trusted" package registry, common in enterprise environments.
 
 ## Sources
 

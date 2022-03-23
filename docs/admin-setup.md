@@ -15,7 +15,8 @@ Additionally, for **GitHub Enterprise Server**, you will need the following:
 
 Here are the credentials we'll be generating:
 
-- list goes here
+- A GitHub PAT with _only_ the `admin:enterprise` scope (for enterprise-wide runners)
+- A GitHub PAT (or credentials for an alternative container registry) to pull the runner containers from the registry (in this case, we're using GitHub Packages)
 
 ## Directions
 
