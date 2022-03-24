@@ -40,9 +40,9 @@ jobs:
           file: 'images/ubuntu-focal.Dockerfile'
           push: true
           tags: |
-            ${{ env.DOCKERHUB_USERNAME }}/actions-runner-controller:latest
-            ${{ env.DOCKERHUB_USERNAME }}/actions-runner-controller:${{ env.VERSION }}
-            ${{ env.DOCKERHUB_USERNAME }}/actions-runner-controller:${{ env.VERSION }}-${{ steps.vars.outputs.sha_short }}
+            ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
+            ghcr.io/some-natalie/kubernoodles/ubuntu-focal:${{ env.VERSION }}
+            ghcr.io/some-natalie/kubernoodles/ubuntu-focal:${{ env.VERSION }}-${{ steps.vars.outputs.sha_short }}
 
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
         uses: anchore/scan-action@v3
