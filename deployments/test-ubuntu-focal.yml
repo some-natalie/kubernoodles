@@ -10,7 +10,7 @@ spec:
       repository: some-natalie/kubernoodles
       env: []
       ephemeral: true
-      image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:test
+      image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
       imagePullPolicy: Always
       imagePullSecrets:
         - name: ghcr

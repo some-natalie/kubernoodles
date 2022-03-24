@@ -10,7 +10,7 @@ spec:
       repository: some-natalie/kubernoodles
       env: []
       ephemeral: true
-      image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
+      image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest # change this to the version you really want!
       imagePullPolicy: Always
       imagePullSecrets:
         - name: ghcr

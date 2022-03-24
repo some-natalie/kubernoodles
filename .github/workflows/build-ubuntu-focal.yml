@@ -1,20 +1,9 @@
 name: Build and publish Ubuntu Focal runner
 
 on:
-  schedule:
-    - cron: '15 14 1 * *'  # build once a month unless needed to more frequently
   workflow_dispatch:  # build on demand
-  push:  # build when changes that'd affect the image are pushed to main
-    branches:
-    - main
-    paths:
-    - 'images/ubuntu-focal.Dockerfile'
-    - '.github/workflows/**-focal.yml'
-    - 'images/**.sh'
-    - 'images/docker/*'
-    - 'images/patched/*'
-    - 'images/software/*'
-    - 'images/supervisor/*'
+  release:
+    types: [published]  # build on release
 
 jobs:
   build:
@@ -28,6 +17,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set version
+        run: echo "VERSION=$(cat ${GITHUB_EVENT_PATH} | jq -r '.release.tag_name')" >> $GITHUB_ENV
+
+      - name: Set outputs
+        id: vars
+        run: echo ::set-output name=sha_short::${GITHUB_SHA::7}
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
@@ -35,10 +34,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build the image
-        run: |
-          cd images
-          docker build --network=host --file ubuntu-focal.Dockerfile --tag ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest .
+      - name: Build and push the image
+        uses: docker/build-push-action@v2
+        with:
+          file: 'images/ubuntu-focal.Dockerfile'
+          push: true
+          tags: |
+            ${{ env.DOCKERHUB_USERNAME }}/actions-runner-controller:latest
+            ${{ env.DOCKERHUB_USERNAME }}/actions-runner-controller:${{ env.VERSION }}
+            ${{ env.DOCKERHUB_USERNAME }}/actions-runner-controller:${{ env.VERSION }}-${{ steps.vars.outputs.sha_short }}
 
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
         uses: anchore/scan-action@v3
@@ -57,9 +61,6 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
-
-      - name: Push to GitHub Packages
-        run: docker push ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
 
   deploy:
     runs-on: ubuntu-latest  # use the GitHub hosted runners to deploy the self-hosted runners in GHEC

@@ -27,7 +27,7 @@ LABEL \
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy in environment variables not needed at build
-COPY .env /.env
+COPY images/.env /.env
 
 # Shell setup
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -65,11 +65,11 @@ RUN adduser --disabled-password --gecos "" --uid 1000 runner \
     && echo "%sudo   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers
 
 # Install GitHub CLI
-COPY software/gh-cli.sh gh-cli.sh
+COPY images/software/gh-cli.sh gh-cli.sh
 RUN bash gh-cli.sh && rm gh-cli.sh
 
 # Install kubectl
-COPY software/kubectl.sh kubectl.sh
+COPY images/software/kubectl.sh kubectl.sh
 RUN bash kubectl.sh && rm kubectl.sh
 
 RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
@@ -121,12 +121,12 @@ RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${ARCH} \
     && chmod +x /usr/local/bin/dumb-init
 
-COPY modprobe.sh  /usr/local/bin/modprobe
-COPY startup.sh /usr/local/bin/
-COPY supervisor/ /etc/supervisor/conf.d/
-COPY logger.sh /opt/bash-utils/logger.sh
-COPY entrypoint.sh /usr/local/bin/
-COPY docker/daemon.json /etc/docker/daemon.json
+COPY images/modprobe.sh  /usr/local/bin/modprobe
+COPY images/startup.sh /usr/local/bin/
+COPY images/supervisor/ /etc/supervisor/conf.d/
+COPY images/logger.sh /opt/bash-utils/logger.sh
+COPY images/entrypoint.sh /usr/local/bin/
+COPY images/docker/daemon.json /etc/docker/daemon.json
 
 RUN chmod +x /usr/local/bin/startup.sh /usr/local/bin/entrypoint.sh /usr/local/bin/modprobe
 
