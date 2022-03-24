@@ -10,11 +10,11 @@ Pull requests welcome! :heart:
 
 ## Design goals and compromises
 
-This is an enterprise-first solution with the primary audience being customers requiring self-hosted runners for GitHub Actions.  There are a few assumptions that go into this that aren't necessarily true or best practices outside of that "walled garden".  It also means this is tested against the latest stable version of GitHub Enterprise Server and GitHub AE.  Being approachable and readable are the most important goals of all code and documentation.  This isn't a turn-key solution, but the amount of fiddling needed should be up to you as much as possible.  Links to the appropriate documentation, resources to learn more where needed, and explainations of design choices will be included!
+There are a few assumptions that go into this that aren't necessarily true or best practices outside of an enterprise "walled garden".  Being approachable and readable are the most important goals of all code and documentation.  As a reference implementation, this isn't a turn-key solution, but the amount of fiddling needed should be up to you as much as possible.  Links to the appropriate documentation, resources to learn more where needed, and explainations of design choices will be included!
 
-Co-tenanted business systems tend to have small admin teams running services available to a large group of diverse internal users.  That system places a premium on people-overhead more than computer-overhead.  The implications of that is a bit of an anti-pattern that emerges where there are larger containers doing lots of things instead of discrete, "microservices" type containers.
+Co-tenanted business systems tend to have small admin teams running services (like GitHub Enterprise) available to a large group of diverse internal users.  That system places a premium on people-overhead more than computer-overhead.  The implication of that is an anti-pattern where there are larger containers capable of lots of different things instead of discrete, "microservices" type containers.
 
-Moving data around locally is exponentially cheaper and easier than pulling data in from external sources, especially in a larger company.  Big containers are not scary if the registry, the compute, and the entire network path is all within the same datacenter or availability zone.  Caching is important to prevent rate-limiting by upstream providers, which can take down other services and users that rely on them.  This also provides a mechanism ([here](images/README.md), see `.env` file usage) for using a "trusted" package registry, common in enterprise environments.
+Moving data around locally is exponentially cheaper and easier than pulling data in from external sources, especially in a larger company.  Big containers are not scary if the registry, the compute, and the entire network path is all within the same datacenter or availability zone.  Caching on-site is important to prevent rate-limiting by upstream providers, as that can take down other services and users that rely on them.  This also provides a mechanism for using a "trusted" package registry, common in enterprise environments, using an `.env` file as outlined [here](images/README.md).
 
 ## Sources
 
@@ -40,3 +40,5 @@ These are all excellent reads and can provide more insight into the customizatio
 - [cert-manager](https://cert-manager.io)
 - [Helm](https://helm.sh/)
 - [Yelp dumb-init](https://github.com/Yelp/dumb-init)
+- [Docker engine](https://docs.docker.com/engine/release-notes/) and [Docker Compose](https://docs.docker.com/compose/release-notes/) for Debian-based images
+- [actions/runner](https://github.com/actions/runner) is the runner agent for GitHub Actions
