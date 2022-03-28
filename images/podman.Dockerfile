@@ -36,7 +36,7 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && tar xzf ./runner.tar.gz \
     && rm runner.tar.gz \
     && ./bin/installdependencies.sh \
-    && dnf install podman-docker podman-compose -y \
+    && dnf install buildah skopeo podman-docker podman-compose -y \
     && dnf clean all
 
 # Copy files into the image
