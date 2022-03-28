@@ -23,23 +23,14 @@ jobs:
       - name: Set outputs
         id: vars
         run: echo ::set-output name=sha_short::${GITHUB_SHA::7}
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+      
+      - name: Build the image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push the image
-        uses: docker/build-push-action@v2
-        with:
-          file: 'images/podman.Dockerfile'
-          push: true
-          tags: |
-            ghcr.io/some-natalie/kubernoodles/podman:latest
-            ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
-            ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}-${{ steps.vars.outputs.sha_short }}
+          image: ghcr.io/some-natalie/kubernoodles/podman:latest
+          tags: latest ${{ env.VERSION }} ${{ env.VERSION }}-${{ steps.vars.outputs.sha_short }}
+          containerfiles: images/podman.Dockerfile
 
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
         uses: anchore/scan-action@v3
@@ -58,6 +49,15 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           image: ghcr.io/some-natalie/kubernoodles/podman:latest
+      
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     runs-on: ubuntu-latest  # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
