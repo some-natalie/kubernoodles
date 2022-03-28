@@ -1,4 +1,5 @@
 #!/bin/bash
+source /opt/bash-utils/logger.sh
 
 if [ -e "/.env" ]; then
   echo "Adding custom environment variables" 1>&2
@@ -67,4 +68,4 @@ mkdir ./externals
 mv ./externalstmp/* ./externals/
 
 unset RUNNER_NAME RUNNER_REPO RUNNER_TOKEN
-exec ./bin/runsvc.sh --once
+exec ./bin/runsvc.sh

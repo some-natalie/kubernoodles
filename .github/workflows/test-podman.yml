@@ -1,0 +1,116 @@
+name: Test Podman (Fedora 35) runner
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'images/podman.Dockerfile'
+    - '.github/workflows/**-podman.yml'
+    - 'images/**.sh'
+    - 'images/docker/*'
+    - 'images/patched/*'
+    - 'images/software/*'
+    - 'images/supervisor/*'
+
+jobs:
+  build:
+    name: Build test image
+    runs-on: [ self-hosted, podman ]
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to GitHub Packages
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v2
+        with:
+          file: 'images/podman.Dockerfile'
+          push: true
+          tags: ghcr.io/some-natalie/kubernoodles/podman:latest
+  
+  deploy:
+    name: Deploy test image to `test-runners` namespace
+    runs-on: [ self-hosted, podman ]
+    needs: [ build ]
+    environment: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Write out the kubeconfig info
+        run: | 
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Deploy
+        run: |
+          kubectl apply -f deployments/test-podman.yml
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
+      
+      - name: Wait 5 minutes to let the new pod come up
+        run: sleep 300
+
+  test:
+    name: Run tests!
+    runs-on: [ self-hosted, test-podman ]
+    needs: [ deploy ]
+
+    steps:
+      - name: Sudo test
+        run: sudo echo "sudo is working"
+      
+      - name: Docker test
+        run: | 
+          docker run hello-world
+          docker network inspect bridge
+          docker info
+      
+      - name: Docker compose test
+        run: |
+          docker-compose --version
+
+      - name: Print environmental variables
+        run: printenv
+
+  remove-deploy:
+    name: Delete test image deployment
+    runs-on: [ self-hosted, podman ]
+    needs: [ test ]
+    environment: test
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Write out the kubeconfig info
+        run: | 
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Deploy
+        run: |
+          kubectl delete -f deployments/test-podman.yml
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
