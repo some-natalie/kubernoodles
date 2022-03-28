@@ -30,7 +30,7 @@ jobs:
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ghcr.io/some-natalie/kubernoodles/podman:latest
+          image: ghcr.io/some-natalie/kubernoodles/podman
           tags: latest
           containerfiles: images/podman.Dockerfile
       
