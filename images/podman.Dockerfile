@@ -26,6 +26,16 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV RUNNER_ASSETS_DIR=/runnertmp
 
+# Dependencies setup
+RUN dnf install buildah skopeo podman-docker podman-compose -y \
+    && dnf clean all
+
+# Install kubectl
+COPY images/software/kubectl.sh kubectl.sh
+RUN bash kubectl.sh && rm kubectl.sh
+
+RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
+
 # Runner download supports amd64 as x64
 RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && export ARCH \
@@ -36,7 +46,6 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && tar xzf ./runner.tar.gz \
     && rm runner.tar.gz \
     && ./bin/installdependencies.sh \
-    && dnf install buildah skopeo podman-docker podman-compose -y \
     && dnf clean all
 
 # Copy files into the image
