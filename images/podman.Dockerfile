@@ -34,9 +34,8 @@ RUN dnf install buildah skopeo podman-docker podman-compose -y \
 COPY images/software/kubectl.sh kubectl.sh
 RUN bash kubectl.sh && rm kubectl.sh
 
-RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
-
 # Runner download supports amd64 as x64
+RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
 RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && export ARCH \
     && if [ "$ARCH" = "amd64" ]; then export ARCH=x64 ; fi \
@@ -51,12 +50,13 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
 # Copy files into the image
 COPY images/logger.sh /opt/bash-utils/logger.sh
 COPY images/entrypoint.sh /usr/local/bin/
+COPY images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
+COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 
 RUN chmod +x /usr/local/bin/entrypoint.sh 
 
-VOLUME /var/lib/docker
+VOLUME /var/lib/containers
 
-# No group definition, as that makes it harder to run docker.
-USER runner
+USER podman
 
 ENTRYPOINT ["entrypoint.sh"]
