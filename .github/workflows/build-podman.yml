@@ -1,0 +1,83 @@
+name: Build and publish Podman (Fedora 35) runner
+
+on:
+  workflow_dispatch:  # build on demand
+  release:
+    types: [published]  # build on release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # use the GitHub hosted runners
+    permissions:
+      contents: read
+      packages: write  # for uploading the finished container
+      security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set version
+        run: echo "VERSION=$(cat ${GITHUB_EVENT_PATH} | jq -r '.release.tag_name')" >> $GITHUB_ENV
+
+      - name: Set outputs
+        id: vars
+        run: echo ::set-output name=sha_short::${GITHUB_SHA::7}
+      
+      - name: Build the image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/some-natalie/kubernoodles/podman:latest
+          tags: latest ${{ env.VERSION }} ${{ env.VERSION }}-${{ steps.vars.outputs.sha_short }}
+          containerfiles: images/podman.Dockerfile
+
+      - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+        uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: "ghcr.io/some-natalie/kubernoodles/podman:latest"
+          fail-build: false
+          acs-report-enable: true
+
+      - name: Upload Anchore Scan Report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+
+      - name: Generate SBOM for the Podman (Fedora 35) runner
+        uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/some-natalie/kubernoodles/podman:latest
+      
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    runs-on: ubuntu-latest  # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
+    # If using GHES or GHAE, use another deployment, such as having CentOS redeploy Ubuntu and vice versa
+    environment: production
+    needs: [ build ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Write out the kubeconfig info
+        run: | 
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Update deployment
+        run: |
+          kubectl apply -f deployments/podman.yml
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config

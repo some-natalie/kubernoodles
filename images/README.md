@@ -8,7 +8,8 @@
 
 Here's a quick breakdown of the folder structure here:
 
-- [docker](docker) - Contains the config files needed for the Docker daemon that runs inside each pod.  The pods are all capable of Docker-in-Docker, as quite a few Actions ship as Docker images.
+- [docker](docker) - Contains the config files needed for the Docker daemon that runs inside each Debian or Ubuntu based pod.  The pods are all capable of Docker-in-Docker, as quite a few Actions ship as Docker images.
+- [podman](podman) - Contains the config files needed for the Podman daemon that runs inside each Red Hat or RHEL adjacent pod.  Podman-to-Docker command mappings are included for convenience.  The pods are all capable of Docker-in-Docker, as quite a few Actions ship as Docker images.
 - [software](software) - Bash scripts that install software on the pods at build time.
 - [supervisor](supervisor) - The Debian-based runners use [supervisord](http://supervisord.org/) to launch/control Docker within the pod.
 
@@ -28,7 +29,7 @@ In addition to the folders above, here's a bit about the files in this folder.
 
 ## That modprobe script
 
-It works on an "alternate" interface to load Linux kernel modules using `ip link show $module` rather than `modprobe` directly.  There's no privilege escalation in that it uses the same system call as `modprobe` does ([code](https://github.com/torvalds/linux/blob/v5.16/net/core/dev_ioctl.c#L425-L450) and [docs](https://man7.org/linux/man-pages/man7/capabilities.7.html)), but it does directly call `modprobe` on the container host therefore, needs to be a privileged container to begin with.  Docker uses this method to enable Docker-in-Docker as well ([source](https://github.com/docker-library/docker/blob/master/modprobe.sh))
+It works on an "alternate" interface to load Linux kernel modules using `ip link show $module` rather than `modprobe` directly.  There's no privilege escalation in that it uses the same system call as `modprobe` does ([code](https://github.com/torvalds/linux/blob/v5.16/net/core/dev_ioctl.c#L425-L450) and [docs](https://man7.org/linux/man-pages/man7/capabilities.7.html)), but it does directly call `modprobe` on the container host therefore, needs to be a privileged container to begin with.  Docker uses this method to enable Docker-in-Docker as well ([source](https://github.com/docker-library/docker/blob/master/modprobe.sh)).
 
 ## More on Docker-in-Docker
 
@@ -36,6 +37,10 @@ There is a whole discussion to be had on the ways you can enable Docker workload
 
 - The good, bad, and ugly of using Docker-in-Docker for CI [here](https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/), arguing that Docker socket bind mounts are better for quite a few use cases that you might use Docker-in-Docker for.
 - Even more reading on using Docker-in-Docker for CI, arguing that for better isolation at scale, this is the better choice - [part 1](https://applatix.com/case-docker-docker-kubernetes-part/) and [part 2](https://applatix.com/case-docker-docker-kubernetes-part-2/).  This is the method chosen for the default in this project, as the problem it's designed to solve is to provide secure, enterprise compute for arbitrary tasks among co-tenanted "internal" projects.  It also allows "out of the box" support for some basic container orchestration through something like `docker compose`, so developers can run multi-container builds in their pod.
+
+## Podman
+
+Most of what's above is equally true for [Podman](https://podman.io/) as it is for Docker.  There are a couple things to note that are a little different.  The first is a `sysctl` config file to read in a kernel parameter to allow MTU probing ([file](podman/11-tcp-mtu-probing.conf)).  This _should_ prevent an MTU black hole, but only when it's detected.  The other file manually sets the MTU of the containers run within the pod ([file](podman/87-podman.conflist)).  The runner uses [podman/stable](quay.io/podman/stable) as the base image.  It also includes [buildah](https://buildah.io/) and [skopeo](https://github.com/containers/skopeo) in the runner.
 
 ## Even more on image customization
 
