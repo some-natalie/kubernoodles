@@ -76,18 +76,15 @@ jobs:
     needs: [ deploy ]
 
     steps:
-      - name: Sudo test
-        run: sudo echo "sudo is working"
-      
-      - name: Docker test
+      - name: Podman test
         run: | 
-          docker run hello-world
-          docker network inspect bridge
-          docker info
+          podman run hello-world
+          podman network inspect podman
+          podman info
       
-      - name: Docker compose test
+      - name: Podman compose test
         run: |
-          docker-compose --version
+          podman compose --version
 
       - name: Print environmental variables
         run: printenv
