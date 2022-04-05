@@ -12,7 +12,6 @@ on:
     - 'images/docker/*'
     - 'images/patched/*'
     - 'images/software/*'
-    - 'images/supervisor/*'
 
 jobs:
   build:
