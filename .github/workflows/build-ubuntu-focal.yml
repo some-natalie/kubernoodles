@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest  # use the GitHub hosted runners
     permissions:
-      contents: read
+      contents: write  # for uploading the SBOM to the release
       packages: write  # for uploading the finished container
       security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
 
