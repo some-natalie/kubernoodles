@@ -8,7 +8,9 @@ spec:
   template:
     spec:
       repository: some-natalie/kubernoodles
-      env: []
+      env:
+        - name: DISABLE_RUNNER_UPDATE  # Disables automatic runner updates
+          value: "true"
       ephemeral: true
       image: ghcr.io/some-natalie/kubernoodles/podman:latest # change this to the version you really want!
       imagePullPolicy: Always
@@ -31,6 +33,7 @@ spec:
         runAsUser: 1000
         seccompProfile:
           type: RuntimeDefault
+        runAsNonRoot: true
 ---
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: HorizontalRunnerAutoscaler
