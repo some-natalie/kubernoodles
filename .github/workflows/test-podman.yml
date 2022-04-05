@@ -10,7 +10,6 @@ on:
     - '.github/workflows/**-podman.yml'
     - 'images/**.sh'
     - 'images/docker/*'
-    - 'images/patched/*'
     - 'images/software/*'
 
 jobs:
