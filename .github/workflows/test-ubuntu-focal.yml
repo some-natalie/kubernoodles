@@ -10,7 +10,6 @@ on:
     - '.github/workflows/**-focal.yml'
     - 'images/**.sh'
     - 'images/docker/*'
-    - 'images/patched/*'
     - 'images/software/*'
     - 'images/supervisor/*'
 
