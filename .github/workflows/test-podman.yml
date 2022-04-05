@@ -9,7 +9,7 @@ on:
     - 'images/podman.Dockerfile'
     - '.github/workflows/**-podman.yml'
     - 'images/**.sh'
-    - 'images/docker/*'
+    - 'images/podman/*'
     - 'images/software/*'
 
 jobs:
