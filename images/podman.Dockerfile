@@ -4,7 +4,7 @@ FROM quay.io/podman/stable:v3.4.4
 ARG TARGETPLATFORM=linux/amd64
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.289.1
+ARG RUNNER_VERSION=2.289.2
 
 # Other arguments
 ARG DEBUG=false
@@ -27,7 +27,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV RUNNER_ASSETS_DIR=/runnertmp
 
 # Dependencies setup
-RUN dnf install buildah skopeo podman-docker podman-compose -y \
+RUN dnf install -y \
+    buildah \
+    podman-docker \
+    podman-compose \
+    skopeo \
+    slirp4netns \
     && dnf clean all
 
 # Install kubectl
@@ -55,7 +60,7 @@ COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 
 RUN chmod +x /usr/local/bin/entrypoint.sh 
 
-VOLUME /var/lib/containers
+VOLUME $HOME/.local/share/containers/storage
 
 USER podman
 
