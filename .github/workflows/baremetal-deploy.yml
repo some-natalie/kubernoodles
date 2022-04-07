@@ -1,0 +1,29 @@
+name: Build and publish Podman (Fedora 35) runner
+
+on:
+  workflow_dispatch:  # build on demand
+  release:
+    types: [published]  # build on release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
+    # If using GHES or GHAE, use another deployment, such as having CentOS redeploy Ubuntu and vice versa
+    environment: bare-metal
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Write out the kubeconfig info
+        run: | 
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Update deployment
+        run: |
+          kubectl apply -f deployments/podman.yml
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
