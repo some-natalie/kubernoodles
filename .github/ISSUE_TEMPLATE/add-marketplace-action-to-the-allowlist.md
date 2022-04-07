@@ -7,10 +7,13 @@ assignees: ''
 
 ---
 
-**Action name:  **
+## Action name
 
-**Link to the marketplace or GitHub repo:  **
+## Link to the marketplace or GitHub repo
 
-**Describe the Action and why you want it:  **
+## Describe the Action and why you want it
 
-[ ] I have definitely looked at our existing allowed Actions list and there's nothing that already does what this can do.
+## Checklist
+
+- [ ] I have definitely looked at our existing allowed Actions list and there's nothing that already does what this can do.
+- [ ] I understand that this Action will be reviewed by the security team and their approval is needed for this to be completed.
