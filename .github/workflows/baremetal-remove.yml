@@ -1,4 +1,4 @@
-name: GHAE - deploy runners (bare metal)
+name: GHAE - remove runners (bare metal)
 
 on:
   workflow_dispatch:  # deploy on demand
@@ -19,8 +19,8 @@ jobs:
 
       - name: Update deployment
         run: |
-          kubectl apply -f deployments/ghae/podman.yml --insecure-skip-tls-verify
-          kubectl apply -f deployments/ghae/ubuntu-focal.yml --insecure-skip-tls-verify
+          kubectl delete -f deployments/ghae/podman.yml --insecure-skip-tls-verify
+          kubectl delete -f deployments/ghae/ubuntu-focal.yml --insecure-skip-tls-verify
         env:
           KUBECONFIG: /tmp/config
 
