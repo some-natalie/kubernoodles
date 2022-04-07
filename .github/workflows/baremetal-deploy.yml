@@ -1,4 +1,4 @@
-name: Deploy runners to bare metal
+name: Deploy to bare metal
 
 on:
   workflow_dispatch:  # deploy on demand
@@ -19,8 +19,8 @@ jobs:
 
       - name: Update deployment
         run: |
-          kubectl apply -f deployments/podman.yml
-          kubectl apply -f deployments/ubuntu-focal.yml
+          kubectl apply -f deployments/podman.yml --insecure-skip-tls-verify
+          kubectl apply -f deployments/ubuntu-focal.yml --insecure-skip-tls-verify
         env:
           KUBECONFIG: /tmp/config
 
