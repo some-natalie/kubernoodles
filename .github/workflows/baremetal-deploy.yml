@@ -1,9 +1,7 @@
-name: Build and publish Podman (Fedora 35) runner
+name: Deploy runners to bare metal
 
 on:
-  workflow_dispatch:  # build on demand
-  release:
-    types: [published]  # build on release
+  workflow_dispatch:  # deploy on demand
 
 jobs:
   deploy:
@@ -22,6 +20,7 @@ jobs:
       - name: Update deployment
         run: |
           kubectl apply -f deployments/podman.yml
+          kubectl apply -f deployments/ubuntu-focal.yml
         env:
           KUBECONFIG: /tmp/config
 
