@@ -1,8 +1,8 @@
 # Kubernoodles
 
-Kubernetes runners for GitHub Actions, built on top of [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller).
+Kubernoodles is a framework for managing custom self-hosted runners for GitHub Actions in Kubernetes at the enterprise-wide scale.  The design goal is to easily bootstrap a system where customized self-hosted runners update, build, test, deploy, and scale themselves with minimal interaction from enterprise admins and maximum input from the developers using it.
 
-This is an _opinionated_ reference implementation, designed for you to take and tweak to your own liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS), [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted), and [GitHub AE](https://docs.github.com/en/github-ae@latest) from Docker Desktop, a Raspberry Pi cluster for `arm64`, a managed Kubernetes provider, and other random platforms as needed.  Your implementation may look wildly different, etc.
+This is an _opinionated_ reference implementation, designed to be taken and modified to your liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS), [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted), and [GitHub AE](https://docs.github.com/en/github-ae@latest) from Docker Desktop, a Raspberry Pi cluster for `arm64`, a managed Kubernetes provider, and other random platforms as needed.  Your implementation may look wildly different, etc.
 
 :question: Are you a GitHub Enterprise admin that's new to GitHub Actions?  Don't know how to set up self-hosted runners at scale?  Start [here](docs/admin-introduction.md)!
 
@@ -33,6 +33,7 @@ These are all excellent reads and can provide more insight into the customizatio
   - The official [tutorial](https://kubernetes.io/docs/tutorials/kubernetes-basics/) covering the basics of what Kubernetes is and how it works
   - What helped me to understand this whole concept shift is to think that Kubernetes is to containers as KVM/vSphere/Hyper-V is to virtual machines.  It's probably not a perfect metaphor, but it helped. :smile:
 - Want to see a whole bunch of other ways to solve this problem?  You should check out [Awesome Runners](https://jonico.github.io/awesome-runners) for a curated list and amazing matrix comparison of all sorts of other self-hosted runner solutions.
+- Even if this is 100% on-premises, many of these [antipatterns for cloud applications](https://docs.microsoft.com/en-gb/azure/architecture/antipatterns/) are very relevant to the architecture of CI at scale and these are all well worth the time to read.
 
 ### Dependencies of note
 
