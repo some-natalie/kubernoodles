@@ -23,8 +23,8 @@ In addition to the folders above, here's a bit about the files in this folder.
 - `.env` - This file gets copied into the container during the build process, then loaded by the entry point script.  Use this to store custom **NON-SECRET** environment variables, such as proxy configurations, caching, private mirrors, etc. that are needed in your on-premises environment.  It is blank by default as this is a public repository, but here's an example:
   
     ```shell
-    HTTP_PROXY=http://USERNAME:PASSWORD@10.0.1.1:8080/
-    HTTPS_PROXY=https://USERNAME:PASSWORD@10.0.0.1:8080/
+    HTTP_PROXY=http://10.0.1.1:8080/
+    HTTPS_PROXY=https://10.0.0.1:8080/
     ```
 
 ## That modprobe script
