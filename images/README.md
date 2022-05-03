@@ -40,7 +40,7 @@ There is a whole discussion to be had on the ways you can enable Docker workload
 
 ## Podman
 
-Most of what's above is equally true for [Podman](https://podman.io/) as it is for Docker.  There are a couple things to note that are a little different.  The first is a `sysctl` config file to read in a kernel parameter to allow MTU probing ([file](podman/11-tcp-mtu-probing.conf)).  This _should_ prevent an MTU black hole, but only when it's detected.  The other file manually sets the MTU of the containers run within the pod ([file](podman/87-podman.conflist)).  The runner uses [podman/stable](quay.io/podman/stable) as the base image.  It also includes [buildah](https://buildah.io/) and [skopeo](https://github.com/containers/skopeo) in the runner.
+Most of what's above is equally true for [Podman](https://podman.io/) as it is for Docker.  There are a couple things to note that are a little different.  The first is a `sysctl` config file to read in a kernel parameter to allow MTU probing ([file](podman/11-tcp-mtu-probing.conf)).  This _should_ prevent an MTU black hole, but only when it's detected.  The other file manually sets the MTU of the containers run within the pod ([file](podman/87-podman.conflist)).  The runner uses [podman/stable](https://quay.io/repository/podman/stable) as the base image.  It also includes [buildah](https://buildah.io/) and [skopeo](https://github.com/containers/skopeo) in the runner.
 
 ## Even more on image customization
 
