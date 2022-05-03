@@ -1,4 +1,4 @@
-FROM quay.io/podman/stable:v3.4.4
+FROM quay.io/podman/stable:v3.4.7
 
 # Target architecture
 ARG TARGETPLATFORM=linux/amd64
