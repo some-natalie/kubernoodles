@@ -53,13 +53,13 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_BASH: true
+          # VALIDATE_BASH: true
           VALIDATE_DOCKERFILE_HADOLINT: true
           DOCKERFILE_HADOLINT_FILE_NAME: .hadolint.yaml
-          VALIDATE_EDITORCONFIG: true
-          VALIDATE_GITHUB_ACTIONS: true
+          # VALIDATE_EDITORCONFIG: true
+          # VALIDATE_GITHUB_ACTIONS: true
           VALIDATE_JSON: true
           VALIDATE_MARKDOWN: true
           MARKDOWN_CONFIG_FILE: .markdownlint.json
-          VALIDATE_POWERSHELL: true
-          VALIDATE_YAML: true
+          # VALIDATE_POWERSHELL: true
+          # VALIDATE_YAML: true
