@@ -36,8 +36,8 @@ RUN dnf install -y \
     && dnf clean all
 
 # Install kubectl
-COPY images/software/kubectl.sh kubectl.sh
-RUN bash kubectl.sh && rm kubectl.sh
+COPY images/software/kubectl.sh /kubectl.sh
+RUN bash /kubectl.sh && rm /kubectl.sh
 
 # Runner download supports amd64 as x64
 RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)

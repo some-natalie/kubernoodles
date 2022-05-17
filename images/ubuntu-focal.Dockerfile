@@ -65,17 +65,18 @@ RUN adduser --disabled-password --gecos "" --uid 1000 runner \
     && echo "%sudo   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers
 
 # Install GitHub CLI
-COPY images/software/gh-cli.sh gh-cli.sh
-RUN bash gh-cli.sh && rm gh-cli.sh
+COPY images/software/gh-cli.sh /gh-cli.sh
+RUN bash /gh-cli.sh && rm /gh-cli.sh
 
 # Install kubectl
-COPY images/software/kubectl.sh kubectl.sh
-RUN bash kubectl.sh && rm kubectl.sh
+COPY images/software/kubectl.sh /kubectl.sh
+RUN bash /kubectl.sh && rm /kubectl.sh
 
 RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
 
 # Docker installation
-RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+    && export ARCH \
     && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
     && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
   && if ! curl -L -o docker.tgz "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/${ARCH}/docker-${DOCKER_VERSION}.tgz"; then \
@@ -100,7 +101,8 @@ RUN curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSI
 ENV RUNNER_ASSETS_DIR=/runnertmp
 
 # Runner download supports amd64 as x64
-RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+    && export ARCH \
     && if [ "$ARCH" = "amd64" ]; then export ARCH=x64 ; fi \
     && mkdir -p "$RUNNER_ASSETS_DIR" \
     && cd "$RUNNER_ASSETS_DIR" \
@@ -116,7 +118,8 @@ RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
 
-RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+    && export ARCH \
     && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
     && curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${ARCH} \
     && chmod +x /usr/local/bin/dumb-init
