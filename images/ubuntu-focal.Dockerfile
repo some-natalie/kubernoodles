@@ -9,7 +9,7 @@ ARG RUNNER_VERSION=2.291.1
 # Docker and Docker Compose arguments
 ARG DOCKER_CHANNEL=stable
 ARG DOCKER_VERSION=20.10.16
-ARG COMPOSE_VERSION=2.5.0
+ARG COMPOSE_VERSION=v2.5.1
 
 # Other arguments
 ARG DEBUG=false
