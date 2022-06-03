@@ -16,6 +16,18 @@ Co-tenanted business systems tend to have small admin teams running services (li
 
 Moving data around locally is exponentially cheaper and easier than pulling data in from external sources, especially in a larger company.  Big containers are not scary if the registry, the compute, and the entire network path is all within the same datacenter or availability zone.  Caching on-site is important to prevent rate-limiting by upstream providers, as that can take down other services and users that rely on them.  This also provides a mechanism for using a "trusted" package registry, common in enterprise environments, using an `.env` file as outlined [here](images/README.md).
 
+## Before you get started
+
+The [admin introduction](admin-introduction.md) walks you through some key considerations on _how_ to think about implementing GitHub Actions at the enterprise scale, the implications of those decisions, and why this project is generally built out the way it is.
+
+## Getting up and running
+
+The [admin setup](admin-setup.md) is a mostly copy-and-paste exercise to get a basic deployment up and going.
+
+The [customization](admin-customization.md) guide has a quick writeup and links to learn more about the ways you can customize things to your needs.
+
+[Tips and tricks](tips-and-tricks.md) has a few more considerations if things aren't quite going according to plan.
+
 ## Sources
 
 These are all excellent reads and can provide more insight into the customization options and updates than are available in this repository.  This entire repository is mostly gluing a bunch of these other bits together and explaining how/why to make this your own.
@@ -42,4 +54,5 @@ These are all excellent reads and can provide more insight into the customizatio
 - [Helm](https://helm.sh/)
 - [Yelp dumb-init](https://github.com/Yelp/dumb-init)
 - [Docker engine](https://docs.docker.com/engine/release-notes/) and [Docker Compose](https://docs.docker.com/compose/release-notes/) for Debian-based images
+- [Podman](https://github.com/containers/podman), [Buildah](https://github.com/containers/buildah), and [Skopeo](https://github.com/containers/skopeo) for the RedHat-based images
 - [actions/runner](https://github.com/actions/runner) is the runner agent for GitHub Actions
