@@ -4,7 +4,7 @@ FROM quay.io/podman/stable:v3.4.7
 ARG TARGETPLATFORM=linux/amd64
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.291.1
+ARG RUNNER_VERSION=2.292.0
 
 # Other arguments
 ARG DEBUG=false
