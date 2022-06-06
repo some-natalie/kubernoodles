@@ -18,15 +18,15 @@ Moving data around locally is exponentially cheaper and easier than pulling data
 
 ## Before you get started
 
-The [admin introduction](admin-introduction.md) walks you through some key considerations on _how_ to think about implementing GitHub Actions at the enterprise scale, the implications of those decisions, and why this project is generally built out the way it is.
+The [admin introduction](docs/admin-introduction.md) walks you through some key considerations on _how_ to think about implementing GitHub Actions at the enterprise scale, the implications of those decisions, and why this project is generally built out the way it is.
 
 ## Getting up and running
 
-The [admin setup](admin-setup.md) is a mostly copy-and-paste exercise to get a basic deployment up and going.
+The [admin setup](docs/admin-setup.md) is a mostly copy-and-paste exercise to get a basic deployment up and going.
 
-The [customization](admin-customization.md) guide has a quick writeup and links to learn more about the ways you can customize things to your needs.
+The [customization](docs/admin-customization.md) guide has a quick writeup and links to learn more about the ways you can customize things to your needs.
 
-[Tips and tricks](tips-and-tricks.md) has a few more considerations if things aren't quite going according to plan.
+[Tips and tricks](docs/tips-and-tricks.md) has a few more considerations if things aren't quite going according to plan.
 
 ## Sources
 
