@@ -17,7 +17,7 @@ ARG DEBUG=false
 LABEL \ 
     org.opencontainers.image.source https://github.com/some-natalie/kubernoodles \
     org.opencontainers.image.title rootless-ubuntu-focal-runner \
-    org.opencontainers.image.description "An Ubuntu Focal (20.04 LTS) based runner image for GitHub Actions" \
+    org.opencontainers.image.description "An Ubuntu Focal (20.04 LTS) based runner image for GitHub Actions, rootless" \
     org.opencontainers.image.authors "Natalie Somersall (@some-natalie)" \
     org.opencontainers.image.licenses=MIT \
     org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
@@ -36,10 +36,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     apt-transport-https \
     apt-utils \
-    btrfs-progs \
     ca-certificates \
     curl \
-    e2fsprogs \
+    fuse-overlayfs \
     gcc \
     git \
     iproute2 \
@@ -56,7 +55,6 @@ RUN apt-get update \
     uidmap \
     unzip \
     wget \
-    xfsprogs \
     xz-utils \
     zip \
     && apt-get clean \
@@ -115,11 +113,10 @@ COPY images/entrypoint.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/startup.sh /usr/local/bin/entrypoint.sh /usr/local/bin/modprobe
 
-VOLUME /var/lib/docker
-EXPOSE 2375 2376
-
 # Make the rootless runner directory executable
-RUN chmod 1777 /run/user
+RUN mkdir /run/user/1000 \
+    && chown runner:runner /run/user/1000 \
+    && chmod a+x /run/user/1000
 
 # No group definition, as that makes it harder to run docker.
 USER runner
@@ -127,8 +124,10 @@ USER runner
 # Docker installation
 ENV SKIP_IPTABLES=1
 RUN curl -fsSL https://get.docker.com/rootless | sh
-COPY images/docker/daemon.json /home/runner/.config/docker/daemon.json
+COPY --chown=runner:runner images/docker/daemon.json /home/runner/.config/docker/daemon.json
 ENV PATH "$PATH:/home/runner/bin"
+ENV DOCKER_HOST=unix:///run/user/1000/docker.sock
+ENV XDG_RUNTIME_DIR=/run/user/1000
 
 # Docker-compose installation
 RUN curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-Linux-x86_64" -o /home/runner/bin/docker-compose ; \
