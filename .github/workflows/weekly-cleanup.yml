@@ -15,6 +15,7 @@ jobs:
         runner:
           - ubuntu-focal
           - podman
+          - rootless-ubuntu-focal
     steps:
       - name: Delete untagged containers
         uses: snok/container-retention-policy@v1
