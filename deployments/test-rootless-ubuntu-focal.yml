@@ -11,8 +11,6 @@ spec:
       env:
         - name: DISABLE_RUNNER_UPDATE  # Disables automatic runner updates
           value: "true"
-        - name: DISABLE_WAIT_FOR_DOCKER  # Disables waiting for docker
-          value: "true"
       ephemeral: true
       image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest
       imagePullPolicy: Always
