@@ -27,8 +27,8 @@ spec:
           memory: "200Mi"
       labels:
       - docker
-      - ubuntu
-      - focal
+      - rootless-ubuntu
+      - rootless-focal
       # - ubuntu-latest  # overlaps w/ hosted runners on GHEC, can use in GHES and GHAE
       securityContext:
         runAsUser: 1000
