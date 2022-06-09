@@ -26,9 +26,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Login to GitHub Packages
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push image
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
           docker build -t ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest -f images/rootless-ubuntu-focal.Dockerfile .
           docker push ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest
   
