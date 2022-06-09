@@ -16,17 +16,25 @@ Co-tenanted business systems tend to have small admin teams running services (li
 
 Moving data around locally is exponentially cheaper and easier than pulling data in from external sources, especially in a larger company.  Big containers are not scary if the registry, the compute, and the entire network path is all within the same datacenter or availability zone.  Caching on-site is important to prevent rate-limiting by upstream providers, as that can take down other services and users that rely on them.  This also provides a mechanism for using a "trusted" package registry, common in enterprise environments, using an `.env` file as outlined [here](images/README.md).
 
-## Before you get started
+## Setup
 
 The [admin introduction](docs/admin-introduction.md) walks you through some key considerations on _how_ to think about implementing GitHub Actions at the enterprise scale, the implications of those decisions, and why this project is generally built out the way it is.
-
-## Getting up and running
 
 The [admin setup](docs/admin-setup.md) is a mostly copy-and-paste exercise to get a basic deployment up and going.
 
 The [customization](docs/admin-customization.md) guide has a quick writeup and links to learn more about the ways you can customize things to your needs.
 
 [Tips and tricks](docs/tips-and-tricks.md) has a few more considerations if things aren't quite going according to plan.
+
+## Choosing the image(s)
+
+There are currently 3 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are deployed with `ephemeral: true` by actions-runner-controller.  If you're copy/pasting out of the [deployments](deployments), you should be set!
+
+| image name | base image | virtualization? | sudo? | notes |
+| --- | --- | --- | --- | --- |
+| ubuntu-focal | [ubuntu:focal](https://hub.docker.com/_/ubuntu) | rootful Docker-in-Docker | passwordless sudo | |
+| podman | [podman/stable](https://quay.io/repository/podman/stable?tab=tags) | rootful Podman-in-Podman | passwordless sudo | based on Fedora [Containerfile](https://github.com/containers/podman/tree/main/contrib/podmanimage) |
+| rootless-ubuntu-focal | [ubuntu:focal](https://hub.docker.com/_/ubuntu) | rootless Docker-in-Docker | nope | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 
 ## Sources
 
