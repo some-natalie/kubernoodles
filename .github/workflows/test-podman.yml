@@ -7,7 +7,6 @@ on:
     - main
     paths:
     - 'images/podman.Dockerfile'
-    - '.github/workflows/**-podman.yml'
     - 'images/**.sh'
     - 'images/podman/*'
     - 'images/software/*'
