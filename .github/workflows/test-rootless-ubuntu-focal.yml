@@ -28,7 +28,7 @@ jobs:
 
       - name: Build and push image
         run: |
-          docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
+          docker login -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
           docker build -t ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest -f images/rootless-ubuntu-focal.Dockerfile .
           docker push ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest
   
