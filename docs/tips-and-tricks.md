@@ -15,3 +15,12 @@ Over-provision (promising more resources than you have available) at your own ri
 This consideration drove the large difference between the resource requests and limits for the runners.  The quick little tasks that don't require a lot of compute can go anywhere, the heavy usage pods can be moved around on the nodes by the scheduler to optimize longer-running jobs.  If you're using Kubernetes within a VM infrastructure, the worker nodes can be moved around via vMotion as needed to make the best use of the physical compute.  When this goes wrong, it can cause all manner of cryptic error messages so I've made it a habit to always check resource utilization first.
 
 In general, the fewer "layers" you have, the fewer places things can go wrong.
+
+## Rootless images
+
+Rootless-in-rootless containerization is possible, but comes with a different set of problems than the rootful images.  Common stumbling points here include:
+
+- All tasks have to run as the correct user with the correct UID.  In these, it's `runner` for username and `1000` for UID.
+- There's no `sudo` in these images, so users cannot configure the build environment.  It must be configured for them by an admin for things that'd normally require "admin" rights - like software installation.
+- Many Docker Actions in the GitHub marketplace assume rootful Docker and can create interesting errors.
+- The `PATH` of the environment seems to get lost frequently, so setting the environment variable for it in anything requiring containers seems to be necessary.  It's easy, but one more place for things to break.  An example of needing to do this is in this [workflow file](https://github.com/some-natalie/kubernoodles/blob/main/.github/workflows/test-rootless-ubuntu-focal.yml#L22-L23).
