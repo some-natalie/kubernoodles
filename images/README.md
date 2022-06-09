@@ -20,6 +20,7 @@ In addition to the folders above, here's a bit about the files in this folder.
 - `logger.sh` - A handy dandy logger script!
 - `modprobe.sh` - Not really modprobe, but kinda needed to let Docker-in-Docker run more reliably.  More on this below.
 - `startup.sh` - The startup script.  It's a bit ugly, but it works.  It relies on supervisord for the Debian-based runners, but if it fails (such as CentOS), it'll try `sudo $process` before failing for good.  This is not used in the Podman images, only the ones relying on Docker.
+- `rootless-startup.sh` - The startup script for the rootless images.  There's no `supervisord` or `sudo` for these images to leverage, so starting the rootless Docker daemon inside of the container is an entirely different task than it otherwise would be.
 - `.env` - This file gets copied into the container during the build process, then loaded by the entry point script.  Use this to store custom **NON-SECRET** environment variables, such as proxy configurations, caching, private mirrors, etc. that are needed in your on-premises environment.  It is blank by default as this is a public repository, but here's an example:
   
     ```shell
