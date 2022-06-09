@@ -7,7 +7,6 @@ on:
     - main
     paths:
     - 'images/ubuntu-focal.Dockerfile'
-    - '.github/workflows/**-focal.yml'
     - 'images/**.sh'
     - 'images/docker/*'
     - 'images/software/*'
