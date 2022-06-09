@@ -19,14 +19,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/runner/bin
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
-      - name: Set path to include rootless Docker
-        run: |
-          export PATH=$PATH:/home/runner/bin
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
