@@ -1,4 +1,4 @@
-name: Test Podman (Fedora 35) runner
+name: Test Podman (Fedora) runner
 
 on:
   workflow_dispatch:
