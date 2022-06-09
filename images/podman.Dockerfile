@@ -1,4 +1,4 @@
-FROM quay.io/podman/stable:v3.4.7
+FROM quay.io/podman/stable:v4
 
 # Target architecture
 ARG TARGETPLATFORM=linux/amd64
@@ -13,7 +13,7 @@ ARG DEBUG=false
 LABEL \ 
     org.opencontainers.image.source https://github.com/some-natalie/kubernoodles \
     org.opencontainers.image.title podman-runner \
-    org.opencontainers.image.description "A Podman (Fedora 35) based runner image for GitHub Actions" \
+    org.opencontainers.image.description "A Podman (Fedora) based runner image for GitHub Actions" \
     org.opencontainers.image.authors "Natalie Somersall (@some-natalie)" \
     org.opencontainers.image.licenses=MIT \
     org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
