@@ -1,0 +1,34 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: test-rootless-ubuntu-focal
+  namespace: test-runners
+spec:
+  replicas: 1
+  template:
+    spec:
+      repository: some-natalie/kubernoodles
+      env:
+        - name: DISABLE_RUNNER_UPDATE  # Disables automatic runner updates
+          value: "true"
+      ephemeral: true
+      image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest
+      imagePullPolicy: Always
+      imagePullSecrets:
+        - name: ghcr
+      dockerdWithinRunnerContainer: true
+      dockerMTU: 1450
+      resources:
+        limits:
+          cpu: "1000m"
+          memory: "2Gi"
+        requests:
+          cpu: "200m"
+          memory: "200Mi"
+      labels:
+      - test-rootless-ubuntu-focal
+      securityContext:
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+        runAsNonRoot: true

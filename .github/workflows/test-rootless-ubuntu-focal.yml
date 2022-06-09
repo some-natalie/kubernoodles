@@ -1,0 +1,108 @@
+name: Test rootless Ubuntu Focal runner
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'images/rootless-ubuntu-focal.Dockerfile'
+    - 'images/**.sh'
+    - 'images/docker/*'
+    - 'images/software/*'
+    - 'images/supervisor/*'
+
+jobs:
+  build:
+    name: Build test image
+    runs-on: [ self-hosted, rootless-focal ]
+    permissions:
+      contents: read
+      packages: write
+    env:
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/runner/bin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Packages
+        run: |
+          echo "${{ secrets.ROOTLESS_BUILD }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+      - name: Build and push image
+        run: |
+          docker build -t ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest -f images/rootless-ubuntu-focal.Dockerfile .
+          docker push ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest
+  
+  deploy:
+    name: Deploy test image to `test-runners` namespace
+    runs-on: [ self-hosted, rootless-focal ]
+    needs: [ build ]
+    environment: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Write out the kubeconfig info
+        run: | 
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Deploy
+        run: |
+          kubectl apply -f deployments/test-rootless-ubuntu-focal.yml
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
+      
+      - name: Wait 5 minutes to let the new pod come up
+        run: sleep 300
+
+  test:
+    name: Run tests!
+    runs-on: [ self-hosted, test-rootless-ubuntu-focal ]
+    needs: [ deploy ]
+    env:
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/runner/bin
+
+    steps:
+      - name: Docker test
+        run: | 
+          docker run hello-world
+          docker network inspect bridge
+          docker network inspect bridge | grep -q '"com.docker.network.driver.mtu": "1400"'
+          docker info
+      
+      - name: Docker compose test
+        run: |
+          docker-compose --version
+
+      - name: Print environmental variables
+        run: printenv
+
+  remove-deploy:
+    name: Delete test image deployment
+    runs-on: [ self-hosted, rootless-focal ]
+    needs: [ test ]
+    environment: test
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Write out the kubeconfig info
+        run: | 
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Deploy
+        run: |
+          kubectl delete -f deployments/test-rootless-ubuntu-focal.yml
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
