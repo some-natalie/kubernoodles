@@ -46,3 +46,12 @@ jobs:
           days-before-pr-close: 14
           stale-pr-label: 'stale'
           exempt-pr-labels: 'dependencies'
+
+  clean-offline-runners:
+    name: Delete offline self-hosted runners
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete offline self-hosted runners
+        uses: some-natalie/runner-reaper@v1
+        env:
+          GITHUB_PAT: ${{ secrets.RUNNER-REAPER }}
