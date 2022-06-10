@@ -1,4 +1,4 @@
-FROM quay.io/podman/stable:v3.4.7
+FROM quay.io/podman/stable:v4
 
 # Target architecture
 ARG TARGETPLATFORM=linux/amd64
@@ -13,7 +13,7 @@ ARG DEBUG=false
 LABEL \ 
     org.opencontainers.image.source https://github.com/some-natalie/kubernoodles \
     org.opencontainers.image.title podman-runner \
-    org.opencontainers.image.description "A Podman (Fedora 35) based runner image for GitHub Actions" \
+    org.opencontainers.image.description "A Podman (Fedora) based runner image for GitHub Actions" \
     org.opencontainers.image.authors "Natalie Somersall (@some-natalie)" \
     org.opencontainers.image.licenses=MIT \
     org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
@@ -55,7 +55,7 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
 # Copy files into the image
 COPY images/logger.sh /opt/bash-utils/logger.sh
 COPY images/entrypoint.sh /usr/local/bin/
-COPY images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
+COPY --chown=podman:podman images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
 COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 
 RUN chmod +x /usr/local/bin/entrypoint.sh 

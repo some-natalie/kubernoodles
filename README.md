@@ -33,7 +33,7 @@ There are currently 3 images that are "prebuilt" by this project, although you c
 | image name | base image | virtualization? | sudo? | notes |
 | --- | --- | --- | --- | --- |
 | ubuntu-focal | [ubuntu:focal](https://hub.docker.com/_/ubuntu) | rootful Docker-in-Docker | passwordless sudo | |
-| podman | [podman/stable](https://quay.io/repository/podman/stable?tab=tags) | rootful Podman-in-Podman | passwordless sudo | based on Fedora [Containerfile](https://github.com/containers/podman/tree/main/contrib/podmanimage) |
+| podman | [podman/stable](https://quay.io/repository/podman/stable?tab=tags) | rootful Podman-in-Podman | passwordless sudo | based on Fedora ([Containerfile](https://github.com/containers/podman/tree/main/contrib/podmanimage)) |
 | rootless-ubuntu-focal | [ubuntu:focal](https://hub.docker.com/_/ubuntu) | rootless Docker-in-Docker | nope | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 
 ## Sources
@@ -54,6 +54,7 @@ These are all excellent reads and can provide more insight into the customizatio
   - What helped me to understand this whole concept shift is to think that Kubernetes is to containers as KVM/vSphere/Hyper-V is to virtual machines.  It's probably not a perfect metaphor, but it helped. :smile:
 - Want to see a whole bunch of other ways to solve this problem?  You should check out [Awesome Runners](https://jonico.github.io/awesome-runners) for a curated list and amazing matrix comparison of all sorts of other self-hosted runner solutions.
 - Even if this is 100% on-premises, many of these [antipatterns for cloud applications](https://docs.microsoft.com/en-gb/azure/architecture/antipatterns/) are very relevant to the architecture of CI at scale and these are all well worth the time to read.
+- Rootful versus rootless containerization in Podman is a bit different than in Docker.  Learn more at RedHat's [Enable Sysadmin](https://www.redhat.com/sysadmin/podman-inside-container) blog post.
 
 ### Dependencies of note
 
