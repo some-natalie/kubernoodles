@@ -54,4 +54,4 @@ jobs:
       - name: Delete offline self-hosted runners
         uses: some-natalie/runner-reaper@v1
         env:
-          GITHUB_PAT: ${{ secrets.RUNNER-REAPER }}
+          GITHUB_PAT: ${{ secrets.RUNNER_REAPER }}
