@@ -52,6 +52,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete offline self-hosted runners
-        uses: some-natalie/runner-reaper@v1
+        uses: some-natalie/runner-reaper@main
         env:
           GITHUB_PAT: ${{ secrets.RUNNER_REAPER }}
