@@ -24,3 +24,27 @@ Rootless-in-rootless containerization is possible, but comes with a different se
 - There's no `sudo` in these images, so users cannot configure the build environment.  It must be configured for them by an admin for things that'd normally require "admin" rights - like software installation.
 - Many Docker Actions in the GitHub marketplace assume rootful Docker and can create interesting errors.
 - The `PATH` of the environment seems to get lost frequently, so setting the environment variable for it in anything requiring containers seems to be necessary.  It's easy, but one more place for things to break.  An example of needing to do this is in this [workflow file](https://github.com/some-natalie/kubernoodles/blob/main/.github/workflows/test-rootless-ubuntu-focal.yml#L22-L23).
+
+## Software supply chain management
+
+By default, if you clone this repo and set it up without modifications to the image files, each pod is going to
+
+- Build off the base image in [DockerHub](https://hub.docker.com/) or [Quay.io](https://quay.io) using a broad tag, such as [major semver](https://semver.org/) or LTS release version name
+- Pull the latest packages needed at build (as described more below)
+- Use the default upstream package source for that ecosystem without further modifications or configuration
+
+For example, if the user runs `pip install SOMETHING`, the pod will pull it from PyPI, Python's default package registry, because that's the default behavior.  This means that if you were wanting to control the software supply chain, the configuration on _how_ to do that should be in place on your images for each aspect of the software supply chain the company needs.  For Python, it means editing `~/.config/pip/pip.conf` with the appropriate values.  This would need to be repeated for each tool in use - NPM for JavaScript, `dnf` or `apt` configurations for the operating system, etc.
+
+It's (usually) a reasonable assumption that there are already internal mirrors with processes to add software internally in place at larger companies that have rules on software ingest, so consult with the documentation from that system and from the team that owns that service to get the right files in place to use for these images.
+
+### Reproducibility
+
+These images assume no opinion about changing the default settings - each package management system isn't configured beyond the defaults it ships with.  It's assumed that the defaults are all reasonable and you'll edit them as needed by your enterprise to use the internal repositories/proxies specific to your use case as needed.
+
+Additionally, no packages apart from the [runner agent](https://github.com/actions/runner) (and depending on the image, Docker and/or Docker Compose) are pinned to a particular version.  This is against usual best practices, and Hadolint yells about it so those rules have been [disabled](../.github/linters/.hadolint.yaml).  There's an explicit assumption that if a company cares about specifying versions of packages, they'll do it themselves to the versions they choose as acceptable.  You can read more about best practices for version pinning from [Docker's documentation](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run).
+
+The implications of this is that each time you build the exact same Dockerfile, you might get a different end result based on the latest package versions available at that time.  Likewise, the base image for each is a pretty broad tag (`ubuntu:20.04` or `quay.io/podman/stable:v4`) and can vary on rebuild.  To address this, the default workflows build a tagged image on release ([link](../.github/workflows/build-release.yml)) that should be used instead of `latest` in the [deployments](../deployments/README.md) if this is important in your use case.  
+
+### Caching, bandwidth, and rate limiting problems
+
+Each pod is assumed to be ephemeral, so at scale, this means that each "setup" of task can use significant bandwidth.  For example, if you have 1,000 builds of a container application each hour, all running `docker pull SOMETHING` directly from DockerHub, that's a thousand image pulls to your IP address block.  
