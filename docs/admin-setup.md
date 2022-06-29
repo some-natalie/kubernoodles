@@ -33,7 +33,7 @@ Here are the credentials we'll be generating:
     kubectl create namespace cert-manager
     helm repo add jetstack https://charts.jetstack.io
     helm repo update
-    helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.8.1 --set installCRDs=true
+    helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.8.2 --set installCRDs=true
     ```
 
 1. Install [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller).
