@@ -45,6 +45,17 @@ Additionally, no packages apart from the [runner agent](https://github.com/actio
 
 The implications of this is that each time you build the exact same Dockerfile, you might get a different end result based on the latest package versions available at that time.  Likewise, the base image for each is a pretty broad tag (`ubuntu:20.04` or `quay.io/podman/stable:v4`) and can vary on rebuild.  To address this, the default workflows build a tagged image on release ([link](../.github/workflows/build-release.yml)) that should be used instead of `latest` in the [deployments](../deployments/README.md) if this is important in your use case.  
 
-### Caching, bandwidth, and rate limiting problems
+### Caching, bandwidth, and rate-limiting problems
 
-Each pod is assumed to be ephemeral, so at scale, this means that each "setup" of task can use significant bandwidth.  For example, if you have 1,000 builds of a container application each hour, all running `docker pull SOMETHING` directly from DockerHub, that's a thousand image pulls to your IP address block.  
+Each pod is assumed to be ephemeral, so at scale, this means that the combined setup tasks for each build can use significant bandwidth.  For example, if you have thousands of builds each hour, all running `docker pull SOMETHING` directly from DockerHub, that's a thousand image pulls to your IP address block.  This will get the company's IP address rate-limited pretty fast.
+
+There are a couple ways to mitigate this - however, a production-ready solution shared across diverse teams is likely a mix of these.
+
+1. Point the pods to your internal repositories and mirror for all supported operating systems, frameworks, and languages.  Doing this would include setting up internal mirroring, using something like Nexus or Artifactory, then configuring your pods to use them first.  Many of these configurations can be set in the [`.env`](../images/README.md#what-this-folder-is-all-about) file, but consult each repository format's documentation for more information on files to include.  Common examples would include:
+
+    - Operating system package repositories (RPM, dpkg, etc.)
+    - Container registries (Docker Hub, quay.io, gcr.io, etc.)
+    - Language-specific package registries (NPM for JavaScript, PyPI for Python, etc.)
+
+1. Consider including commonly-used packages in the image itself.  This makes for _big_ images, but it should reduce both the time needed to install and set up the needed package each runtime and network egress overall.  It's almost always cheaper to fling big images around internally than it is to bring lots of data in, so the economics could still work out well here.
+1. Another simple way to address this would be to toss a [squid](http://www.squid-cache.org/) caching proxy in front of the pods, then configure them to use it.  Be sure to set it up with [SSL peek and splice](https://wiki.squid-cache.org/Features/SslPeekAndSplice), as most modern package management systems include TLS encryption.
