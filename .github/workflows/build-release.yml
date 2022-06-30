@@ -1,20 +1,20 @@
 name: Build/publish/deploy all runners
 
 on:
-  workflow_dispatch:  # build on demand
+  workflow_dispatch: # build on demand
   release:
-    types: [published]  # build on release
+    types: [published] # build on release
 
 jobs:
   build-ubuntu:
-    runs-on: ubuntu-latest  # use the GitHub hosted runners
+    runs-on: ubuntu-latest # use the GitHub hosted runners
     permissions:
-      contents: write  # for uploading the SBOM to the release
-      packages: write  # for uploading the finished container
-      security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
+      contents: write # for uploading the SBOM to the release
+      packages: write # for uploading the finished container
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
     strategy:
       matrix:
-        runner-image: [ ubuntu-focal, rootless-ubuntu-focal ]
+        runner-image: [ubuntu-focal, rootless-ubuntu-focal, ubuntu-jammy]
 
     steps:
       - name: Checkout
@@ -26,7 +26,7 @@ jobs:
       - name: Set outputs
         id: vars
         run: echo ::set-output name=sha_short::${GITHUB_SHA::7}
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -40,7 +40,7 @@ jobs:
       - name: Build and push the image
         uses: docker/build-push-action@v3
         with:
-          file: 'images/${{ matrix.runner-image }}.Dockerfile'
+          file: "images/${{ matrix.runner-image }}.Dockerfile"
           push: true
           tags: |
             ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:latest
@@ -60,17 +60,17 @@ jobs:
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
-      - name: Generate SBOM for the rootless Ubuntu Focal (20.04 LTS) runner
+      - name: Generate SBOM for the Ubuntu-based runners
         uses: anchore/sbom-action@v0
         with:
           image: ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:latest
 
   build-podman:
-    runs-on: ubuntu-latest  # use the GitHub hosted runners
+    runs-on: ubuntu-latest # use the GitHub hosted runners
     permissions:
-      contents: write  # for uploading the SBOM to the release
-      packages: write  # for uploading the finished container
-      security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
+      contents: write # for uploading the SBOM to the release
+      packages: write # for uploading the finished container
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
 
     steps:
       - name: Checkout
@@ -82,7 +82,7 @@ jobs:
       - name: Set outputs
         id: vars
         run: echo ::set-output name=sha_short::${GITHUB_SHA::7}
-      
+
       - name: Build the image
         id: build-image
         uses: redhat-actions/buildah-build@v2
@@ -108,7 +108,7 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           image: ghcr.io/some-natalie/kubernoodles/podman:latest
-      
+
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
         with:
@@ -119,20 +119,20 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
-    runs-on: ubuntu-latest  # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
+    runs-on: ubuntu-latest # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
     # If using GHES or GHAE, use another deployment, such as having CentOS redeploy Ubuntu and vice versa
     environment: production
-    needs: [ build-podman, build-ubuntu ]
+    needs: [build-podman, build-ubuntu]
     strategy:
       matrix:
-        runner-image: [ podman, ubuntu-focal, rootless-ubuntu-focal ]
+        runner-image: [podman, ubuntu-focal, rootless-ubuntu-focal]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Write out the kubeconfig info
-        run: | 
+        run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
       - name: Update deployment

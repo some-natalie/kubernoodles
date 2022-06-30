@@ -1,11 +1,11 @@
 name: GHAE - remove runners (bare metal)
 
 on:
-  workflow_dispatch:  # deploy on demand
+  workflow_dispatch: # deploy on demand
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
+    runs-on: ubuntu-latest # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
     # If using GHES or GHAE, use another deployment, such as having CentOS redeploy Ubuntu and vice versa
     environment: bare-metal
 
@@ -14,13 +14,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Write out the kubeconfig info
-        run: | 
+        run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
       - name: Update deployment
         run: |
           kubectl delete -f deployments/ghae/podman.yml --insecure-skip-tls-verify
           kubectl delete -f deployments/ghae/ubuntu-focal.yml --insecure-skip-tls-verify
+          kubectl apply -f deployments/ghae/rootless-ubuntu-focal.yml --insecure-skip-tls-verify
+          kubectl apply -f deployments/ghae/ubuntu-jammy.yml --insecure-skip-tls-verify
         env:
           KUBECONFIG: /tmp/config
 
