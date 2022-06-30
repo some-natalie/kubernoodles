@@ -1,4 +1,4 @@
-name: Test Ubuntu jammy runner
+name: Test Ubuntu Jammy runner
 
 on:
   workflow_dispatch:
