@@ -21,8 +21,8 @@ jobs:
         run: |
           kubectl delete -f deployments/ghae/podman.yml --insecure-skip-tls-verify
           kubectl delete -f deployments/ghae/ubuntu-focal.yml --insecure-skip-tls-verify
-          kubectl apply -f deployments/ghae/rootless-ubuntu-focal.yml --insecure-skip-tls-verify
-          kubectl apply -f deployments/ghae/ubuntu-jammy.yml --insecure-skip-tls-verify
+          kubectl delete -f deployments/ghae/rootless-ubuntu-focal.yml --insecure-skip-tls-verify
+          kubectl delete -f deployments/ghae/ubuntu-jammy.yml --insecure-skip-tls-verify
         env:
           KUBECONFIG: /tmp/config
 
