@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-    - main
+      - main
     paths:
-    - 'images/podman.Dockerfile'
-    - 'images/**.sh'
-    - 'images/podman/*'
-    - 'images/software/*'
+      - "images/podman.Dockerfile"
+      - "images/**.sh"
+      - "images/podman/*"
+      - "images/software/*"
 
 jobs:
   build:
     name: Build test image
-    runs-on: [ self-hosted, podman ]
+    runs-on: [self-hosted, podman]
     permissions:
       contents: read
       packages: write
@@ -30,7 +30,7 @@ jobs:
           image: ghcr.io/some-natalie/kubernoodles/podman
           tags: latest
           containerfiles: images/podman.Dockerfile
-      
+
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
         with:
@@ -40,19 +40,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-  
   deploy:
     name: Deploy test image to `test-runners` namespace
-    runs-on: [ self-hosted, podman ]
-    needs: [ build ]
+    runs-on: [self-hosted, podman]
+    needs: [build]
     environment: test
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
+
       - name: Write out the kubeconfig info
-        run: | 
+        run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
       - name: Deploy
@@ -63,22 +62,22 @@ jobs:
 
       - name: Remove kubeconfig info
         run: rm -f /tmp/config
-      
+
       - name: Wait 5 minutes to let the new pod come up
         run: sleep 300
 
   test:
     name: Run tests!
-    runs-on: [ self-hosted, test-podman ]
-    needs: [ deploy ]
+    runs-on: [self-hosted, test-podman]
+    needs: [deploy]
 
     steps:
       - name: Podman test
-        run: | 
+        run: |
           podman run hello-world
           podman network inspect podman
           podman info
-      
+
       - name: Podman compose test
         run: |
           podman compose --version
@@ -88,17 +87,17 @@ jobs:
 
   remove-deploy:
     name: Delete test image deployment
-    runs-on: [ self-hosted, podman ]
-    needs: [ test ]
+    runs-on: [self-hosted, podman]
+    needs: [test]
     environment: test
     if: always()
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
+
       - name: Write out the kubeconfig info
-        run: | 
+        run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
       - name: Deploy

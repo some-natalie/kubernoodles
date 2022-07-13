@@ -9,7 +9,7 @@ spec:
     spec:
       repository: some-natalie/kubernoodles
       env:
-        - name: DISABLE_RUNNER_UPDATE  # Disables automatic runner updates
+        - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
           value: "true"
       ephemeral: true
       image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest # change this to the version you really want!
@@ -26,9 +26,9 @@ spec:
           cpu: "200m"
           memory: "200Mi"
       labels:
-      - docker
-      - ubuntu
-      - focal
+        - docker
+        - ubuntu
+        - focal
       # - ubuntu-latest  # overlaps w/ hosted runners on GHEC, can use in GHES and GHAE
       securityContext:
         runAsUser: 1000
@@ -48,8 +48,8 @@ spec:
   maxReplicas: 6
   scaleDownDelaySecondsAfterScaleOut: 60
   metrics:
-  - type: PercentageRunnersBusy
-    scaleUpThreshold: '0.75'
-    scaleDownThreshold: '0.3'
-    scaleUpFactor: '1.5'
-    scaleDownFactor: '0.7'
+    - type: PercentageRunnersBusy
+      scaleUpThreshold: "0.75"
+      scaleDownThreshold: "0.3"
+      scaleUpFactor: "1.5"
+      scaleDownFactor: "0.7"
