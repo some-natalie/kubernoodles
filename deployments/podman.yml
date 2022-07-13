@@ -9,7 +9,7 @@ spec:
     spec:
       repository: some-natalie/kubernoodles
       env:
-        - name: DISABLE_RUNNER_UPDATE  # Disables automatic runner updates
+        - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
           value: "true"
       ephemeral: true
       image: ghcr.io/some-natalie/kubernoodles/podman:latest # change this to the version you really want!
@@ -26,9 +26,9 @@ spec:
           cpu: "200m"
           memory: "200Mi"
       labels:
-      - docker
-      - podman
-      - fedora
+        - docker
+        - podman
+        - fedora
       securityContext:
         runAsUser: 1000
         seccompProfile:
@@ -47,8 +47,8 @@ spec:
   maxReplicas: 6
   scaleDownDelaySecondsAfterScaleOut: 60
   metrics:
-  - type: PercentageRunnersBusy
-    scaleUpThreshold: '0.75'
-    scaleDownThreshold: '0.3'
-    scaleUpFactor: '1.5'
-    scaleDownFactor: '0.7'
+    - type: PercentageRunnersBusy
+      scaleUpThreshold: "0.75"
+      scaleDownThreshold: "0.3"
+      scaleUpFactor: "1.5"
+      scaleDownFactor: "0.7"

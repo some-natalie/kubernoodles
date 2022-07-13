@@ -9,7 +9,7 @@ spec:
     spec:
       repository: some-natalie/kubernoodles
       env:
-        - name: DISABLE_RUNNER_UPDATE  # Disables automatic runner updates
+        - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
           value: "true"
       ephemeral: true
       image: ghcr.io/some-natalie/kubernoodles/podman:latest
@@ -26,7 +26,7 @@ spec:
           cpu: "200m"
           memory: "200Mi"
       labels:
-      - test-podman
+        - test-podman
       securityContext:
         runAsUser: 1000
         seccompProfile:
