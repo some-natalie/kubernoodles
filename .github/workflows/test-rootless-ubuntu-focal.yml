@@ -19,8 +19,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    env:
-      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/runner/bin
 
     steps:
       - name: Checkout
@@ -63,10 +61,9 @@ jobs:
 
   test:
     name: Run tests!
+
     runs-on: [self-hosted, test-rootless-ubuntu-focal]
     needs: [deploy]
-    env:
-      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/runner/bin
 
     steps:
       - name: Docker test
