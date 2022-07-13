@@ -8,9 +8,9 @@ spec:
   template:
     spec:
       organization: universal-exports-ltd
-      env:
-        - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
-          value: "true"
+      # env:
+      #   - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
+      #     value: "true"
       ephemeral: true
       image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest # change this to the version you really want!
       imagePullPolicy: Always
