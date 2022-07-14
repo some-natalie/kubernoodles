@@ -11,6 +11,9 @@ ARG DOCKER_CHANNEL=stable
 ARG DOCKER_VERSION=20.10.17
 ARG COMPOSE_VERSION=v2.6.0
 
+# Dumb-init version
+ARG DUMB_INIT_VERSION=1.2.5
+
 # Other arguments
 ARG DEBUG=false
 
@@ -118,10 +121,12 @@ RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
 
+# Install dumb-init, arch command on OS X reports "i386" for Intel CPUs regardless of bitness
 RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   && export ARCH \
-  && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
-  && curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${ARCH} \
+  && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
+  && if [ "$ARCH" = "amd64" ] || [ "$ARCH" = "i386" ]; then export ARCH=x86_64 ; fi \
+  && curl -f -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_${ARCH} \
   && chmod +x /usr/local/bin/dumb-init
 
 # We place the scripts in `/usr/bin` so that users who extend this image can
