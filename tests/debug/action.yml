@@ -1,0 +1,20 @@
+name: "Dump debug info"
+
+description: "Dump debug output from the image at test time"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Environment variable dump"
+      shell: bash
+      run: |
+        printenv
+
+    - name: "Who am I?"
+      shell: bash
+      run: |
+        whoami
+        echo "UID: $(id -u)"
+        echo "GID: $(id -g)"
+        echo "GROUPS: $(id -G)"
+        echo "GROUPS: $(groups)"
