@@ -11,6 +11,10 @@ on:
       - "images/docker/*"
       - "images/software/*"
       - "images/supervisor/*"
+      - "tests/container/*"
+      - "tests/docker/*"
+      - "tests/sudo-works/*"
+      - ".github/workflows/test-ubuntu-focal.yml"
 
 jobs:
   build:

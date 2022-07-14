@@ -11,6 +11,10 @@ on:
       - "images/docker/*"
       - "images/software/*"
       - "images/supervisor/*"
+      - "tests/container/*"
+      - "tests/docker/*"
+      - "tests/sudo-fails/*"
+      - ".github/workflows/test-rootless-ubuntu-focal.yml"
 
 jobs:
   build:
