@@ -1,0 +1,11 @@
+name: "Sudo works"
+
+description: "Make sure `sudo` works"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Sudo fails"
+      shell: bash
+      run: |
+        sudo echo "sudo works"

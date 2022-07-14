@@ -28,3 +28,5 @@ Here's the current tests, what they do, and why.
   - verifies "podman compose" works
   - verifies the alias to "docker" works
   - prints some debug info about versions and container networks to the console
+- `sudo-fails` (composite Action) - verifies sudo doesn't work
+- `sudo-works` (composite Action) - verifies sudo works
