@@ -123,14 +123,13 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   && curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${ARCH} \
   && chmod +x /usr/local/bin/dumb-init
 
-COPY images/modprobe.sh  /usr/local/bin/modprobe
-COPY images/startup.sh /usr/local/bin/
-COPY images/supervisor/ /etc/supervisor/conf.d/
-COPY images/logger.sh /opt/bash-utils/logger.sh
-COPY images/entrypoint.sh /usr/local/bin/
-COPY images/docker/daemon.json /etc/docker/daemon.json
+# We place the scripts in `/usr/bin` so that users who extend this image can
+# override them with scripts of the same name placed in `/usr/local/bin`.
+COPY images/startup.sh images/logger.sh images/entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/startup.sh /usr/bin/entrypoint.sh
 
-RUN chmod +x /usr/local/bin/startup.sh /usr/local/bin/entrypoint.sh /usr/local/bin/modprobe
+COPY images/supervisor/ /etc/supervisor/conf.d/
+COPY images/docker/daemon.json /etc/docker/daemon.json
 
 VOLUME /var/lib/docker
 
