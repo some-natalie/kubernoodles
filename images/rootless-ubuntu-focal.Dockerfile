@@ -114,11 +114,10 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && curl -f -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_${ARCH} \
     && chmod +x /usr/local/bin/dumb-init
 
-COPY images/rootless-startup.sh /usr/bin/startup.sh
-COPY images/logger.sh /opt/bash-utils/logger.sh
-COPY images/entrypoint.sh /usr/bin/
-
-RUN chmod +x /usr/bin/startup.sh /usr/bin/entrypoint.sh
+# We place the scripts in `/usr/bin` so that users who extend this image can
+# override them with scripts of the same name placed in `/usr/local/bin`.
+COPY images/rootless-startup.sh images/logger.sh images/entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/rootless-startup.sh /usr/bin/entrypoint.sh
 
 # Make the rootless runner directory executable
 RUN mkdir /run/user/1000 \
@@ -151,4 +150,4 @@ RUN curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSI
     chmod +x /home/runner/bin/docker-compose
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
-CMD ["startup.sh"]
+CMD ["rootless-startup.sh"]

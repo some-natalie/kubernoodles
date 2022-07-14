@@ -11,6 +11,9 @@ ARG DOCKER_CHANNEL=stable
 ARG DOCKER_VERSION=20.10.17
 ARG COMPOSE_VERSION=v2.6.0
 
+# Dumb-init version
+ARG DUMB_INIT_VERSION=1.2.5
+
 # Other arguments
 ARG DEBUG=false
 
@@ -117,20 +120,21 @@ RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
 
+# Install dumb-init, arch command on OS X reports "i386" for Intel CPUs regardless of bitness
 RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   && export ARCH \
-  && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
-  && curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${ARCH} \
+  && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
+  && if [ "$ARCH" = "amd64" ] || [ "$ARCH" = "i386" ]; then export ARCH=x86_64 ; fi \
+  && curl -f -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_${ARCH} \
   && chmod +x /usr/local/bin/dumb-init
 
-COPY images/modprobe.sh  /usr/local/bin/modprobe
-COPY images/startup.sh /usr/local/bin/
-COPY images/supervisor/ /etc/supervisor/conf.d/
-COPY images/logger.sh /opt/bash-utils/logger.sh
-COPY images/entrypoint.sh /usr/local/bin/
-COPY images/docker/daemon.json /etc/docker/daemon.json
+# We place the scripts in `/usr/bin` so that users who extend this image can
+# override them with scripts of the same name placed in `/usr/local/bin`.
+COPY images/startup.sh images/logger.sh images/entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/startup.sh /usr/bin/entrypoint.sh
 
-RUN chmod +x /usr/local/bin/startup.sh /usr/local/bin/entrypoint.sh /usr/local/bin/modprobe
+COPY images/supervisor/ /etc/supervisor/conf.d/
+COPY images/docker/daemon.json /etc/docker/daemon.json
 
 VOLUME /var/lib/docker
 
