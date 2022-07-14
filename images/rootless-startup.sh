@@ -1,7 +1,7 @@
 #!/bin/bash
-source /opt/bash-utils/logger.sh
+source /usr/bin/logger.sh
 
-INFO "Writing out Docker config file"
+logger.notice "Writing out Docker config file"
 /bin/bash <<SCRIPT
 mkdir -p /home/runner/.config/docker/
 
@@ -20,7 +20,7 @@ jq ".\"registry-mirrors\"[0] = \"${DOCKER_REGISTRY_MIRROR}\"" /home/runner/.conf
 fi
 SCRIPT
 
-INFO "Starting Docker (rootless)"
+logger.notice "Starting Docker (rootless)"
 /home/runner/bin/dockerd-rootless.sh --config-file /home/runner/.config/docker/daemon.json >> /dev/null 2>&1 &
 
 # Wait processes to be running
