@@ -28,7 +28,7 @@ The [customization](docs/admin-customization.md) guide has a quick writeup and l
 
 ## Choosing the image(s)
 
-There are currently 3 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are deployed with `ephemeral: true` by actions-runner-controller.  If you're copy/pasting out of the [deployments](deployments), you should be set!
+There are currently 4 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are deployed with `ephemeral: true` by actions-runner-controller.  If you're copy/pasting out of the [deployments](deployments), you should be set ... provided you give it the right repository/organization/enterprise to use!
 
 | image name | base image | virtualization? | sudo? | notes |
 | --- | --- | --- | --- | --- |
