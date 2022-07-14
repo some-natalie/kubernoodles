@@ -1,0 +1,7 @@
+name: "Container Action test"
+
+description: "Test building and running a container Action"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
