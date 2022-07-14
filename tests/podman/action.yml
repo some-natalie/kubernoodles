@@ -1,0 +1,41 @@
+name: "Podman tests"
+
+description: "Test the image for Podman related functionality"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Podman info"
+      shell: bash
+      run: |
+        podman info
+
+    - name: "Podman test"
+      shell: bash
+      run: |
+        podman run hello-world
+
+    - name: "Docker alias test"
+      shell: bash
+      run: |
+        docker run hello-world
+
+    - name: "Podman network info"
+      shell: bash
+      run: |
+        podman network inspect podman
+
+    - name: "Podman compose test"
+      shell: bash
+      run: |
+        podman compose --version
+
+    - name: "Buildah info"
+      shell: bash
+      run: |
+        buildah info
+
+    - name: "Skopeo info"
+      shell: bash
+      run: |
+        skopeo -v

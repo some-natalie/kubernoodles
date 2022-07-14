@@ -11,6 +11,10 @@ on:
       - "images/docker/*"
       - "images/software/*"
       - "images/supervisor/*"
+      - "tests/container/*"
+      - "tests/docker/*"
+      - "tests/sudo-fails/*"
+      - ".github/workflows/test-rootless-ubuntu-focal.yml"
 
 jobs:
   build:
@@ -66,19 +70,20 @@ jobs:
     needs: [deploy]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Print debug info
+        uses: ./tests/debug
+
       - name: Docker test
-        run: |
-          docker run hello-world
-          docker network inspect bridge
-          docker network inspect bridge | grep -q '"com.docker.network.driver.mtu": "1400"'
-          docker info
+        uses: ./tests/docker
 
-      - name: Docker compose test
-        run: |
-          docker-compose --version
+      - name: Sudo fails
+        uses: ./tests/sudo-fails
 
-      - name: Print environmental variables
-        run: printenv
+      - name: Container Action test
+        uses: ./tests/container
 
   remove-deploy:
     name: Delete test image deployment

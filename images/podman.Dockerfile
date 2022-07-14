@@ -33,7 +33,8 @@ RUN dnf install -y \
     podman-compose \
     skopeo \
     slirp4netns \
-    && dnf clean all
+    && dnf clean all \
+    && touch /etc/containers/nodocker
 
 # Install kubectl
 COPY images/software/kubectl.sh /kubectl.sh
@@ -58,7 +59,7 @@ COPY images/entrypoint.sh /usr/local/bin/
 COPY --chown=podman:podman images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
 COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 
-RUN chmod +x /usr/local/bin/entrypoint.sh 
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 VOLUME $HOME/.local/share/containers/storage
 

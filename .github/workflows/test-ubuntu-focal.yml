@@ -11,6 +11,10 @@ on:
       - "images/docker/*"
       - "images/software/*"
       - "images/supervisor/*"
+      - "tests/container/*"
+      - "tests/docker/*"
+      - "tests/sudo-works/*"
+      - ".github/workflows/test-ubuntu-focal.yml"
 
 jobs:
   build:
@@ -73,21 +77,20 @@ jobs:
     needs: [deploy]
 
     steps:
-      - name: Sudo test
-        run: sudo echo "sudo is working"
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Print debug info
+        uses: ./tests/debug
 
       - name: Docker test
-        run: |
-          docker run hello-world
-          docker network inspect bridge
-          docker info
+        uses: ./tests/docker
 
-      - name: Docker compose test
-        run: |
-          docker-compose --version
+      - name: Sudo works
+        uses: ./tests/sudo-works
 
-      - name: Print environmental variables
-        run: printenv
+      - name: Container Action test
+        uses: ./tests/container
 
   remove-deploy:
     name: Delete test image deployment

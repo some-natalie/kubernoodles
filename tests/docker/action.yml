@@ -1,0 +1,26 @@
+name: "Docker tests"
+
+description: "Test the image for Docker related functionality"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Docker info"
+      shell: bash
+      run: |
+        docker info
+
+    - name: "Docker test"
+      shell: bash
+      run: |
+        docker run hello-world
+
+    - name: "Docker network info"
+      shell: bash
+      run: |
+        docker network inspect bridge
+
+    - name: "Docker compose test"
+      shell: bash
+      run: |
+        docker-compose --version

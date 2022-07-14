@@ -10,6 +10,9 @@ on:
       - "images/**.sh"
       - "images/podman/*"
       - "images/software/*"
+      - "tests/podman/*"
+      - "tests/sudo-fails/*"
+      - ".github/workflows/test-podman.yml"
 
 jobs:
   build:
@@ -72,18 +75,17 @@ jobs:
     needs: [deploy]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Print debug info
+        uses: ./tests/debug
+
       - name: Podman test
-        run: |
-          podman run hello-world
-          podman network inspect podman
-          podman info
+        uses: ./tests/podman
 
-      - name: Podman compose test
-        run: |
-          podman compose --version
-
-      - name: Print environmental variables
-        run: printenv
+      - name: Sudo fails
+        uses: ./tests/sudo-fails
 
   remove-deploy:
     name: Delete test image deployment

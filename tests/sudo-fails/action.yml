@@ -1,0 +1,17 @@
+name: "Sudo fails"
+
+description: "Make sure `sudo` fails"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Sudo fails"
+      shell: bash
+      run: |
+        if [ $(sudo echo "test") -eq 0 ]; then
+          echo "sudo should fail, but didn't"
+          exit 1
+        else
+          echo "sudo failed as expected"
+          exit 0
+        fi
