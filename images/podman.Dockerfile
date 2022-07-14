@@ -34,9 +34,7 @@ RUN dnf install -y \
     skopeo \
     slirp4netns \
     && dnf clean all \
-    && touch /etc/containers/nodocker \
-    && echo 'podman:10000:65536' >> /etc/subuid \
-    && echo 'podman:10000:65536' >> /etc/subgid
+    && touch /etc/containers/nodocker
 
 # Install kubectl
 COPY images/software/kubectl.sh /kubectl.sh

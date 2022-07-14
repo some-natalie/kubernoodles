@@ -10,7 +10,6 @@ on:
       - "images/**.sh"
       - "images/podman/*"
       - "images/software/*"
-      - "tests/container/*"
       - "tests/podman/*"
       - "tests/sudo-fails/*"
       - ".github/workflows/test-podman.yml"
