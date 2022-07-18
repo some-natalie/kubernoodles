@@ -125,7 +125,8 @@ jobs:
     needs: [build-podman, build-ubuntu]
     strategy:
       matrix:
-        runner-image: [podman, ubuntu-focal, rootless-ubuntu-focal]
+        runner-image:
+          [podman, ubuntu-focal, rootless-ubuntu-focal, ubuntu-jammy]
 
     steps:
       - name: Checkout
@@ -135,7 +136,7 @@ jobs:
         run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
-      - name: Update deployment
+      - name: Update deployments
         run: |
           kubectl apply -f deployments/${{ matrix.runner-image }}.yml
         env:
