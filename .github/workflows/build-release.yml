@@ -91,6 +91,9 @@ jobs:
           tags: latest ${{ env.VERSION }} ${{ env.VERSION }}-${{ steps.vars.outputs.sha_short }}
           containerfiles: images/podman.Dockerfile
 
+      - name: List images
+        run: podman image ls -a
+
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
         uses: anchore/scan-action@v3
         id: scan
@@ -104,7 +107,7 @@ jobs:
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
-      - name: Generate SBOM for the Podman (Fedora 35) runner
+      - name: Generate SBOM for the Podman (Fedora 36) runner
         uses: anchore/sbom-action@v0
         with:
           image: ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
