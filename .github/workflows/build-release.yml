@@ -99,7 +99,7 @@ jobs:
         uses: anchore/scan-action@v3
         id: scan
         with:
-          image: "ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}"
+          image: "podman:ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}"
           fail-build: false
           acs-report-enable: true
 
@@ -111,7 +111,7 @@ jobs:
       - name: Generate SBOM for the Podman (Fedora 36) runner
         uses: anchore/sbom-action@v0
         with:
-          image: ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
+          image: podman:ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
 
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
