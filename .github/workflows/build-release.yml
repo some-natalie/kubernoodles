@@ -77,8 +77,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set version
-        # run: echo "VERSION=$(cat ${GITHUB_EVENT_PATH} | jq -r '.release.tag_name')" >> $GITHUB_ENV
-        run: echo "VERSION=test" >> $GITHUB_ENV
+        run: echo "VERSION=$(cat ${GITHUB_EVENT_PATH} | jq -r '.release.tag_name')" >> $GITHUB_ENV
 
       - name: Set outputs
         id: vars
@@ -92,14 +91,20 @@ jobs:
           tags: latest ${{ env.VERSION }} ${{ env.VERSION }}-${{ steps.vars.outputs.sha_short }}
           containerfiles: images/podman.Dockerfile
 
-      - name: List images
-        run: podman image ls -a
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
         uses: anchore/scan-action@v3
         id: scan
         with:
-          image: "podman:ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}"
+          image: "ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}"
           fail-build: false
           acs-report-enable: true
 
@@ -111,16 +116,7 @@ jobs:
       - name: Generate SBOM for the Podman (Fedora 36) runner
         uses: anchore/sbom-action@v0
         with:
-          image: podman:ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
-
-      - name: Push image
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          image: ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
 
   deploy:
     runs-on: ubuntu-latest # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
