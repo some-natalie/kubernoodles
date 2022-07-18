@@ -138,6 +138,8 @@ jobs:
 
       - name: Update deployments
         run: |
+          kubectl delete -f deployments/${{ matrix.runner-image }}.yml
+          sleep 30
           kubectl apply -f deployments/${{ matrix.runner-image }}.yml
         env:
           KUBECONFIG: /tmp/config
