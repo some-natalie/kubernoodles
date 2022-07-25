@@ -27,6 +27,10 @@ spec:
           memory: "200Mi"
       labels:
         - test-rootless-ubuntu-focal
+      containers:
+        - name: runner
+          securityContext:
+            privileged: true # making this explicit, as it's implied by `dockerdWithinRunnerContainer`
       securityContext:
         runAsUser: 1000
         seccompProfile:

@@ -24,7 +24,7 @@ spec:
       imagePullPolicy: IfNotPresent  # pull this image only if it isn't already on the Kubernetes node
       imagePullSecrets:
         - name: ghcr  # credentials needed to log in to the image registry, more on this below
-      dockerdWithinRunnerContainer: true  # can this support Docker-in-Docker
+      dockerdWithinRunnerContainer: true  # can this support Docker-in-Docker, implies `privileged: true`, more on this below
       dockerMTU: 1450  # set the MTU size of the Docker agent in the container, more on this below
       resources:
         limits:  # the max size any individual runner can get to
@@ -43,6 +43,7 @@ More details as noted:
 
 - The Docker image in use here is public, but in order to avoid rate-limiting in public registries, the `imagePullSecrets` is still set to a secret in the `runners` namespace.  You will have to set this for private registries.
 - Docker-in-Docker presents some unique networking challenges, outlined in more detail [here](../docs/tips-and-tricks.md#nested-virtualization).
+- Docker-in-Docker relies on `--privileged` execution to mount `procfs` and `sysfs`.  Running the rootless container provides an additional layer of security by disallowing privileged execution within the pod and running the nested Docker instance in rootless mode, but the runner container is still privileged.
 - Resource requests and limits are how Kubernetes controls the compute resources any pod in a cluster gets.  There's more about this from the [official documentation](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) and a helpful Google blog post [here](https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-resource-requests-and-limits) if you'd like to learn more.
 - Labels are used by your users in GitHub to specify what type of compute to dispatch the job to.  One runner can have many labels.  In this case, this runner is labeled with "docker", "ubuntu", and "focal".  There's a lot more to read about this in the [official documentation](https://docs.github.com/en/actions/hosting-your-own-runners/using-labels-with-self-hosted-runners).
 - When you're using GitHub.com, try to not use `ubuntu-latest` or any of the other labels used by GitHub's hosted runners ([list](https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/workflow-syntax-for-github-actions#choosing-github-hosted-runners)) so that you can either ensure that the job does or does not go to the self-hosted runners.  When using GitHub AE or GitHub Enterprise Server, feel free to use these labels as there's no conflict.
