@@ -30,6 +30,10 @@ spec:
         - rootless-ubuntu
         - rootless-focal
       # - ubuntu-latest  # overlaps w/ hosted runners on GHEC, can use in GHES and GHAE
+      containers:
+        - name: runner
+          securityContext:
+            privileged: true # making this explicit, as it's implied by `dockerdWithinRunnerContainer`
       securityContext:
         runAsUser: 1000
         seccompProfile:
