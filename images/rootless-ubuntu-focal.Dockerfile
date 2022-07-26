@@ -41,11 +41,11 @@ RUN apt-get update \
     apt-utils \
     ca-certificates \
     curl \
-    fuse-overlayfs \
     gcc \
     git \
     iproute2 \
     iptables \
+    jq \
     libyaml-dev \
     locales \
     lsb-release \
@@ -133,7 +133,8 @@ ENV XDG_RUNTIME_DIR=/run/user/1000
 RUN echo "PATH=${PATH}" > /etc/environment \
     && echo "ImageOS=${ImageOS}" >> /etc/environment \
     && echo "DOCKER_HOST=${DOCKER_HOST}" >> /etc/environment \
-    && echo "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" >> /etc/environment
+    && echo "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" >> /etc/environment \
+    && echo "kernel.unprivileged_userns_clone=1" >> /etc/sysctl.conf
 
 ENV HOME=/home/runner
 

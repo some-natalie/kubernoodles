@@ -29,6 +29,7 @@ ENV RUNNER_ASSETS_DIR=/runnertmp
 # Dependencies setup
 RUN dnf install -y \
     buildah \
+    jq \
     podman-docker \
     podman-compose \
     skopeo \

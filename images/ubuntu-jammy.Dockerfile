@@ -45,6 +45,7 @@ RUN apt-get update \
   gcc \
   git \
   iptables \
+  jq \
   libyaml-dev \
   locales \
   lsb-release \
