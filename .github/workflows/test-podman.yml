@@ -31,7 +31,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ghcr.io/some-natalie/kubernoodles/podman
-          tags: latest
+          tags: test
           containerfiles: images/podman.Dockerfile
 
       - name: Push image

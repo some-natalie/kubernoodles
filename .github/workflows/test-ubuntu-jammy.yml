@@ -43,7 +43,7 @@ jobs:
         with:
           file: "images/ubuntu-jammy.Dockerfile"
           push: true
-          tags: ghcr.io/some-natalie/kubernoodles/ubuntu-jammy:latest
+          tags: ghcr.io/some-natalie/kubernoodles/ubuntu-jammy:test
 
   deploy:
     name: Deploy test image to `test-runners` namespace

@@ -25,7 +25,7 @@ jobs:
           cut-off: Two hours ago UTC
           timestamp-to-use: created_at
           account-type: personal
-          untagged-only: true
+          skip-tags: latest, v*
           token: ${{ secrets.GHCR_CLEANUP_TOKEN }}
 
   stale:
