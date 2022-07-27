@@ -12,7 +12,7 @@ spec:
         - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
           value: "true"
       ephemeral: true
-      image: ghcr.io/some-natalie/kubernoodles/ubuntu-jammy:latest
+      image: ghcr.io/some-natalie/kubernoodles/ubuntu-jammy:test
       imagePullPolicy: Always
       imagePullSecrets:
         - name: ghcr

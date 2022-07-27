@@ -43,7 +43,7 @@ jobs:
         with:
           file: "images/ubuntu-focal.Dockerfile"
           push: true
-          tags: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest
+          tags: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:test
 
   deploy:
     name: Deploy test image to `test-runners` namespace

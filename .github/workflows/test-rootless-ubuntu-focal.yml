@@ -34,8 +34,8 @@ jobs:
 
       - name: Build and push image
         run: |
-          docker build -t ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest -f images/rootless-ubuntu-focal.Dockerfile .
-          docker push ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest
+          docker build -t ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:test -f images/rootless-ubuntu-focal.Dockerfile .
+          docker push ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:test
 
   deploy:
     name: Deploy test image to `test-runners` namespace
