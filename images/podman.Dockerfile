@@ -34,7 +34,7 @@ RUN dnf install -y \
     podman-compose \
     skopeo \
     slirp4netns \
-    && dnf uninstall sudo -y \
+    && dnf remove sudo -y \
     && dnf clean all \
     && touch /etc/containers/nodocker
 
