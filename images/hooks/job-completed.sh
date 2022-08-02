@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # shellcheck source=runner/logger.bash
-source logger.bash
+source /usr/bin/logger.sh
 
 log.debug "Running ARC Job Completed Hooks"
 
