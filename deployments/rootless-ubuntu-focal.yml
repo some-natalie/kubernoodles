@@ -47,7 +47,7 @@ metadata:
   namespace: runners
 spec:
   scaleTargetRef:
-    name: ubuntu-focal
+    name: rootless-ubuntu-focal
   minReplicas: 2
   maxReplicas: 6
   scaleDownDelaySecondsAfterScaleOut: 60
