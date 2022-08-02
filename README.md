@@ -33,7 +33,7 @@ There are currently 4 images that are "prebuilt" by this project, although you c
 | image name | base image | virtualization? | sudo? | notes |
 | --- | --- | --- | --- | --- |
 | ubuntu-focal | [ubuntu:focal](https://hub.docker.com/_/ubuntu) | rootful Docker-in-Docker | passwordless sudo | |
-| podman | [podman/stable](https://quay.io/repository/podman/stable?tab=tags) | rootful Podman-in-Podman | passwordless sudo | based on Fedora ([Containerfile](https://github.com/containers/podman/tree/main/contrib/podmanimage)) |
+| podman | [podman/stable:v4](https://quay.io/repository/podman/stable?tab=tags) | rootless Podman-in-Podman | nope | based on Fedora ([Containerfile](https://github.com/containers/podman/tree/main/contrib/podmanimage)) |
 | rootless-ubuntu-focal | [ubuntu:focal](https://hub.docker.com/_/ubuntu) | rootless Docker-in-Docker | nope | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 | ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) | rootful Docker-in-Docker | passwordless sudo | |
 
