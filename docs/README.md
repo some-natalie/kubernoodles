@@ -10,6 +10,8 @@ The [admin introduction](admin-introduction.md) walks you through some key consi
 
 The [admin setup](admin-setup.md) is a mostly copy-and-paste exercise to get a basic deployment up and going.
 
+The [admin openshift](admin-openshift.md) is an example of using GitHub Apps and running ARC via OpenShift (OKD) 4.10+.
+
 The [customization](admin-customization.md) guide has a quick writeup and links to learn more about the ways you can customize things to your needs.
 
 ## Troubleshooting
