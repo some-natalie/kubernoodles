@@ -1,0 +1,43 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: openshift-runner
+spec:
+  # Using "HorizontalRunnerAutoscaler"
+  #replicas: 1
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+    spec:
+      group: OpenShift
+      # predefine a group in your _Org_ if you chose to group your runners
+      labels:
+        - docker,openshift
+      # lable the runners 
+      securityContext:
+        privileged: true
+      # required for runner <0.25
+      organization: ocpdude
+      # the _Org_ associated to the actions-runner-controller
+      imagePullPolicy: Always
+      resources:
+        limits:
+          cpu: "2"
+          memory: "4Gi"
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+      image: nexus.redcloud.land/summerwind/custom-runner:617.5
+      # running a custom built runner image
+      containers:
+      # I am passing some custom variables to docker
+      - name: docker
+        volumeMounts:
+        - mountPath: /etc/docker/daemon.json
+          name: daemon-json
+          subPath: daemon.json
+      volumes:
+      - name: daemon-json
+        configMap:
+          name: daemon-json
