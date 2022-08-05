@@ -25,10 +25,12 @@ COPY images/.env /.env
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV RUNNER_ASSETS_DIR=/runnertmp
+ENV STORAGE_OPTS="overlay.mount_program=/usr/bin/fuse-overlayfs"
 
 # Dependencies setup
 RUN dnf install -y \
     buildah \
+    fuse \
     jq \
     podman-docker \
     podman-compose \
