@@ -61,6 +61,7 @@ COPY images/logger.sh /usr/bin/logger.sh
 COPY images/entrypoint.sh /usr/local/bin/
 COPY --chown=podman:podman images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
 COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
+COPY images/podman/registries.conf /etc/containers/registries.conf
 
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && sed -i 's|\[machine\]|\#\[machine\]|g' /usr/share/containers/containers.conf \
