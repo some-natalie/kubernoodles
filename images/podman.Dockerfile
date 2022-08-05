@@ -65,7 +65,11 @@ COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && sed -i 's|\[machine\]|\#\[machine\]|g' /usr/share/containers/containers.conf \
     && sed -i 's|\#ignore_chown_errors = "false"|ignore_chown_errors = "true"|g' /etc/containers/storage.conf \
-    && mkdir -p /github && chown podman:podman /github
+    && mkdir -p /github/home \
+    && mkdir /github/workflow \
+    && mkdir /github/file_commands \
+    && mkdir /github/workspace \
+    && chown -R podman:podman /github
 
 VOLUME $HOME/.local/share/containers/storage
 
