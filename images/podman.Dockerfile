@@ -62,7 +62,9 @@ COPY images/entrypoint.sh /usr/local/bin/
 COPY --chown=podman:podman images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
 COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && sed -i 's|\[machine\]|\#\[machine\]|g' /usr/share/containers/containers.conf \
+    && sed -i 's|\#ignore_chown_errors = "false"|ignore_chown_errors = "true"|g' /etc/containers/storage.conf
 
 VOLUME $HOME/.local/share/containers/storage
 
