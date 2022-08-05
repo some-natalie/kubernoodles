@@ -25,12 +25,10 @@ COPY images/.env /.env
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV RUNNER_ASSETS_DIR=/runnertmp
-ENV STORAGE_OPTS="overlay.mount_program=/usr/bin/fuse-overlayfs"
 
 # Dependencies setup
 RUN dnf install -y \
     buildah \
-    fuse \
     jq \
     podman-docker \
     podman-compose \
@@ -66,7 +64,8 @@ COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && sed -i 's|\[machine\]|\#\[machine\]|g' /usr/share/containers/containers.conf \
-    && sed -i 's|\#ignore_chown_errors = "false"|ignore_chown_errors = "true"|g' /etc/containers/storage.conf
+    && sed -i 's|\#ignore_chown_errors = "false"|ignore_chown_errors = "true"|g' /etc/containers/storage.conf \
+    mkdir -p /github && chown podman:podman /github
 
 VOLUME $HOME/.local/share/containers/storage
 
