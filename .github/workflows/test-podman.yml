@@ -87,6 +87,9 @@ jobs:
       - name: Sudo fails
         uses: ./tests/sudo-fails
 
+      - name: Container Action test
+        uses: ./tests/container
+
   remove-deploy:
     name: Delete test image deployment
     runs-on: [self-hosted, podman]
