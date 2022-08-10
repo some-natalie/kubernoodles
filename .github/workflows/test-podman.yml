@@ -89,6 +89,9 @@ jobs:
 
       - name: Container Action test
         uses: ./tests/container
+      
+      - name: Pause to investigate
+        run: sleep 1800
 
   remove-deploy:
     name: Delete test image deployment
