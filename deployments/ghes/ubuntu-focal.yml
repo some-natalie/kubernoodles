@@ -1,21 +1,20 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
-  name: podman
+  name: ubuntu-focal
   namespace: runners
 spec:
-  replicas: 1
+  replicas: 2
   template:
     spec:
-      organization: universal-exports-ltd
-      # env:
-      #   - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
-      #     value: "true"
+      # enterprise: github
+      organization: acme
+      # repository: acme/testrepo
       ephemeral: true
-      image: ghcr.io/some-natalie/kubernoodles/podman:latest # change this to the version you really want!
-      imagePullPolicy: Always
-      imagePullSecrets:
-        - name: ghcr
+      image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest # change this to the version you really want!
+      imagePullPolicy: IfNotPresent
+      # imagePullSecrets:
+      #   - name: ghcr
       dockerdWithinRunnerContainer: true
       dockerMTU: 1450
       resources:
@@ -26,9 +25,11 @@ spec:
           cpu: "200m"
           memory: "200Mi"
       labels:
+        - dependabot
         - docker
-        - podman
-        - fedora
+        - ubuntu
+        - focal
+        - ubuntu-latest # overlaps w/ hosted runners on GHEC, can use in GHES and GHAE
       containers:
         - name: runner
           securityContext:
@@ -42,13 +43,13 @@ spec:
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: HorizontalRunnerAutoscaler
 metadata:
-  name: podman-autoscaling
+  name: ubuntu-focal-autoscaling
   namespace: runners
 spec:
   scaleTargetRef:
-    name: podman
-  minReplicas: 1
-  maxReplicas: 3
+    name: ubuntu-focal
+  minReplicas: 2
+  maxReplicas: 6
   scaleDownDelaySecondsAfterScaleOut: 60
   metrics:
     - type: PercentageRunnersBusy
