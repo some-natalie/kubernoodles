@@ -1,21 +1,20 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
-  name: ubuntu-jammy
+  name: podman
   namespace: runners
 spec:
-  replicas: 1
+  replicas: 2
   template:
     spec:
-      organization: universal-exports-ltd
-      # env:
-      #   - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
-      #     value: "true"
+      # enterprise: github
+      organization: acme
+      # repository: acme/testrepo
       ephemeral: true
-      image: ghcr.io/some-natalie/kubernoodles/ubuntu-jammy:latest # change this to the version you really want!
-      imagePullPolicy: Always
-      imagePullSecrets:
-        - name: ghcr
+      image: ghcr.io/some-natalie/kubernoodles/podman:latest # change this to the version you really want!
+      imagePullPolicy: IfNotPresent
+      # imagePullSecrets:
+      #   - name: ghcr
       dockerdWithinRunnerContainer: true
       dockerMTU: 1450
       resources:
@@ -26,10 +25,10 @@ spec:
           cpu: "200m"
           memory: "200Mi"
       labels:
+        - dependabot
         - docker
-        - ubuntu
-        - jammy
-        - ubuntu-latest # overlaps w/ hosted runners on GHEC, can use in GHES and GHAE
+        - podman
+        - fedora
       containers:
         - name: runner
           securityContext:
@@ -43,13 +42,13 @@ spec:
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: HorizontalRunnerAutoscaler
 metadata:
-  name: ubuntu-jammy-autoscaling
+  name: podman-autoscaling
   namespace: runners
 spec:
   scaleTargetRef:
-    name: ubuntu-jammy
-  minReplicas: 1
-  maxReplicas: 3
+    name: podman
+  minReplicas: 2
+  maxReplicas: 6
   scaleDownDelaySecondsAfterScaleOut: 60
   metrics:
     - type: PercentageRunnersBusy

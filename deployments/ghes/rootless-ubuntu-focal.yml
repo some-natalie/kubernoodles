@@ -1,21 +1,20 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
-  name: ubuntu-focal
+  name: rootless-ubuntu-focal
   namespace: runners
 spec:
-  replicas: 1
+  replicas: 2
   template:
     spec:
-      organization: universal-exports-ltd
-      # env:
-      #   - name: DISABLE_RUNNER_UPDATE # Disables automatic runner updates
-      #     value: "true"
+      # enterprise: github
+      organization: acme
+      # repository: acme/testrepo
       ephemeral: true
-      image: ghcr.io/some-natalie/kubernoodles/ubuntu-focal:latest # change this to the version you really want!
-      imagePullPolicy: Always
-      imagePullSecrets:
-        - name: ghcr
+      image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest # change this to the version you really want!
+      imagePullPolicy: IfNotPresent
+      # imagePullSecrets:
+      #   - name: ghcr
       dockerdWithinRunnerContainer: true
       dockerMTU: 1450
       resources:
@@ -26,6 +25,7 @@ spec:
           cpu: "200m"
           memory: "200Mi"
       labels:
+        - dependabot
         - docker
         - ubuntu
         - focal
@@ -43,13 +43,13 @@ spec:
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: HorizontalRunnerAutoscaler
 metadata:
-  name: ubuntu-focal-autoscaling
+  name: rootless-ubuntu-focal-autoscaling
   namespace: runners
 spec:
   scaleTargetRef:
     name: ubuntu-focal
-  minReplicas: 1
-  maxReplicas: 3
+  minReplicas: 2
+  maxReplicas: 6
   scaleDownDelaySecondsAfterScaleOut: 60
   metrics:
     - type: PercentageRunnersBusy
