@@ -23,8 +23,8 @@ spec:
       name: test-cache
       namespace: test-runners
   mountOptions:
-    - dir_mode=0777
-    - file_mode=0777
+    - dir_mode=0555
+    - file_mode=0555
     - uid=0
     - gid=0
     - mfsymlinks
