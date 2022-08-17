@@ -39,7 +39,7 @@ jobs:
 
       - name: Update tool cache for AKS
         run: |
-          az storage file upload-batch --connection-string ${{ secrets.AZURE_CONNECTION_STRING }} --source ${{ runner.tool_cache }} --destination ${{ secrets.AZURE_FILE_SHARE }}
+          az storage file upload-batch --connection-string ${{ secrets.AZURE_CONNECTION_STRING }} --destination ${{ secrets.AZURE_FILE_SHARE }} --source ${{ runner.tool_cache }}
 
       - name: Archive tool cache
         run: |
