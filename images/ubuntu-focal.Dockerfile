@@ -41,6 +41,7 @@ RUN apt-get update \
   apt-transport-https \
   apt-utils \
   ca-certificates \
+  cifs-utils \
   curl \
   gcc \
   git \
