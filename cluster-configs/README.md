@@ -16,7 +16,7 @@ kubectl apply -f test-deploy-user.yml
 kubectl apply -f prod-deploy-user.yml
 ```
 
-## Storing the service account configs in GitHub Secrets
+### Storing the service account configs in GitHub Secrets
 
 Because you don't want to ever use structured data as a secret ([source](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-secrets)), we need to do a little magic to make kubeconfig file usable by GitHub.  Once you have made the service accounts, here's what needs to happen.
 
@@ -138,3 +138,18 @@ First, we need to get the kubeconfig file for the service account.  You can get 
     - name: Remove kubeconfig info
       run: rm -f /tmp/config
     ```
+
+## Tool cache for runners using `PersistentVolumeClaim`
+
+still a bit of a todo here
+
+1. Create file storage.
+1. Store secret.  In AKS, it looks like this.
+
+    ```shell
+    kubectl create secret generic azure-secret -n test-runners --from-literal=azurestorageaccountname=<namehere>
+    --from-literal=azurestorageaccountkey=<keyhere>
+    ```
+
+1. Create persistent volume.  See [`runner-tool-cache.yml`](runner-tool-cache.yml) for a template.
+1. Create persistentvolumeclaim with "readonlymany" so that many pods can read the contents.
