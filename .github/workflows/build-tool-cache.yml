@@ -3,13 +3,13 @@ name: Build and upload tool cache
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: "Which environment's tool cache to update"
-        type: environment
+      target-cache:
+        description: "Which tool cache to update"
+        type: choice
         required: true
         options:
-          - test
-          - production
+          - test-tool-cache
+          - prod-tool-cache
 
 jobs:
   upload_tool_cache:
@@ -39,7 +39,7 @@ jobs:
 
       - name: Update tool cache for AKS
         run: |
-          az storage file upload-batch --connection-string ${{ secrets.AZURE_CONNECTION_STRING }} --destination ${{ secrets.AZURE_FILE_SHARE }} --source ${{ runner.tool_cache }}
+          az storage file upload-batch --connection-string ${{ secrets.AZURE_CONNECTION_STRING }} --destination ${{ github.event.inputs.target-cache }} --source ${{ runner.tool_cache }}
 
       - name: Archive tool cache
         run: |
