@@ -1,0 +1,56 @@
+name: Upload tool cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Which environment's tool cache to update"
+        type: environment
+        required: true
+        options:
+          - test
+          - production
+
+jobs:
+  upload_tool_cache:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    strategy:
+      fail-fast: true
+      matrix:
+        node-versions: ["14.x", "16.x"]
+        python-versions: ["2.7", "3.10"]
+        go-versions: ["1.14", "1.19"]
+
+    steps:
+      - name: Clear any existing tool cache
+        run: |
+          mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
+          mkdir -p "${{ runner.tool_cache }}"
+
+      - name: Setup Node versions
+        uses: actions/setup-node@v2
+        with:
+          node-version: "${{ matrix.node-versions }}"
+
+      - name: Setup Python versions
+        uses: actions/setup-python@v2
+        with:
+          python-version: "${{ matrix.python-versions }}"
+
+      - name: Setup Go versions
+        uses: actions/setup-go@v2
+        with:
+          go-version: "${{ matrix.go-versions }}"
+
+      - name: Upload tool cache artifact for airgapped usage
+        uses: actions/upload-artifact@v2
+        with:
+          name: tool_cache
+          path: ${{runner.tool_cache}}
+
+      - name: Update tool cache for AKS
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage file upload-batch --connection-string ${{ secrets.AZURE_CONNECTION_STRING }} --source ${{ runner.tool_cache }} --destination ${{ secrets.AZURE_FILE_SHARE }}
