@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-tool-cache-pv
+  namespace: test-runners
+  labels:
+    usage: test-tool-cache-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  azureFile:
+    secretName: test-cache
+    secretNamespace: test-runners
+    shareName: runnertoolcache
+    readOnly: true
+  storageClassName: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-tool-cache-pvc
+  namespace: test-runners
+  annotations:
+    volume.beta.kubernetes.io/storage-class: default
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      usage: test-tool-cache-pv
