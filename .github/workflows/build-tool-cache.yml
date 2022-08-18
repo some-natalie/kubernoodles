@@ -41,12 +41,7 @@ jobs:
 
       - name: Update tool cache for AKS
         run: |
-          az storage file upload-batch \
-            --account-name "runnertoolcache" \
-            --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" \ 
-            --connection-string "${{ secrets.AZURE_CONNECTION_STRING }}" \
-            --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" \
-            --source "${{ runner.tool_cache }}/"
+          az storage file upload-batch --account-name "runnertoolcache" --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" --source "${{ runner.tool_cache }}/"
 
       - name: Archive tool cache
         run: |
