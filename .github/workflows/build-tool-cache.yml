@@ -25,20 +25,10 @@ jobs:
           mkdir -p "${{ runner.tool_cache }}"
 
       # Have as many of these "actions/setup-LANGUAGE" steps as you need
-      - name: Setup Node 12.x
-        uses: actions/setup-node@v2
-        with:
-          node-version: "12.x" # Be as specific (or not) with versions as you need
-
       - name: Setup Python 3.10
         uses: actions/setup-python@v2
         with:
           python-version: "3.10"
-
-      - name: Setup Go 1.19
-        uses: actions/setup-go@v2
-        with:
-          go-version: "1.19"
 
       # This step is needed for testing the tool cache in this demo repository.
       # Edit as needed for other storage providers or remove it entirely to export off the internet. ;)
