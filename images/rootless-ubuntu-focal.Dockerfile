@@ -8,7 +8,7 @@ ARG RUNNER_VERSION=2.295.0
 
 # Docker and Docker Compose arguments
 ENV CHANNEL=stable
-ARG COMPOSE_VERSION=v2.6.1
+ARG COMPOSE_VERSION=v2.9.0
 
 # Dumb-init version
 ARG DUMB_INIT_VERSION=1.2.5
