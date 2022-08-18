@@ -1,26 +1,22 @@
 name: Build and upload tool cache
 
+# Docs: https://docs.github.com/en/enterprise-server@latest/admin/github-actions/managing-access-to-actions-from-githubcom/setting-up-the-tool-cache-on-self-hosted-runners-without-internet-access
+
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: "Which environment's tool cache to update"
-        type: environment
+      target-cache:
+        description: "Which tool cache to update"
+        type: choice
         required: true
         options:
-          - test
-          - production
+          - test-tool-cache
+          - prod-tool-cache
 
 jobs:
   upload_tool_cache:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
-    strategy:
-      fail-fast: true
-      matrix:
-        node-versions: ["14.x", "16.x"]
-        python-versions: ["2.7", "3.10"]
-        go-versions: ["1.14", "1.19"]
 
     steps:
       - name: Clear any existing tool cache
@@ -28,29 +24,36 @@ jobs:
           mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
           mkdir -p "${{ runner.tool_cache }}"
 
-      - name: Setup Node versions
+      # Have as many of these "actions/setup-LANGUAGE" steps as you need
+      - name: Setup Node 12.x
         uses: actions/setup-node@v2
         with:
-          node-version: "${{ matrix.node-versions }}"
+          node-version: "12.x" # Be as specific (or not) with versions as you need
 
-      - name: Setup Python versions
+      - name: Setup Python 3.10
         uses: actions/setup-python@v2
         with:
-          python-version: "${{ matrix.python-versions }}"
+          python-version: "3.10"
 
-      - name: Setup Go versions
+      - name: Setup Go 1.19
         uses: actions/setup-go@v2
         with:
-          go-version: "${{ matrix.go-versions }}"
+          go-version: "1.19"
+
+      # This step is needed for testing the tool cache in this demo repository.
+      # Edit as needed for other storage providers or remove it entirely to export off the internet. ;)
+      - name: Update tool cache for AKS
+        run: |
+          az storage file upload-batch --account-name "runnertoolcache" --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" --source "${{ runner.tool_cache }}/"
+
+      # These two steps are needed to export to an airgapped machine.  Take the tarball and do the needful.
+      - name: Archive tool cache
+        run: |
+          cd "${{ runner.tool_cache }}"
+          tar -czf tool_cache.tgz *
 
       - name: Upload tool cache artifact for airgapped usage
         uses: actions/upload-artifact@v2
         with:
           name: tool_cache
-          path: ${{runner.tool_cache}}
-
-      - name: Update tool cache for AKS
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az storage file upload-batch --connection-string ${{ secrets.AZURE_CONNECTION_STRING }} --source ${{ runner.tool_cache }} --destination ${{ secrets.AZURE_FILE_SHARE }}
+          path: ${{runner.tool_cache}}/tool_cache.tar.gz
