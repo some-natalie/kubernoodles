@@ -24,10 +24,11 @@ jobs:
           mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
           mkdir -p "${{ runner.tool_cache }}"
 
+      # Have as many of these "actions/setup-LANGUAGE" steps as you need
       - name: Setup Node 12.x
         uses: actions/setup-node@v2
         with:
-          node-version: "12.x"
+          node-version: "12.x" # Be as specific (or not) with versions as you need
 
       - name: Setup Python 3.10
         uses: actions/setup-python@v2
@@ -39,10 +40,13 @@ jobs:
         with:
           go-version: "1.19"
 
+      # This step is needed for testing the tool cache in this demo repository.
+      # Edit as needed for other storage providers or remove it entirely to export off the internet. ;)
       - name: Update tool cache for AKS
         run: |
           az storage file upload-batch --account-name "runnertoolcache" --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" --source "${{ runner.tool_cache }}/"
 
+      # These two steps are needed to export to an airgapped machine.  Take the tarball and do the needful.
       - name: Archive tool cache
         run: |
           cd "${{ runner.tool_cache }}"
