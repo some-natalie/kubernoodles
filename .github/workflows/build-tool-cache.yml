@@ -1,5 +1,7 @@
 name: Build and upload tool cache
 
+# Docs: https://docs.github.com/en/enterprise-server@latest/admin/github-actions/managing-access-to-actions-from-githubcom/setting-up-the-tool-cache-on-self-hosted-runners-without-internet-access
+
 on:
   workflow_dispatch:
     inputs:
@@ -40,8 +42,10 @@ jobs:
       - name: Update tool cache for AKS
         run: |
           az storage file upload-batch \
+            --account-name "runnertoolcache" \
+            --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" \ 
             --connection-string "${{ secrets.AZURE_CONNECTION_STRING }}" \
-            --destination "${{ github.event.inputs.target-cache }}" \
+            --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" \
             --source "${{ runner.tool_cache }}/"
 
       - name: Archive tool cache
