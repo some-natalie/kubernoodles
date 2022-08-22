@@ -118,7 +118,7 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   && apt-get autoclean \
   && apt-get autoremove
 
-RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
+RUN echo RUNNER_TOOL_CACHE=/opt/hostedtoolcache > /runner.env \
   && mkdir /opt/hostedtoolcache \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
