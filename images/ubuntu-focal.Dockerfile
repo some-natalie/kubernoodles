@@ -118,7 +118,7 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   && apt-get autoclean \
   && apt-get autoremove
 
-RUN mkdir /runner/_work/_tool \
+RUN mkdir -p /runner/_work/_tool \
   && chgrp runner /runner/_work/_tool \
   && chmod g+rwx /runner/_work/_tool
 
