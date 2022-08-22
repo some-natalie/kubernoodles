@@ -56,6 +56,10 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && ./bin/installdependencies.sh \
     && dnf clean all
 
+RUN mkdir -p /runner/_work/_tool \
+    && chgrp runner /runner/_work/_tool \
+    && chmod g+rwx /runner/_work/_tool
+
 # Copy files into the image
 COPY images/logger.sh /usr/bin/logger.sh
 COPY images/entrypoint.sh /usr/local/bin/

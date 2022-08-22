@@ -98,10 +98,9 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && apt-get autoclean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
-    && mkdir /opt/hostedtoolcache \
-    && chgrp runner /opt/hostedtoolcache \
-    && chmod g+rwx /opt/hostedtoolcache
+RUN mkdir -p /runner/_work/_tool \
+    && chgrp runner /runner/_work/_tool \
+    && chmod g+rwx /runner/_work/_tool
 
 # Configure hooks folder structure
 COPY images/hooks /etc/arc/hooks/

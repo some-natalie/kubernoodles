@@ -116,10 +116,9 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   && apt-get autoclean \
   && apt-get autoremove
 
-RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
-  && mkdir /opt/hostedtoolcache \
-  && chgrp runner /opt/hostedtoolcache \
-  && chmod g+rwx /opt/hostedtoolcache
+RUN mkdir -p /runner/_work/_tool \
+  && chgrp runner /runner/_work/_tool \
+  && chmod g+rwx /runner/_work/_tool
 
 # Install dumb-init, arch command on OS X reports "i386" for Intel CPUs regardless of bitness
 RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
