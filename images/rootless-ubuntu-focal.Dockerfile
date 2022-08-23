@@ -100,7 +100,7 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
 
 RUN mkdir -p /runner/_work/_tool \
     && chown -R runner:runner /runner \
-    && chgrp -R runner /runner \
+    && chgrp -R runner:runner /runner \
     && chmod g+rwx /runner
 
 # Configure hooks folder structure
