@@ -8,12 +8,12 @@ runs:
     - name: "Verify tool cache is mounted and not empty"
       shell: bash
       run: |
-        [ "$(ls -A /runner/_work/_tool)" ] && echo "Mounted" || (echo "Empty mount" && exit 2)
+        [ "$(ls -A /opt/hostedtoolcache)" ] && echo "Mounted" || (echo "Empty mount" && exit 2)
 
     - name: "List contents of tool cache"
       shell: bash
       run: |
-        find /runner/_work/_tool -maxdepth 2 -mindepth 1 -type d -exec basename {} \;
+        find /opt/hostedtoolcache -maxdepth 2 -mindepth 1 -type d -exec basename {} \;
 
     - name: "Verify Python cache works"
       uses: actions/setup-python@v4
