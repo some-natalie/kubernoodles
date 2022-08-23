@@ -56,6 +56,7 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && ./bin/installdependencies.sh \
     && dnf clean all
 
+# Create the hosted tool cache directory
 ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
 RUN mkdir /opt/hostedtoolcache \
     && chown podman:podman /opt/hostedtoolcache \
@@ -67,7 +68,13 @@ COPY images/entrypoint.sh /usr/local/bin/
 COPY --chown=podman:podman images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
 COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && sed -i 's|\[machine\]|\#\[machine\]|g' /usr/share/containers/containers.conf \
+    && mkdir -p /github/home \
+    && mkdir /github/workflow \
+    && mkdir /github/file_commands \
+    && mkdir /github/workspace \
+    && chown -R podman:podman /github
 
 VOLUME $HOME/.local/share/containers/storage
 
