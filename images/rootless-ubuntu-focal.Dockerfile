@@ -99,8 +99,9 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /runner/_work/_tool \
-    && chgrp runner /runner/_work/_tool \
-    && chmod g+rwx /runner/_work/_tool
+    && chown -R runner:runner /runner \
+    && chgrp -R runner /runner \
+    && chmod g+rwx /runner
 
 # Configure hooks folder structure
 COPY images/hooks /etc/arc/hooks/

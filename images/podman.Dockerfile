@@ -57,8 +57,9 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && dnf clean all
 
 RUN mkdir -p /runner/_work/_tool \
-    && chgrp runner /runner/_work/_tool \
-    && chmod g+rwx /runner/_work/_tool
+    && chown -R runner:runner /runner \
+    && chgrp -R runner /runner \
+    && chmod g+rwx /runner
 
 # Copy files into the image
 COPY images/logger.sh /usr/bin/logger.sh
