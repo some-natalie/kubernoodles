@@ -15,7 +15,7 @@ runs:
       run: |
         find /opt/hostedtoolcache -maxdepth 2 -mindepth 1 -type d -exec basename {} \;
 
-    - name: "Verify Python cache works"
+    - name: "Verify Python cache works - cache hit on Python 3.10"
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
@@ -23,3 +23,8 @@ runs:
     - name: "Run Python"
       shell: bash
       run: python --version
+
+    - name: "Verify other languages still get set up from remote sources - cache miss on Node 16"
+      uses: actions/setup-node@v4
+      with:
+        node-version: "16"
