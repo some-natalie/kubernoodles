@@ -23,8 +23,3 @@ runs:
     - name: "Run Python"
       shell: bash
       run: python --version
-
-    - name: "Verify other languages still get set up from remote sources - cache miss on Node 16"
-      uses: actions/setup-node@v3
-      with:
-        node-version: "16"
