@@ -57,8 +57,9 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && dnf clean all
 
 RUN mkdir -p /runner/_work/_tool \
+    && mkdir /runner/_work/_temp \
     && chown -R podman:podman /runner \
-    && chgrp -R podman:podman /runner \
+    && chgrp -R podman /runner \
     && chmod g+rwx /runner
 
 # Copy files into the image

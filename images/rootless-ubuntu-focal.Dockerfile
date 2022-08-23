@@ -99,8 +99,9 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /runner/_work/_tool \
+    && mkdir /runner/_work/_temp \
     && chown -R runner:runner /runner \
-    && chgrp -R runner:runner /runner \
+    && chgrp -R runner /runner \
     && chmod g+rwx /runner
 
 # Configure hooks folder structure
