@@ -18,6 +18,14 @@ spec:
         - name: ghcr
       dockerdWithinRunnerContainer: true
       dockerMTU: 1450
+      volumeMounts:
+        - mountPath: /opt/hostedtoolcache
+          name: runnertoolcache
+          readOnly: true
+      volumes:
+        - name: runnertoolcache
+          persistentVolumeClaim:
+            claimName: test-tool-cache-pvc
       resources:
         limits:
           cpu: "1000m"

@@ -41,6 +41,7 @@ RUN apt-get update \
   apt-transport-https \
   apt-utils \
   ca-certificates \
+  cifs-utils \
   curl \
   gcc \
   git \
@@ -117,8 +118,9 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   && apt-get autoclean \
   && apt-get autoremove
 
-RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
-  && mkdir /opt/hostedtoolcache \
+# Create the hosted tool cache directory
+ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
+RUN mkdir /opt/hostedtoolcache \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
 

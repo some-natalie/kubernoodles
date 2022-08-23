@@ -1,0 +1,25 @@
+name: "Test tool cache"
+
+description: "Verify that the PersistentVolumeClaim tool cache is mounted and working"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Verify tool cache is mounted and not empty"
+      shell: bash
+      run: |
+        [ "$(ls -A /opt/hostedtoolcache)" ] && echo "Mounted" || (echo "Empty mount" && exit 2)
+
+    - name: "List contents of tool cache"
+      shell: bash
+      run: |
+        find /opt/hostedtoolcache -maxdepth 2 -mindepth 1 -type d -exec basename {} \;
+
+    - name: "Verify Python cache works - cache hit on Python 3.10"
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: "Run Python"
+      shell: bash
+      run: python --version
