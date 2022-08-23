@@ -1,8 +1,11 @@
-# This file configures all of the runner tool caching and is structured as follows:
+# This file configures all of runner tool caching and is structured as follows:
 #   test persistentvolume
 #   test persistentvolumeclaim
 #   production persistentvolume
 #   production persistentvolumeclaim
+#
+# All things specific to Azure contain "azure" somewhere in the value!  Make
+# sure that you read the docs for your storage provider if it's different.
 
 apiVersion: v1
 kind: PersistentVolume

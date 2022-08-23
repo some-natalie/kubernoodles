@@ -2,6 +2,11 @@
 
 This folder contains additional YAML files to apply if you'd like, and what they do.
 
+- [Service accounts](#service-accounts) needed for GitHub Actions to deploy its' own runners
+- [Creating a tool cache](#tool-cache-for-runners-using-persistentvolumeclaim) to reduce bandwidth usage on setting up tools on each and every job run, such as [`actions/setup-python`](https://github.com/actions/setup-python).
+
+---
+
 ## Service accounts
 
 These accounts exist in the Kubernetes cluster for GitHub Actions to use to deploy itself.  You'll take the `kubeconfig` file for each account, then encode it for storage in GitHub Secrets.  There are two, one for each namespace we created for the runners.
@@ -141,15 +146,40 @@ First, we need to get the kubeconfig file for the service account.  You can get 
 
 ## Tool cache for runners using `PersistentVolumeClaim`
 
-still a bit of a todo here
+These directions cover setting up a persistent volume and persistent volume claim using Azure storage.  You _will_ need to edit these a little bit to use other storage providers, but it should be called out everywhere in the example.
 
-1. Create file storage.
-1. Store secret.  In AKS, it looks like this.
+:warning: The default in this repository is to use the cache as read-only!  This means that an administrator _must_ cache all dependencies up front - every version of every language.  IME, this is a feature and not a bug for larger-scale enterprises, but if you'd rather, it's quite possible to change all of these to read-write.  I'd read more about [persistent volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) and their access modes before running this with lots of users in that configuration.
+
+1. Create file storage.  For Azure, it's a storage account with a file share - [documentation](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-introduction).  I created two file shares in the same storage account, one each for testing and production.
+1. Store the secret to connect securely to the file storage from the k8s cluster.  For Azure storage, it looks something like what's below, where your name and key come from the access key.
 
     ```shell
-    kubectl create secret generic azure-secret -n test-runners --from-literal=azurestorageaccountname=<namehere>
-    --from-literal=azurestorageaccountkey=<keyhere>
+    kubectl create secret generic azure-secret -n test-runners  \
+        --from-literal=azurestorageaccountname=runnertoolcache \
+        --from-literal=azurestorageaccountkey=<keyhere>
+    
+    kubectl create secret generic azure-secret -n runners  \
+        --from-literal=azurestorageaccountname=runnertoolcache \
+        --from-literal=azurestorageaccountkey=<keyhere>
     ```
 
-1. Create persistent volume.  See [`runner-tool-cache.yml`](runner-tool-cache.yml) for a template.
-1. Create persistentvolumeclaim with "readonlymany" so that many pods can read the contents.
+1. Create two persistent volumes, one for test and one for production.  Then create a persistentvolumeclaim with "readonlymany" so that many pods can read the contents, one on each volume.  See [`runner-tool-cache.yml`](runner-tool-cache.yml) for a template and comments.
+
+    ```shell
+    kubectl apply -f runner-tool-cache.yml
+    ```
+
+1. Make sure the pods can use these shares.  Here's what this looks like in a [runner deployment](../deployments/README.md):
+
+    ```yaml
+    volumeMounts:
+        - mountPath: /opt/hostedtoolcache
+          name: runnertoolcache
+          readOnly: true
+      volumes:
+        - name: runnertoolcache
+          persistentVolumeClaim:
+            claimName: test-tool-cache-pvc
+    ```
+
+Now let's populate the cache!  The workflow in this repository ([here](../.github/workflows/build-tool-cache.yml)) updates Azure file storage directly from a GitHub hosted runner for use in self-hosted runners.  You'll need to make this your own from that template - covering each language and version you'd like.  The example is only caching Python 3.10.  A list of more languages and features of each setup Action are available [here](https://github.com/actions?q=setup&type=all&language=&sort=).  If you need to walk this across an airgap, remove the step where it connects and uploads to Azure and download the tarball to do with what you need to. :-)
