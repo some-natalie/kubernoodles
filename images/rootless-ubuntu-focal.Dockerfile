@@ -8,7 +8,7 @@ ARG RUNNER_VERSION=2.295.0
 
 # Docker and Docker Compose arguments
 ENV CHANNEL=stable
-ARG COMPOSE_VERSION=v2.6.1
+ARG COMPOSE_VERSION=v2.9.0
 
 # Dumb-init version
 ARG DUMB_INIT_VERSION=1.2.5
@@ -98,8 +98,9 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && apt-get autoclean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN echo AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache > /runner.env \
-    && mkdir /opt/hostedtoolcache \
+# Create the hosted tool cache directory
+ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
+RUN mkdir /opt/hostedtoolcache \
     && chgrp runner /opt/hostedtoolcache \
     && chmod g+rwx /opt/hostedtoolcache
 

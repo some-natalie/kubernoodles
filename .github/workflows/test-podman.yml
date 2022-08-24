@@ -87,6 +87,9 @@ jobs:
       - name: Sudo fails
         uses: ./tests/sudo-fails
 
+      - name: Cache test
+        uses: ./tests/cache
+
       - name: Container Action test
         uses: ./tests/container
 

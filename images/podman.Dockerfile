@@ -56,6 +56,12 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && ./bin/installdependencies.sh \
     && dnf clean all
 
+# Create the hosted tool cache directory
+ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
+RUN mkdir /opt/hostedtoolcache \
+    && chown podman:podman /opt/hostedtoolcache \
+    && chmod g+rwx /opt/hostedtoolcache
+
 # Copy files into the image
 COPY images/logger.sh /usr/bin/logger.sh
 COPY images/entrypoint.sh /usr/local/bin/

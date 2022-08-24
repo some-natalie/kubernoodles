@@ -1,0 +1,108 @@
+# This file configures all of runner tool caching and is structured as follows:
+#   test persistentvolume
+#   test persistentvolumeclaim
+#   production persistentvolume
+#   production persistentvolumeclaim
+#
+# All things specific to Azure contain "azure" somewhere in the value!  Make
+# sure that you read the docs for your storage provider if it's different.
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-tool-cache-pv
+  namespace: test-runners
+  labels:
+    usage: test-tool-cache-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: azurefile-csi
+  csi:
+    driver: file.csi.azure.com
+    readOnly: true
+    volumeHandle: unique-volumeid # make sure this volumeid is unique in the cluster
+    volumeAttributes:
+      # resourceGroup: EXISTING_RESOURCE_GROUP_NAME  # optional, only set this when storage account is not in the same resource group as agent node
+      shareName: test-tool-cache
+    nodeStageSecretRef:
+      name: test-cache
+      namespace: test-runners
+  mountOptions:
+    - dir_mode=0555
+    - file_mode=0555
+    - uid=0
+    - gid=0
+    - mfsymlinks
+    - cache=strict
+    - nosharesock
+    - nobrl
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-tool-cache-pvc
+  namespace: test-runners
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: azurefile-csi
+  selector:
+    matchLabels:
+      usage: test-tool-cache-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prod-tool-cache-pv
+  namespace: runners
+  labels:
+    usage: prod-tool-cache-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: azurefile-csi
+  csi:
+    driver: file.csi.azure.com
+    readOnly: true
+    volumeHandle: prod-unique-volumeid # make sure this volumeid is unique in the cluster
+    volumeAttributes:
+      # resourceGroup: EXISTING_RESOURCE_GROUP_NAME  # optional, only set this when storage account is not in the same resource group as agent node
+      shareName: prod-tool-cache
+    nodeStageSecretRef:
+      name: prod-cache
+      namespace: runners
+  mountOptions:
+    - dir_mode=0555
+    - file_mode=0555
+    - uid=0
+    - gid=0
+    - mfsymlinks
+    - cache=strict
+    - nosharesock
+    - nobrl
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prod-tool-cache-pvc
+  namespace: runners
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: azurefile-csi
+  selector:
+    matchLabels:
+      usage: prod-tool-cache-pv
