@@ -43,6 +43,8 @@ There is a whole discussion to be had on the ways you can enable Docker workload
 
 Most of what's above is equally true for [Podman](https://podman.io/) as it is for Docker.  There are a couple things to note that are a little different.  The first is a `sysctl` config file to read in a kernel parameter to allow MTU probing ([file](podman/11-tcp-mtu-probing.conf)).  This _should_ prevent an MTU black hole, but only when it's detected.  The other file manually sets the MTU of the containers run within the pod ([file](podman/87-podman.conflist)).  The runner uses [podman/stable](https://quay.io/repository/podman/stable) as the base image.  It also includes [buildah](https://buildah.io/) and [skopeo](https://github.com/containers/skopeo) in the runner.
 
+Another potential point of user friction is that Podman has a different opinion on image short names, outlined in this [RedHat blog post](https://www.redhat.com/sysadmin/container-image-short-names).  To address this, `/etc/containers/registries.conf` is reconfigured to allow short-name aliasing.
+
 ## Even more on image customization
 
 PowerShell and the Azure CLI took over 1 GB and added a bunch of time to the image build, so it was removed from the default Dockerfile for Ubuntu.  To add it back, here's the code snippet to add back to `ubuntu-focal.Dockerfile`:
