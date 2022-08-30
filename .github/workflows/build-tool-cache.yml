@@ -15,6 +15,7 @@ on:
 
 jobs:
   upload_python_tool_cache:
+    name: Build Python 3.10 tool cache
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
 
@@ -49,6 +50,7 @@ jobs:
           path: ${{runner.tool_cache}}/tool_cache.tar.gz
 
   upload_go_tool_cache:
+    name: Build Go 1.19 tool cache
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
 
@@ -71,6 +73,7 @@ jobs:
           az storage file upload-batch --account-name "runnertoolcache" --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" --source "${{ runner.tool_cache }}/"
 
   upload_node_tool_cache:
+    name: Build Node 16 tool cache
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
 
