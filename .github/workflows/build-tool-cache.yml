@@ -60,14 +60,12 @@ jobs:
           mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
           mkdir -p "${{ runner.tool_cache }}"
 
-      # Have as many of these "actions/setup-LANGUAGE" steps as you need
       - name: Setup Go 1.19
         uses: actions/setup-go@v3
         with:
           go-version: "1.19"
 
       # This step is needed for testing the tool cache in this demo repository.
-      # Edit as needed for other storage providers or remove it entirely to export off the internet. ;)
       - name: Update tool cache for AKS
         run: |
           az storage file upload-batch --account-name "runnertoolcache" --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" --source "${{ runner.tool_cache }}/"
@@ -83,14 +81,31 @@ jobs:
           mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
           mkdir -p "${{ runner.tool_cache }}"
 
-      # Have as many of these "actions/setup-LANGUAGE" steps as you need
       - name: Setup NodeJS 16
         uses: actions/setup-node@v3
         with:
           node-version: "16"
 
       # This step is needed for testing the tool cache in this demo repository.
-      # Edit as needed for other storage providers or remove it entirely to export off the internet. ;)
+      - name: Update tool cache for AKS
+        run: |
+          az storage file upload-batch --account-name "runnertoolcache" --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" --source "${{ runner.tool_cache }}/"
+
+  upload_docker_tool_cache:
+    name: Upload buildx and other Docker dependencies
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Clear any existing tool cache
+        run: |
+          mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
+          mkdir -p "${{ runner.tool_cache }}"
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # This step is needed for testing the tool cache in this demo repository.
       - name: Update tool cache for AKS
         run: |
           az storage file upload-batch --account-name "runnertoolcache" --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" --destination "https://runnertoolcache.file.core.windows.net/${{ github.event.inputs.target-cache }}" --source "${{ runner.tool_cache }}/"
