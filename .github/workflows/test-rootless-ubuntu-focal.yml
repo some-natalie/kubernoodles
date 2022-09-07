@@ -34,7 +34,7 @@ jobs:
           docker context use mycontext
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
         with:
           buildkitd-flags: --debug
           driver: docker
