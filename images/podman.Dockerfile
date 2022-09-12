@@ -62,7 +62,7 @@ RUN mkdir /opt/hostedtoolcache \
     && chown podman:podman /opt/hostedtoolcache \
     && chmod g+rwx /opt/hostedtoolcache
 RUN mkdir /opt/statictoolcache \
-    && chgrp runner /opt/statictoolcache \
+    && chown podman:podman /opt/statictoolcache \
     && chmod g+rwx /opt/statictoolcache
 
 # Copy files into the image
