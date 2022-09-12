@@ -20,6 +20,9 @@ jq ".\"registry-mirrors\"[0] = \"${DOCKER_REGISTRY_MIRROR}\"" /home/runner/.conf
 fi
 SCRIPT
 
+logger.notice "Symlinking static cache assets"
+ln -s /opt/statictoolcache/* /opt/hostedtoolcache && ls -l /opt/hostedtoolcache
+
 logger.notice "Starting Docker (rootless)"
 /home/runner/bin/dockerd-rootless.sh --config-file /home/runner/.config/docker/daemon.json >> /dev/null 2>&1 &
 

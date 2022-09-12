@@ -39,6 +39,9 @@ sudo /usr/bin/supervisord -n >> /dev/null 2>&1 &
 logger.debug "Waiting for processes to be running"
 processes=(dockerd)
 
+logger.notice "Symlinking static cache assets"
+ln -s /opt/statictoolcache/* /opt/hostedtoolcache && ls -l /opt/hostedtoolcache
+
 for process in "${processes[@]}"; do
     sleep 10
     wait_for_process "$process"
