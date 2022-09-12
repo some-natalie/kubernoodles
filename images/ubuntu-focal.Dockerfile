@@ -123,6 +123,9 @@ ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
 RUN mkdir /opt/hostedtoolcache \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
+RUN mkdir /opt/statictoolcache \
+  && chgrp runner /opt/statictoolcache \
+  && chmod g+rwx /opt/statictoolcache
 
 # Install dumb-init, arch command on OS X reports "i386" for Intel CPUs regardless of bitness
 RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \

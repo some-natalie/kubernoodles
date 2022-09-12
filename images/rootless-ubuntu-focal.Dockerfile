@@ -103,6 +103,9 @@ ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
 RUN mkdir /opt/hostedtoolcache \
     && chgrp runner /opt/hostedtoolcache \
     && chmod g+rwx /opt/hostedtoolcache
+RUN mkdir /opt/statictoolcache \
+    && chgrp runner /opt/statictoolcache \
+    && chmod g+rwx /opt/statictoolcache
 
 # Configure hooks folder structure
 COPY images/hooks /etc/arc/hooks/
