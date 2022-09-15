@@ -42,7 +42,7 @@ Here are the credentials we'll be generating for enterprise-wide runners:
     kubectl create namespace actions-runner-system
     helm repo add actions-runner-controller https://actions-runner-controller.github.io/actions-runner-controller
     helm repo update
-    helm install -n actions-runner-system actions-runner-controller actions-runner-controller/actions-runner-controller --version=0.20.2
+    helm install -n actions-runner-system actions-runner-controller actions-runner-controller/actions-runner-controller --version=0.21.0
     ```
 
 1. Set the GitHub Enterprise URL, needed only for GitHub Enterprise Server or GitHub AE.
