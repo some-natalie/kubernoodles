@@ -60,10 +60,11 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
 ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
 RUN mkdir /opt/hostedtoolcache \
     && chown podman:podman /opt/hostedtoolcache \
-    && chmod g+rwx /opt/hostedtoolcache
-RUN mkdir /opt/statictoolcache \
+    && chmod g+rwx /opt/hostedtoolcache \
+    && mkdir /opt/statictoolcache \
     && chown podman:podman /opt/statictoolcache \
-    && chmod g+rwx /opt/statictoolcache
+    && chmod g+rwx /opt/statictoolcache \
+    && ln -s /opt/statictoolcache/* /opt/hostedtoolcache && ls -l /opt/hostedtoolcache
 
 # Copy files into the image
 COPY images/logger.sh /usr/bin/logger.sh
