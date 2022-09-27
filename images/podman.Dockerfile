@@ -68,10 +68,12 @@ RUN mkdir /opt/statictoolcache \
 # Copy files into the image
 COPY images/logger.sh /usr/bin/logger.sh
 COPY images/entrypoint.sh /usr/local/bin/
+COPY images/podman-startup.sh /usr/local/bin/
 COPY --chown=podman:podman images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
 COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
 
 RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/podman-startup.sh \
     && sed -i 's|\[machine\]|\#\[machine\]|g' /usr/share/containers/containers.conf \
     && mkdir -p /github/home \
     && mkdir /github/workflow \
@@ -83,4 +85,4 @@ VOLUME $HOME/.local/share/containers/storage
 
 USER podman
 
-ENTRYPOINT ["entrypoint.sh"]
+CMD [ "podman-startup.sh"]
