@@ -19,7 +19,7 @@ spec:
       dockerdWithinRunnerContainer: true
       dockerMTU: 1450
       volumeMounts:
-        - mountPath: /opt/hostedtoolcache
+        - mountPath: /opt/statictoolcache
           name: runnertoolcache
           readOnly: true
       volumes:

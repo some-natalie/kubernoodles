@@ -4,12 +4,12 @@ FROM ubuntu:22.04
 ARG TARGETPLATFORM=linux/amd64
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.295.0
+ARG RUNNER_VERSION=2.297.0
 
 # Docker and Docker Compose arguments
 ARG DOCKER_CHANNEL=stable
-ARG DOCKER_VERSION=20.10.17
-ARG COMPOSE_VERSION=v2.9.0
+ARG DOCKER_VERSION=20.10.18
+ARG COMPOSE_VERSION=v2.10.2
 
 # Dumb-init version
 ARG DUMB_INIT_VERSION=1.2.5
@@ -121,6 +121,9 @@ ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
 RUN mkdir /opt/hostedtoolcache \
   && chgrp runner /opt/hostedtoolcache \
   && chmod g+rwx /opt/hostedtoolcache
+RUN mkdir /opt/statictoolcache \
+  && chgrp runner /opt/statictoolcache \
+  && chmod g+rwx /opt/statictoolcache
 
 # Install dumb-init, arch command on OS X reports "i386" for Intel CPUs regardless of bitness
 RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \

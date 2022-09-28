@@ -13,7 +13,7 @@ Additionally, for **GitHub Enterprise Server**, you will need the following:
 
 :information_source:  While Actions shipped in GHES 3.0, the later versions of actions-runner-controller specify that 3.3 is their minimum supported version.  You may, if needed, want to move to an earlier version of actions-runner-controller.  Upgrading to a later version of GHES is the better option though. :-)
 
-Here are the credentials we'll be generating:
+Here are the credentials we'll be generating for enterprise-wide runners:
 
 - A GitHub PAT with _only_ the `admin:enterprise` scope (for enterprise-wide runners)
 - A GitHub PAT (or credentials for an alternative container registry) to pull the runner containers from the registry (in this case, we're using GitHub Packages)
@@ -33,7 +33,7 @@ Here are the credentials we'll be generating:
     kubectl create namespace cert-manager
     helm repo add jetstack https://charts.jetstack.io
     helm repo update
-    helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.8.2 --set installCRDs=true
+    helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.9.1 --set installCRDs=true
     ```
 
 1. Install [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller).
@@ -42,7 +42,7 @@ Here are the credentials we'll be generating:
     kubectl create namespace actions-runner-system
     helm repo add actions-runner-controller https://actions-runner-controller.github.io/actions-runner-controller
     helm repo update
-    helm install -n actions-runner-system actions-runner-controller actions-runner-controller/actions-runner-controller --version=0.19.1
+    helm install -n actions-runner-system actions-runner-controller actions-runner-controller/actions-runner-controller --version=0.21.0
     ```
 
 1. Set the GitHub Enterprise URL, needed only for GitHub Enterprise Server or GitHub AE.

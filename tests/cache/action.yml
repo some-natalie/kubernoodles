@@ -5,10 +5,10 @@ description: "Verify that the PersistentVolumeClaim tool cache is mounted and wo
 runs:
   using: "composite"
   steps:
-    - name: "Verify tool cache is mounted and not empty"
+    - name: "Verify static tool cache is mounted and not empty"
       shell: bash
       run: |
-        [ "$(ls -A /opt/hostedtoolcache)" ] && echo "Mounted" || (echo "Empty mount" && exit 2)
+        [ "$(ls -A /opt/statictoolcache)" ] && echo "Mounted" || (echo "Empty mount" && exit 2)
 
     - name: "List contents of tool cache"
       shell: bash

@@ -4,11 +4,11 @@ FROM ubuntu:20.04
 ARG TARGETPLATFORM=linux/amd64
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.295.0
+ARG RUNNER_VERSION=2.297.0
 
 # Docker and Docker Compose arguments
 ENV CHANNEL=stable
-ARG COMPOSE_VERSION=v2.9.0
+ARG COMPOSE_VERSION=v2.10.2
 
 # Dumb-init version
 ARG DUMB_INIT_VERSION=1.2.5
@@ -103,6 +103,9 @@ ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache
 RUN mkdir /opt/hostedtoolcache \
     && chgrp runner /opt/hostedtoolcache \
     && chmod g+rwx /opt/hostedtoolcache
+RUN mkdir /opt/statictoolcache \
+    && chgrp runner /opt/statictoolcache \
+    && chmod g+rwx /opt/statictoolcache
 
 # Configure hooks folder structure
 COPY images/hooks /etc/arc/hooks/
