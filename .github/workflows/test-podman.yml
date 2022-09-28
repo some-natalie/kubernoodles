@@ -90,8 +90,8 @@ jobs:
       - name: Cache test
         uses: ./tests/cache
 
-      # - name: Container Action test
-      #   uses: ./tests/container
+      - name: Container Action test
+        uses: ./tests/container
 
       - name: Pause for 30 minutes to investigate
         run: sleep 1800
