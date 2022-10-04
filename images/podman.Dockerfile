@@ -4,7 +4,7 @@ FROM quay.io/podman/stable:v4
 ARG TARGETPLATFORM=linux/amd64
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.297.0
+ARG RUNNER_VERSION=2.298.2
 
 # Other arguments
 ARG DEBUG=false
@@ -24,20 +24,34 @@ COPY images/.env /.env
 # Shell setup
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# The UID env var should be used in child Containerfile.
+ENV UID=1000
+ENV GID=0
+ENV USERNAME="podman"
 ENV RUNNER_ASSETS_DIR=/runnertmp
 
 # Dependencies setup
 RUN dnf install -y \
     buildah \
+    fuse-overlayfs \
     jq \
     podman-docker \
     podman-compose \
     skopeo \
+    shadow-utils \
     slirp4netns \
+    xz \
+    --exclude container-selinux \
+    && dnf -y reinstall shadow-utils \
     && rm /etc/dnf/protected.d/sudo.conf \
     && dnf remove sudo -y \
     && dnf clean all \
     && touch /etc/containers/nodocker
+
+# This is to mimic the OpenShift behaviour of adding the dynamic user to group 0.
+RUN usermod -G 0 $USERNAME
+ENV HOME /home/${USERNAME}
+WORKDIR /home/${USERNAME}
 
 # Install kubectl
 COPY images/software/kubectl.sh /kubectl.sh
@@ -69,8 +83,19 @@ RUN mkdir /opt/statictoolcache \
 COPY images/logger.sh /usr/bin/logger.sh
 COPY images/entrypoint.sh /usr/local/bin/
 COPY images/podman-startup.sh /usr/local/bin/
-COPY --chown=podman:podman images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
 COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
+COPY images/podman/containers.conf /home/podman/.config/containers/containers.conf
+COPY images/podman/registries.conf /etc/containers/registries.conf
+
+RUN chgrp -R 0 /etc/containers/ \
+    && chmod -R a+r /etc/containers/ \
+    && chmod -R g+w /etc/containers/
+
+# Use VFS since fuse does not work
+# https://github.com/containers/buildah/blob/master/vendor/github.com/containers/storage/storage.conf
+RUN mkdir -vp /home/${USERNAME}/.config/containers && \
+    printf '[storage]\ndriver = "vfs"\n' > /home/${USERNAME}/.config/containers/storage.conf && \
+    chown -Rv ${USERNAME} /home/${USERNAME}/.config/
 
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && chmod +x /usr/local/bin/podman-startup.sh \
@@ -81,8 +106,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh \
     && mkdir /github/workspace \
     && chown -R podman:podman /github
 
-VOLUME $HOME/.local/share/containers/storage
-
-USER podman
+USER $UID
 
 CMD [ "podman-startup.sh"]
