@@ -4,7 +4,7 @@ FROM quay.io/podman/stable:v4
 ARG TARGETPLATFORM=linux/amd64
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.297.0
+ARG RUNNER_VERSION=2.298.2
 
 # Other arguments
 ARG DEBUG=false
@@ -83,9 +83,9 @@ RUN mkdir /opt/statictoolcache \
 COPY images/logger.sh /usr/bin/logger.sh
 COPY images/entrypoint.sh /usr/local/bin/
 COPY images/podman-startup.sh /usr/local/bin/
-COPY --chown=podman:podman images/podman/87-podman.conflist /home/podman/.config/cni/net.d/87-podman.conflist
 COPY images/podman/11-tcp-mtu-probing.conf /etc/sysctl.d/11-tcp-mtu-probing.conf
-COPY images/podman/containers.conf /etc/containers/containers.conf
+COPY images/podman/containers.conf /home/podman/.config/containers/containers.conf
+COPY images/podman/registries.conf /etc/containers/registries.conf
 
 RUN chgrp -R 0 /etc/containers/ \
     && chmod -R a+r /etc/containers/ \
