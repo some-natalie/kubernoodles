@@ -1,7 +1,7 @@
 #!/bin/bash
 source /usr/bin/logger.sh
 
-logger.notice "Writing out Docker config file"
+log.notice "Writing out Docker config file"
 /bin/bash <<SCRIPT
 mkdir -p /home/runner/.config/docker/
 
@@ -20,10 +20,10 @@ jq ".\"registry-mirrors\"[0] = \"${DOCKER_REGISTRY_MIRROR}\"" /home/runner/.conf
 fi
 SCRIPT
 
-logger.notice "Symlinking static cache assets"
+log.notice "Symlinking static cache assets"
 ln -s /opt/statictoolcache/* /opt/hostedtoolcache && ls -l /opt/hostedtoolcache
 
-logger.notice "Starting Docker (rootless)"
+log.notice "Starting Docker (rootless)"
 /home/runner/bin/dockerd-rootless.sh --config-file /home/runner/.config/docker/daemon.json >> /dev/null 2>&1 &
 
 # Wait processes to be running

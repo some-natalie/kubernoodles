@@ -6,8 +6,8 @@ function wait_for_process () {
     local process_name="$1"
     local waited_sec=0
     while ! pgrep "$process_name" >/dev/null && ((waited_sec < max_time_wait)); do
-        logger.notice "Process $process_name is not running yet. Retrying in 2 seconds"
-        logger.notice "Waited $waited_sec seconds of $max_time_wait seconds"
+        log.notice "Process $process_name is not running yet. Retrying in 2 seconds"
+        log.notice "Waited $waited_sec seconds of $max_time_wait seconds"
         sleep 2
         ((waited_sec=waited_sec+2))
         if ((waited_sec >= max_time_wait)); then
@@ -33,24 +33,24 @@ for config in /etc/docker/daemon.json /etc/supervisor/conf.d/dockerd.conf; do
   dump "$config" 'Using {path} with the following content:'
 done
 
-logger.debug "Starting supervisor"
+log.debug "Starting supervisor"
 sudo /usr/bin/supervisord -n >> /dev/null 2>&1 &
 
-logger.debug "Waiting for processes to be running"
+log.debug "Waiting for processes to be running"
 processes=(dockerd)
 
-logger.notice "Symlinking static cache assets"
+log.notice "Symlinking static cache assets"
 ln -s /opt/statictoolcache/* /opt/hostedtoolcache && ls -l /opt/hostedtoolcache
 
 for process in "${processes[@]}"; do
     sleep 10
     wait_for_process "$process"
     if [ $? -ne 0 ]; then
-        logger.error "$process is not running after max time"
+        log.error "$process is not running after max time"
         dump /var/log/dockerd.err.log 'Dumping {path} to aid investigation'
         exit 1
     else
-        logger.debug "$process is running"
+        log.debug "$process is running"
     fi
 done
 
