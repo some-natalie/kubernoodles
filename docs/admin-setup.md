@@ -33,7 +33,7 @@ Here are the credentials we'll be generating for enterprise-wide runners:
     kubectl create namespace cert-manager
     helm repo add jetstack https://charts.jetstack.io
     helm repo update
-    helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.9.1 --set installCRDs=true
+    helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.10.0 --set installCRDs=true
     ```
 
 1. Install [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller).
@@ -42,7 +42,7 @@ Here are the credentials we'll be generating for enterprise-wide runners:
     kubectl create namespace actions-runner-system
     helm repo add actions-runner-controller https://actions-runner-controller.github.io/actions-runner-controller
     helm repo update
-    helm install -n actions-runner-system actions-runner-controller actions-runner-controller/actions-runner-controller --version=0.21.0
+    helm install -n actions-runner-system actions-runner-controller actions-runner-controller/actions-runner-controller --version=0.21.1
     ```
 
 1. Set the GitHub Enterprise URL, needed only for GitHub Enterprise Server or GitHub AE.

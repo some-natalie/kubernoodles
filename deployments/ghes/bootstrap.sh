@@ -15,11 +15,11 @@ fi
 
 # Setup cert-manager
 kubectl create namespace cert-manager
-helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.9.1 --set installCRDs=true
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.10.0 --set installCRDs=true
 
 # Setup ARC
 kubectl create namespace actions-runner-system
-helm install -n actions-runner-system actions-runner-controller actions-runner-controller/actions-runner-controller --version=0.21.0
+helm install -n actions-runner-system actions-runner-controller actions-runner-controller/actions-runner-controller --version=0.21.1
 kubectl set env deploy actions-runner-controller -c manager GITHUB_ENTERPRISE_URL="$URL" --namespace actions-runner-system
 kubectl create secret generic controller-manager -n actions-runner-system --from-literal=github_token="$2"
 kubectl create namespace runners
