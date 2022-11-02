@@ -1,4 +1,4 @@
-name: GHAE - deploy runners (bare metal)
+name: GHES - deploy runners (bare metal)
 
 on:
   workflow_dispatch: # deploy on demand

@@ -7,8 +7,8 @@ spec:
   replicas: 2
   template:
     spec:
-      # enterprise: github
-      organization: acme
+      enterprise: github
+      # organization: acme
       # repository: acme/testrepo
       ephemeral: true
       image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-focal:latest # change this to the version you really want!
