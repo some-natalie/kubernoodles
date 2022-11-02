@@ -7,11 +7,11 @@ spec:
   replicas: 2
   template:
     spec:
-      # enterprise: github
-      organization: acme
+      enterprise: github
+      # organization: acme
       # repository: acme/testrepo
       ephemeral: true
-      image: ghcr.io/some-natalie/kubernoodles/podman:latest # change this to the version you really want!
+      image: ghcr.io/some-natalie/kubernoodles/podman:lastest # change this to the version you really want!
       imagePullPolicy: IfNotPresent
       # imagePullSecrets:
       #   - name: ghcr
