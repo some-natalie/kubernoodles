@@ -1,4 +1,4 @@
-name: GHAE - remove runners (bare metal)
+name: GHES - remove runners (bare metal)
 
 on:
   workflow_dispatch: # deploy on demand
