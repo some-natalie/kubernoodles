@@ -40,10 +40,6 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && touch /etc/containers/nodocker \
     && dnf clean all
 
-# Adding custom CA to runner
-COPY ca.crt /etc/pki/ca-trust/source/anchors/ca.crt
-RUN update-ca-trust 
-
 COPY logger.sh /opt/bash-utils/logger.sh
 COPY entrypoint.sh /usr/local/bin/
 
