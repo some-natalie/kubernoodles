@@ -1,10 +1,10 @@
-FROM quay.io/podman/stable:v4.1.1
+FROM quay.io/podman/stable:v4.3.1
 
 # Target architecture
-ARG TARGETPLATFORM=linux/amd64
+ARG TARGETPLATFORM=amd64
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.292.0
+ARG RUNNER_VERSION=2.299.1
 
 # Other arguments
 ARG DEBUG=false
@@ -39,10 +39,6 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && ./bin/installdependencies.sh \
     && touch /etc/containers/nodocker \
     && dnf clean all
-
-# Adding custom CA to runner
-#COPY ca.crt /etc/pki/ca-trust/source/anchors/ca.crt
-#RUN update-ca-trust 
 
 COPY logger.sh /opt/bash-utils/logger.sh
 COPY entrypoint.sh /usr/local/bin/
