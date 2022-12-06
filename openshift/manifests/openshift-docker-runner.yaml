@@ -13,6 +13,7 @@ spec:
     spec:
       containers:
       # Optional - passing in daemon.json entries via ConfigMap
+      # See daemon-json-configmap.yaml
       - name: docker
         resources: {}
         volumeMounts:

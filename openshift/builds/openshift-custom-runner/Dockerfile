@@ -15,12 +15,6 @@ RUN sudo sed -i 's|\[machine\]|\#\[machine\]|g' /usr/share/containers/containers
 
 USER root
 
-# Adding certs for my lab to the runner
-#RUN mkdir -p /etc/docker/certs.d/
-#COPY ca.crt /etc/docker/certs.d/
-#COPY ca.crt /usr/local/share/ca-certificates/ca.crt
-#RUN update-ca-certificates
-
 RUN usermod -aG sudo runner \
     && usermod -aG docker runner \
     && echo "%sudo   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers

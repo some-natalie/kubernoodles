@@ -1,3 +1,5 @@
+# Optional - if you need to pass info to daemon.json
+# https://docs.docker.com/config/daemon/
 apiVersion: v1
 data:
   daemon.json: |-
