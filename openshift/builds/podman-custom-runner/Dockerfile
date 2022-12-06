@@ -1,7 +1,7 @@
 FROM quay.io/podman/stable:v4.3.1
 
 # Target architecture
-ARG TARGETPLATFORM=amd64
+ARG TARGETPLATFORM=linux/amd64
 
 # GitHub runner arguments
 ARG RUNNER_VERSION=2.299.1
@@ -23,8 +23,9 @@ RUN dnf install -y \
     curl \
     && dnf clean all
 
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
-    && mv kubectl /usr/local/bin/
+# Removing kubectl - runner load via GitHub Actions instead
+# RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+#     && mv kubectl /usr/local/bin/
 
 # Runner download supports amd64 as x64
 RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
