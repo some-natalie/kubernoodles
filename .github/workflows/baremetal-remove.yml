@@ -19,10 +19,10 @@ jobs:
 
       - name: Update deployment
         run: |
-          kubectl delete -f deployments/ghae/podman.yml --insecure-skip-tls-verify
-          kubectl delete -f deployments/ghae/ubuntu-focal.yml --insecure-skip-tls-verify
-          kubectl delete -f deployments/ghae/rootless-ubuntu-focal.yml --insecure-skip-tls-verify
-          kubectl delete -f deployments/ghae/ubuntu-jammy.yml --insecure-skip-tls-verify
+          kubectl delete -f deployments/ghes/podman.yml --insecure-skip-tls-verify
+          kubectl delete -f deployments/ghes/ubuntu-focal.yml --insecure-skip-tls-verify
+          kubectl delete -f deployments/ghes/rootless-ubuntu-focal.yml --insecure-skip-tls-verify
+          kubectl delete -f deployments/ghes/ubuntu-jammy.yml --insecure-skip-tls-verify
         env:
           KUBECONFIG: /tmp/config
 
