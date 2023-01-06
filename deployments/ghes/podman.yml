@@ -25,7 +25,6 @@ spec:
           cpu: "200m"
           memory: "200Mi"
       labels:
-        - dependabot
         - docker
         - podman
         - fedora
