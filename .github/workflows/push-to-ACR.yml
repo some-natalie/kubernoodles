@@ -11,9 +11,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set outputs
-        id: vars
-        run: echo ::set-output name=sha_short::${GITHUB_SHA::7}
+      - name: Set short SHA
+        run: echo "SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -31,4 +30,4 @@ jobs:
           file: "images/ubuntu-jammy.Dockerfile"
           push: true
           tags: |
-            kubernoodles.azurecr.io/ubuntu-jammy:${{ steps.vars.outputs.sha_short }}
+            kubernoodles.azurecr.io/ubuntu-jammy:${{ env.SHA_SHORT }}
