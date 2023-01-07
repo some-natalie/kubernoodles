@@ -132,6 +132,9 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@main
 
+      - name: Log in to GHCR
+        run: echo ${{ secrets.GITHUB_TOKEN }} | podman login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Sign the published Docker image
         env:
           COSIGN_EXPERIMENTAL: "true"
