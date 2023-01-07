@@ -39,6 +39,7 @@ jobs:
 
       - name: Build and push the image
         uses: docker/build-push-action@v3
+        id: build-and-push
         with:
           file: "images/${{ matrix.runner-image }}.Dockerfile"
           push: true
@@ -62,7 +63,7 @@ jobs:
       - name: Generate SBOM for the Ubuntu-based runners
         uses: anchore/sbom-action@v0
         with:
-          image: ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}
+          image: ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}-${{ env.SHA_SHORT }}
 
       - name: Install cosign
         uses: sigstore/cosign-installer@main
@@ -70,7 +71,7 @@ jobs:
       - name: Sign the published Docker image
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}
+        run: cosign sign ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}@${{ steps.build-and-push.outputs.digest }}
 
   build-podman:
     runs-on: ubuntu-latest # use the GitHub hosted runners
@@ -106,6 +107,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          digestfile: digest.txt
 
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
         uses: anchore/scan-action@v3
@@ -119,18 +121,21 @@ jobs:
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
-      - name: Generate SBOM for the Podman (Fedora 36) runner
-        uses: anchore/sbom-action@v0
-        with:
-          image: ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
+      # - name: Generate SBOM for the Podman (Fedora 36) runner
+      #   uses: anchore/sbom-action@v0
+      #   with:
+      #     image: ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}-${{ env.SHA_SHORT }}
 
-      - name: Install cosign
-        uses: sigstore/cosign-installer@main
+      - name: read digest.txt
+        run: cat digest.txt
 
-      - name: Sign the published Docker image
-        env:
-          COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
+      # - name: Install cosign
+      #   uses: sigstore/cosign-installer@main
+
+      # - name: Sign the published Docker image
+      #   env:
+      #     COSIGN_EXPERIMENTAL: "true"
+      #   run: echo digest.txt | xargs -I cosign sign ghcr.io/some-natalie/kubernoodles/podman@{}
 
   deploy:
     runs-on: ubuntu-latest # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
