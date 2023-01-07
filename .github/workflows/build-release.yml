@@ -63,6 +63,14 @@ jobs:
         with:
           image: ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}
 
+      - name: Install cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Sign the published Docker image
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: cosign sign ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}
+
   build-podman:
     runs-on: ubuntu-latest # use the GitHub hosted runners
     permissions:
@@ -113,6 +121,14 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           image: ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Sign the published Docker image
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: cosign sign ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
 
   deploy:
     runs-on: ubuntu-latest # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
