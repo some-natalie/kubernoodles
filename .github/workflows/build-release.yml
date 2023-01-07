@@ -12,6 +12,7 @@ jobs:
       contents: write # for uploading the SBOM to the release
       packages: write # for uploading the finished container
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      id-token: write # to complete the identity challenge with sigstore/fulcio when running outside of PRs
     strategy:
       matrix:
         runner-image: [ubuntu-focal, rootless-ubuntu-focal, ubuntu-jammy]
@@ -38,6 +39,7 @@ jobs:
 
       - name: Build and push the image
         uses: docker/build-push-action@v3
+        id: build-and-push
         with:
           file: "images/${{ matrix.runner-image }}.Dockerfile"
           push: true
@@ -46,14 +48,14 @@ jobs:
             ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}
             ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}-${{ env.SHA_SHORT }}
 
-      - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      - name: Run Anchore scan
         uses: anchore/scan-action@v3
         id: scan
         with:
           image: "ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}"
           fail-build: false
 
-      - name: Upload Anchore Scan Report
+      - name: Upload Anchore scan report
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
@@ -61,7 +63,15 @@ jobs:
       - name: Generate SBOM for the Ubuntu-based runners
         uses: anchore/sbom-action@v0
         with:
-          image: ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}
+          image: ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}:${{ env.VERSION }}-${{ env.SHA_SHORT }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Sign the published Docker image
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: cosign sign ghcr.io/some-natalie/kubernoodles/${{ matrix.runner-image }}@${{ steps.build-and-push.outputs.digest }}
 
   build-podman:
     runs-on: ubuntu-latest # use the GitHub hosted runners
@@ -69,6 +79,7 @@ jobs:
       contents: write # for uploading the SBOM to the release
       packages: write # for uploading the finished container
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      id-token: write # to complete the identity challenge with sigstore/fulcio when running outside of PRs
 
     steps:
       - name: Checkout
@@ -96,23 +107,38 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          digestfile: digest.txt
 
-      - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      - name: Run Anchore scan
         uses: anchore/scan-action@v3
         id: scan
         with:
           image: "ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}"
           fail-build: false
 
-      - name: Upload Anchore Scan Report
+      - name: Upload Anchore scan report
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
-      - name: Generate SBOM for the Podman (Fedora 36) runner
+      - name: Generate SBOM for the Podman (Fedora 37) runner
         uses: anchore/sbom-action@v0
         with:
-          image: ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}
+          image: ghcr.io/some-natalie/kubernoodles/podman:${{ env.VERSION }}-${{ env.SHA_SHORT }}
+
+      - name: Get image digest
+        run: echo "IMAGE_DIGEST=$(cat digest.txt)" >> $GITHUB_ENV
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Log in to GHCR
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Sign the published Docker image
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: cosign sign ghcr.io/some-natalie/kubernoodles/podman@${{ env.IMAGE_DIGEST }}
 
   deploy:
     runs-on: ubuntu-latest # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
