@@ -133,7 +133,7 @@ jobs:
         uses: sigstore/cosign-installer@main
 
       - name: Log in to GHCR
-        run: echo ${{ secrets.GITHUB_TOKEN }} | podman login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Sign the published Docker image
         env:
