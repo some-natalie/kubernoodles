@@ -4,7 +4,7 @@ FROM ubuntu:20.04
 ARG TARGETPLATFORM=linux/amd64
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.300.2
+ARG RUNNER_VERSION=2.301.1
 
 # Docker and Docker Compose arguments
 ARG DOCKER_CHANNEL=stable
