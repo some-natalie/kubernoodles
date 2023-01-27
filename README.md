@@ -1,8 +1,12 @@
 # Kubernoodles
 
-Kubernoodles is a framework for managing custom self-hosted runners for GitHub Actions in Kubernetes at the enterprise-wide scale.  The design goal is to easily bootstrap a system where customized self-hosted runners update, build, test, deploy, and scale themselves with minimal interaction from enterprise admins and maximum input from the developers using it.
+> **Warning**
+>
+> There's a lot of work going on upstream in actions-runner-controller right now that will change quite a bit of the recommendations and defaults in this repository!  This is now using the private preview APIs and will not work as expected for users as-is right now.  Read more about the upcoming changes [here](https://github.com/actions/actions-runner-controller/pull/2153) :warning:
+>
+> GHES and GHEC users, please navigate back to tag [v0.9.6](https://github.com/some-natalie/kubernoodles/releases/tag/v0.9.6) for the APIs that'll work for you. :heart:
 
-:warning: There's a lot of work going on upstream in actions-runner-controller right now that will change quite a bit of the recommendations and defaults in this repository!  This will be updating to match that work as it shows up.  Read more about the upcoming changes [here](https://github.com/actions/actions-runner-controller/pull/2153). :warning:
+Kubernoodles is a framework for managing custom self-hosted runners for GitHub Actions in Kubernetes at the enterprise-wide scale.  The design goal is to easily bootstrap a system where customized self-hosted runners update, build, test, deploy, and scale themselves with minimal interaction from enterprise admins and maximum input from the developers using it.
 
 This is an _opinionated_ reference implementation, designed to be taken and modified to your liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS), [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted), and [GitHub AE](https://docs.github.com/en/github-ae@latest) from Docker Desktop, a Raspberry Pi cluster for `arm64`, a managed Kubernetes provider, and other random platforms as needed.  Your implementation may look wildly different, etc.
 
@@ -12,7 +16,7 @@ Pull requests welcome! :heart:
 
 ## Design goals and compromises
 
-There are a few assumptions that go into this that aren't necessarily true or best practices outside of an enterprise "walled garden".  Being approachable and readable are the most important goals of all code and documentation.  As a reference implementation, this isn't a turn-key solution, but the amount of fiddling needed should be up to you as much as possible.  Links to the appropriate documentation, resources to learn more where needed, and explainations of design choices will be included!
+There are a few assumptions that go into this that aren't necessarily true or best practices outside of an enterprise "walled garden".  Being approachable and readable are the most important goals of all code and documentation.  As a reference implementation, this isn't a turn-key solution, but the amount of fiddling needed should be up to you as much as possible.  Links to the appropriate documentation, resources to learn more where needed, and explanations of design choices will be included!
 
 Co-tenanted business systems tend to have small admin teams running services (like GitHub Enterprise) available to a large group of diverse internal users.  That system places a premium on people-overhead more than computer-overhead.  The implication of that is an anti-pattern where there are larger containers capable of lots of different things instead of discrete, "microservices" type containers.
 

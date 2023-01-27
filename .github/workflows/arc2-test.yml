@@ -1,0 +1,18 @@
+name: 🐿️ ARC-2 test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  hello-world:
+    runs-on: arc-runner-set
+    strategy:
+      matrix:
+        number: [1, 2, 3, 4, 5]
+        letter: [a, b, c, d, e]
+    steps:
+      - name: Hello world
+        run: |
+          echo "Hello world"
+          echo "Number: ${{ matrix.number }}"
+          echo "Letter: ${{ matrix.letter }}"
