@@ -2,27 +2,22 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: test-user
+  name: test-deploy-user
   namespace: test-runners
 secrets:
-- name: ghes-actions-deploy
+- name: ghe-actions-deploy
 
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: test-user-full-access
+  name: test-deploy-user-full-access
   namespace: test-runners
 rules:
 - apiGroups: ["", "extensions", "apps"]
   resources: ["*"]
   verbs: ["*"]
-- apiGroups: ["batch"]
-  resources:
-  - jobs
-  - cronjobs
-  verbs: ["*"]
-- apiGroups: ["actions.summerwind.dev"]
+- apiGroups: ["actions.github.com"]
   resources: ["*"]
   verbs: ["*"]
 
@@ -30,13 +25,22 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: test-user-view
+  name: test-deploy-user-view
   namespace: test-runners
 subjects:
 - kind: ServiceAccount
-  name: test-user
+  name: test-deploy-user
   namespace: test-runners
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: test-user-full-access
+  name: test-deploy-user-full-access
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ghe-actions-deploy
+  namespace: test-runners
+  annotations:
+    kubernetes.io/service-account.name: test-deploy-user
+type: kubernetes.io/service-account-token
