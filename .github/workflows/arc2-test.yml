@@ -2,10 +2,15 @@ name: 🐿️ ARC-2 test
 
 on:
   workflow_dispatch:
+    inputs:
+      target-scale-set:
+        description: "Which scale set to test?"
+        type: string
+        required: true
 
 jobs:
   hello-world:
-    runs-on: arc-runner-set
+    runs-on: ${{ github.event.inputs.target-scale-set }}
     strategy:
       matrix:
         number: [1, 2, 3, 4, 5]
