@@ -25,7 +25,7 @@ jobs:
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build and push the image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           file: "images/ubuntu-jammy.Dockerfile"
           push: true
