@@ -38,7 +38,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push the image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         id: build-and-push
         with:
           file: "images/${{ matrix.runner-image }}.Dockerfile"
