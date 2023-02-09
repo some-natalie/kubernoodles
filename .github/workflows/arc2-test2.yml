@@ -11,7 +11,7 @@ on:
 jobs:
   hello-world:
     runs-on: ${{ github.event.inputs.target-scale-set }}
-		container: alpine:3
+    container: "alpine:3"
     strategy:
       matrix:
         number: [1, 2, 3, 4, 5]
