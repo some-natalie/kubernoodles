@@ -80,7 +80,7 @@ RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-c
 # Copy in custom logger and startup script
 COPY images/logger.sh images/ubi-startup.sh /usr/bin/
 RUN chmod +x /usr/bin/ubi-startup.sh \
-    && chown -R $USERNAME:$GID /actions-runner
+    && chown -R $USERNAME:$UID /actions-runner
 
 USER $USERNAME
 
