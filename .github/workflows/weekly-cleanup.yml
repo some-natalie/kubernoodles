@@ -17,6 +17,7 @@ jobs:
           - podman
           - rootless-ubuntu-focal
           - ubuntu-jammy
+          - ubi8
     steps:
       - name: Delete untagged containers
         uses: snok/container-retention-policy@v1

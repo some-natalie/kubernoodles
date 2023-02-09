@@ -27,7 +27,7 @@ jobs:
       - name: Build and push the image
         uses: docker/build-push-action@v4
         with:
-          file: "images/ubuntu-jammy.Dockerfile"
+          file: "images/ubi8.Dockerfile"
           push: true
           tags: |
             kubernoodles.azurecr.io/ubuntu-jammy:${{ env.SHA_SHORT }}
