@@ -39,7 +39,7 @@ jobs:
           --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
           --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
           --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-          -f helm-${{ github.event.inputs.target_scale_set }}.yml \
+          -f deployments/helm-${{ github.event.inputs.target_scale_set }}.yml \
           oci://ghcr.io/actions/actions-runner-controller-charts/auto-scaling-runner-set
 
         env:
