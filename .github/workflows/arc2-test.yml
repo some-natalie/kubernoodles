@@ -1,4 +1,4 @@
-name: 🐿️ ARC-2 test
+name: 🐿️ ARC-2 simple scaling test
 
 on:
   workflow_dispatch:

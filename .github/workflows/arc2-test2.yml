@@ -1,4 +1,4 @@
-name: 🐿️ ARC-2 container job test
+name: 🐿️ ARC-2 container job scaling test
 
 on:
   workflow_dispatch:

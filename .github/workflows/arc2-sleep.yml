@@ -1,4 +1,4 @@
-name: 🐿️ ARC-2 sleep
+name: 🐿️ ARC-2 container sleep
 
 on:
   workflow_dispatch:
