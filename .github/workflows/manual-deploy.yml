@@ -8,15 +8,20 @@ on:
         type: string
         required: true
       environment_name:
-        description: "Which environment to deploy to?"
-        type: string
+        description: "Which environment to remove from?"
+        type: choice
         required: true
-        default: "bare-metal"
+        options:
+        - "bare-metal"
+        - "test"
+        - "production" 
       runner_namespace:
-        description: "Which namespace to deploy to?"
-        type: string
+        description: "Which namespace to remove from?"
+        type: choice
         required: true
-        default: "runners"
+        options:
+        - "runners"
+        - "test-runners"
 
 jobs:
   deploy:
