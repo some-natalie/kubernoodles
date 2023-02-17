@@ -1,0 +1,49 @@
+name: 🐝 Manually deploy runners
+
+on:
+  workflow_dispatch: # deploy on demand
+    inputs:
+      target_scale_set:
+        description: "Which scale set to deploy?"
+        type: string
+        required: true
+      environment_name:
+        description: "Which environment to deploy to?"
+        type: string
+        required: true
+        default: "bare-metal"
+      runner_namespace:
+        description: "Which namespace to deploy to?"
+        type: string
+        required: true
+        default: "runners"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # use the GitHub hosted runners to deploy the self-hosted runners in GHEC
+    # If using GHES or GHAE, use another deployment, such as having CentOS redeploy Ubuntu and vice versa
+    environment: ${{ github.event.inputs.environment_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Update deployment
+        run: |
+          helm install ${{ github.event.inputs.target_scale_set }} \
+          --namespace "${{ github.event.inputs.runner_namespace }}" \
+          --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+          --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+          --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+          -f helm-${{ github.event.inputs.target_scale_set }}.yml \
+          oci://ghcr.io/actions/actions-runner-controller-charts/auto-scaling-runner-set
+
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
