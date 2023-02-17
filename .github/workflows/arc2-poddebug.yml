@@ -24,7 +24,7 @@ jobs:
         echo "GID: $(id -g)"
         echo "GROUPS: $(id -G)"
         echo "GROUPS: $(groups)"
-    - name: Hello world
+    - name: "Idle for an hour"
+      shell: bash
       run: |
-        echo "Hello world"
         sleep 3600
