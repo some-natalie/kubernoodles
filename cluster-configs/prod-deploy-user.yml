@@ -1,4 +1,5 @@
 ---
+# Create the service account scoped to our `test-runners` namespace with a secret to use
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -8,6 +9,7 @@ secrets:
 - name: ghe-actions-deploy
 
 ---
+# Create a role for it in that namespace
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -22,6 +24,7 @@ rules:
   verbs: ["*"]
 
 ---
+# Bind that service account to the role we created above
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -35,7 +38,9 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: prod-deploy-user-full-access
+
 ---
+# Create the credential for us to use for deployment
 apiVersion: v1
 kind: Secret
 metadata:
