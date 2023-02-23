@@ -15,6 +15,7 @@ on:
         - "bare-metal"
         - "test"
         - "production" 
+        default: "test"
       runner_namespace:
         description: "Which namespace to remove from?"
         type: choice
@@ -22,6 +23,7 @@ on:
         options:
         - "runners"
         - "test-runners"
+        default: "test-runners"
 
 jobs:
   remove:

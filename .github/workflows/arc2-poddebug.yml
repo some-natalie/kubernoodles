@@ -9,7 +9,7 @@ on:
         required: true
 
 jobs:
-  hello-world:
+  debug-info:
     runs-on: ${{ github.event.inputs.target-scale-set }}
     steps:
     - name: "Environment variable dump"
@@ -24,7 +24,16 @@ jobs:
         echo "GID: $(id -g)"
         echo "GROUPS: $(id -G)"
         echo "GROUPS: $(groups)"
-    - name: "Idle for an hour"
+    - name: "What's in the home directory?"
       shell: bash
       run: |
-        sleep 3600
+        ls -lah ~
+    - name: "What's in the root directory?"
+      shell: bash
+      run: |
+        ls -lah /
+    - name: "What's in the working directory?"
+      shell: bash
+      run: |
+        pwd
+        ls -lah .
