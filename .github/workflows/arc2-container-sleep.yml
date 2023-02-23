@@ -1,4 +1,4 @@
-name: 🐿️ ARC-2 idle runner
+name: 🐿️ ARC-2 container sleep
 
 on:
   workflow_dispatch:
@@ -9,10 +9,11 @@ on:
         required: true
 
 jobs:
-  idle-hour:
+  hello-world:
     runs-on: ${{ github.event.inputs.target-scale-set }}
+    container: "alpine:3"
     steps:
-      - name: Idle a runner for an hour
+      - name: Hello world
         run: |
           echo "Hello world"
           sleep 3600

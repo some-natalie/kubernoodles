@@ -13,9 +13,9 @@ jobs:
     runs-on: ${{ github.event.inputs.target-scale-set }}
     container: "alpine:3"
     strategy:
-      matrix:
-        number: [1, 2, 3, 4, 5]
-        letter: [a, b, c, d, e]
+      matrix:  # A matrix of 4 is probably quite plenty
+        number: [1, 2]
+        letter: [a, b]
     steps:
       - name: Hello world
         run: |
