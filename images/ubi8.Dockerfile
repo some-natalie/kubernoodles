@@ -1,16 +1,15 @@
 FROM registry.access.redhat.com/ubi8/ubi-init:8.7
 
-LABEL \ 
-    org.opencontainers.image.source https://github.com/some-natalie/kubernoodles \
-    org.opencontainers.image.title ubi8-runner \
-    org.opencontainers.image.description "A RedHat UBI 8 based runner image for GitHub Actions" \
-    org.opencontainers.image.authors "Natalie Somersall (@some-natalie)" \
-    org.opencontainers.image.licenses=MIT \
-    org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
+LABEL org.opencontainers.image.source https://github.com/some-natalie/kubernoodles
+LABEL org.opencontainers.image.title ubi8-runner
+LABEL org.opencontainers.image.description "A RedHat UBI 8 based runner image for GitHub Actions"
+LABEL org.opencontainers.image.authors "Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
 
 # Arguments
 ARG TARGETPLATFORM=linux/amd64
-ARG RUNNER_VERSION=2.301.1
+ARG RUNNER_VERSION=2.302.1
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.2.0
 
 # Shell setup
