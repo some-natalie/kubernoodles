@@ -1,10 +1,11 @@
 FROM registry.access.redhat.com/ubi8/ubi-init:8.7
 
 LABEL org.opencontainers.image.source https://github.com/some-natalie/kubernoodles
-LABEL org.opencontainers.image.title ubi8-runner
+LABEL org.opencontainers.image.path "images/ubi8.Dockerfile"
+LABEL org.opencontainers.image.title "ubi8"
 LABEL org.opencontainers.image.description "A RedHat UBI 8 based runner image for GitHub Actions"
 LABEL org.opencontainers.image.authors "Natalie Somersall (@some-natalie)"
-LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.licenses "MIT"
 LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
 
 # Arguments
