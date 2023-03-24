@@ -10,8 +10,8 @@ LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kub
 
 # Arguments
 ARG TARGETPLATFORM=linux/amd64
-ARG RUNNER_VERSION=2.302.1
-ARG RUNNER_CONTAINER_HOOKS_VERSION=0.2.0
+ARG RUNNER_VERSION=2.303.0
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.3.1
 
 # Shell setup
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
