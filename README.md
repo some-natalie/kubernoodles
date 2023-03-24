@@ -8,7 +8,7 @@
 
 Kubernoodles is a framework for managing custom self-hosted runners for GitHub Actions in Kubernetes at the enterprise-wide scale.  The design goal is to easily bootstrap a system where customized self-hosted runners update, build, test, deploy, and scale themselves with minimal interaction from enterprise admins and maximum input from the developers using it.
 
-This is an _opinionated_ reference implementation, designed to be taken and modified to your liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS), [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted), and [GitHub AE](https://docs.github.com/en/github-ae@latest) from Docker Desktop, a Raspberry Pi cluster for `arm64`, a managed Kubernetes provider, and other random platforms as needed.  Your implementation may look wildly different, etc.
+This is an _opinionated_ reference implementation, designed to be taken and modified to your liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS) or [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted) from Docker Desktop, a Raspberry Pi cluster for `arm64`, a managed Kubernetes provider, and other random platforms as needed.  Your implementation may look wildly different, etc.
 
 :question: Are you a GitHub Enterprise admin that's new to GitHub Actions?  Don't know how to set up self-hosted runners at scale?  Start [here](docs/admin-introduction.md)!
 
@@ -65,8 +65,7 @@ These are all excellent reads and can provide more insight into the customizatio
 
 ### Dependencies of note
 
-- [actions-runner-controller](https://github.com/actions-runner-controller/actions-runner-controller)
-- [cert-manager](https://cert-manager.io)
+- [actions-runner-controller](https://github.com/actions/actions-runner-controller)
 - [Helm](https://helm.sh/)
 - [Yelp dumb-init](https://github.com/Yelp/dumb-init)
 - [Docker engine](https://docs.docker.com/engine/release-notes/) and [Docker Compose](https://docs.docker.com/compose/release-notes/) for Debian-based images
