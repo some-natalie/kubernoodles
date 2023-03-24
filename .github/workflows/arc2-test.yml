@@ -1,7 +1,7 @@
-name: 🐿️ ARC-2 test
+name: 🐿️ ARC-2 fast scaling test
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # run on demand
     inputs:
       target-scale-set:
         description: "Which scale set to test?"
@@ -10,13 +10,13 @@ on:
 
 jobs:
   hello-world:
-    runs-on: ${{ github.event.inputs.target-scale-set }}
+    runs-on: ${{ github.event.inputs.target-scale-set }}  # use the set we specify
     strategy:
-      matrix:
+      matrix:  # generate 25 jobs
         number: [1, 2, 3, 4, 5]
         letter: [a, b, c, d, e]
     steps:
-      - name: Hello world
+      - name: Hello world  # print a thing, should take a couple seconds to run
         run: |
           echo "Hello world"
           echo "Number: ${{ matrix.number }}"

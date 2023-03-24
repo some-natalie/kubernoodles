@@ -2,9 +2,9 @@
 
 > **Warning**
 >
-> There's a lot of work going on upstream in actions-runner-controller right now that will change quite a bit of the recommendations and defaults in this repository!  This is now using the private preview APIs and will not work as expected for users as-is right now.  Read more about the upcoming changes [here](https://github.com/actions/actions-runner-controller/pull/2153) :warning:
+> :warning: There's a lot of work going on upstream in actions-runner-controller right now that will change quite a bit of the recommendations and defaults in this repository!  This is now using the private preview APIs and will not work as expected for users as-is right now.  Read more about the upcoming changes [here](https://github.com/actions/actions-runner-controller/pull/2153) :warning:
 >
-> GHES and GHEC users, please navigate back to tag [v0.9.6](https://github.com/some-natalie/kubernoodles/releases/tag/v0.9.6) for the APIs that'll work for you. :heart:
+> GHES and GHEC users, please navigate back to tag [v0.9.6](https://github.com/some-natalie/kubernoodles/tree/v0.9.6) ([release](https://github.com/some-natalie/kubernoodles/releases/tag/v0.9.6)) for the APIs that'll work for you. :heart:
 
 Kubernoodles is a framework for managing custom self-hosted runners for GitHub Actions in Kubernetes at the enterprise-wide scale.  The design goal is to easily bootstrap a system where customized self-hosted runners update, build, test, deploy, and scale themselves with minimal interaction from enterprise admins and maximum input from the developers using it.
 

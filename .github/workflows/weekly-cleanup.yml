@@ -20,7 +20,7 @@ jobs:
           - ubi8
     steps:
       - name: Delete untagged containers
-        uses: snok/container-retention-policy@v1
+        uses: snok/container-retention-policy@v2
         with:
           image-names: kubernoodles/${{ matrix.runner }}
           cut-off: Two hours ago UTC
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Close stale issues and pull requests
-        uses: actions/stale@v7
+        uses: actions/stale@v8
         with:
           stale-issue-message: "This issue is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 2 weeks."
           close-issue-message: "This issue was closed because it has been stalled for 2 weeks with no activity."

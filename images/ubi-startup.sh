@@ -2,4 +2,4 @@
 source /usr/bin/logger.sh
 
 # Wait processes to be running
-cd /home/runner && ./run.sh
+cd /actions-runner && ./run.sh

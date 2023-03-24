@@ -1,0 +1,24 @@
+name: 🐿️ ARC-2 container job scaling test
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-scale-set:
+        description: "Which scale set to test?"
+        type: string
+        required: true
+
+jobs:
+  hello-world:
+    runs-on: ${{ github.event.inputs.target-scale-set }}
+    container: "alpine:3"
+    strategy:
+      matrix:  # A matrix of 4 is probably quite plenty
+        number: [1, 2]
+        letter: [a, b]
+    steps:
+      - name: Hello world
+        run: |
+          echo "Hello world"
+          echo "Number: ${{ matrix.number }}"
+          echo "Letter: ${{ matrix.letter }}"

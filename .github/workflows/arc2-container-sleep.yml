@@ -1,0 +1,19 @@
+name: 🐿️ ARC-2 container sleep
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-scale-set:
+        description: "Which scale set to test?"
+        type: string
+        required: true
+
+jobs:
+  hello-world:
+    runs-on: ${{ github.event.inputs.target-scale-set }}
+    container: "alpine:3"
+    steps:
+      - name: Hello world
+        run: |
+          echo "Hello world"
+          sleep 3600

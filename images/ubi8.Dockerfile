@@ -1,16 +1,16 @@
 FROM registry.access.redhat.com/ubi8/ubi-init:8.7
 
-LABEL \ 
-    org.opencontainers.image.source https://github.com/some-natalie/kubernoodles \
-    org.opencontainers.image.title ubi8-runner \
-    org.opencontainers.image.description "A RedHat UBI 8 based runner image for GitHub Actions" \
-    org.opencontainers.image.authors "Natalie Somersall (@some-natalie)" \
-    org.opencontainers.image.licenses=MIT \
-    org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
+LABEL org.opencontainers.image.source https://github.com/some-natalie/kubernoodles
+LABEL org.opencontainers.image.path "images/ubi8.Dockerfile"
+LABEL org.opencontainers.image.title "ubi8"
+LABEL org.opencontainers.image.description "A RedHat UBI 8 based runner image for GitHub Actions"
+LABEL org.opencontainers.image.authors "Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses "MIT"
+LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
 
 # Arguments
 ARG TARGETPLATFORM=linux/amd64
-ARG RUNNER_VERSION=2.301.1
+ARG RUNNER_VERSION=2.302.1
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.2.0
 
 # Shell setup
@@ -43,7 +43,12 @@ RUN dnf update -y \
 # This is to mimic the OpenShift behaviour of adding the dynamic user to group 0.
 RUN useradd -G 0 $USERNAME
 ENV HOME /home/${USERNAME}
-WORKDIR /home/${USERNAME}
+
+# Make and set the working directory
+RUN mkdir -p /actions-runner \
+    && chown -R $USERNAME:$GID /actions-runner
+
+WORKDIR /actions-runner
 
 # Install GitHub CLI
 COPY images/software/gh-cli.sh gh-cli.sh
@@ -52,6 +57,9 @@ RUN bash gh-cli.sh && rm gh-cli.sh
 # Install kubectl
 COPY images/software/kubectl.sh kubectl.sh
 RUN bash kubectl.sh && rm kubectl.sh
+
+# Install helm
+RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
 
@@ -71,8 +79,9 @@ RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-c
 
 # Copy in custom logger and startup script
 COPY images/logger.sh images/ubi-startup.sh /usr/bin/
-RUN chmod +x /usr/bin/ubi-startup.sh
+RUN chmod +x /usr/bin/ubi-startup.sh \
+    && chown -R $USERNAME:$UID /actions-runner
 
-USER $UID
+USER $USERNAME
 
 CMD ["ubi-startup.sh"]

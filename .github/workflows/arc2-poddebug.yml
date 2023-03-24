@@ -1,0 +1,39 @@
+name: 🐿️ ARC-2 debug
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-scale-set:
+        description: "Which scale set to test?"
+        type: string
+        required: true
+
+jobs:
+  debug-info:
+    runs-on: ${{ github.event.inputs.target-scale-set }}
+    steps:
+    - name: "Environment variable dump"
+      shell: bash
+      run: |
+        printenv
+    - name: "Who am I?"
+      shell: bash
+      run: |
+        whoami
+        echo "UID: $(id -u)"
+        echo "GID: $(id -g)"
+        echo "GROUPS: $(id -G)"
+        echo "GROUPS: $(groups)"
+    - name: "What's in the home directory?"
+      shell: bash
+      run: |
+        ls -lah ~
+    - name: "What's in the root directory?"
+      shell: bash
+      run: |
+        ls -lah /
+    - name: "What's in the working directory?"
+      shell: bash
+      run: |
+        pwd
+        ls -lah .

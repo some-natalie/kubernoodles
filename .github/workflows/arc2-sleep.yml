@@ -1,0 +1,18 @@
+name: 🐿️ ARC-2 idle runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-scale-set:
+        description: "Which scale set to test?"
+        type: string
+        required: true
+
+jobs:
+  idle-hour:
+    runs-on: ${{ github.event.inputs.target-scale-set }}
+    steps:
+      - name: Idle a runner for an hour
+        run: |
+          echo "Hello world"
+          sleep 3600
