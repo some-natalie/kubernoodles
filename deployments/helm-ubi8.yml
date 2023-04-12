@@ -23,7 +23,7 @@ githubConfigUrl: "https://github.com/some-natalie/kubernoodles"
 maxRunners: 5
 
 ## minRunners is the min number of runners the auto scaling runner set will scale down to.
-minRunners: 0
+minRunners: 1
 
 # runnerGroup: "default"
 
