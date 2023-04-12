@@ -31,4 +31,4 @@ template:
   spec:
     containers:
     - name: runner
-      image: ghcr.io/some-natalie/kubernoodles/ubi8:latest
+      image: ghcr.io/some-natalie/kubernoodles/ubi8:test
