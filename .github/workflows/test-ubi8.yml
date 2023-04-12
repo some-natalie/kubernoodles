@@ -1,0 +1,113 @@
+name: 🧪 Test UBI8 runner
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "images/ubi8.Dockerfile"
+      - "images/**.sh"
+      - "images/software/*"
+      - ".github/workflows/test-ubi8.yml"
+
+jobs:
+  build:
+    name: Build test image
+    runs-on: ubuntu-latest  # use the GitHub-hosted runner to build the image
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build the image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/some-natalie/kubernoodles/ubi8
+          tags: test
+          containerfiles: images/ubi8.Dockerfile
+
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    name: Deploy test image to `test-runners` namespace
+    runs-on: ubuntu-latest  # use the GitHub-hosted runner to deploy the image
+    needs: [build]
+    environment: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
+        run: |
+          helm install test-ubi8  \
+          --namespace "test-runners" \
+          --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+          --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+          --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+          -f deployments/helm-ubi8-test.yml \
+          oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
+
+      - name: Wait 5 minutes to let the new pod come up
+        run: sleep 300
+
+  test:
+    name: Run tests!
+    runs-on: [self-hosted, test-ubi8]
+    needs: [deploy]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Print debug info
+        uses: ./tests/debug
+
+      - name: Sudo fails
+        uses: ./tests/sudo-fails
+
+  remove-deploy:
+    name: Delete test image deployment
+    runs-on: ubuntu-latest  # use the GitHub-hosted runner to remove the image
+    needs: [test]
+    environment: test
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Deploy
+        run: |
+          helm uninstall test-ubi8 --namespace "test-runners"
+        env:
+          KUBECONFIG: /tmp/config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/config
