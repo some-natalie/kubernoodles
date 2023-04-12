@@ -38,7 +38,7 @@ jobs:
           tags: ${{ steps.build-image.outputs.tags }}
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ github.token }}
 
   deploy:
     name: Deploy test image to `test-runners` namespace
