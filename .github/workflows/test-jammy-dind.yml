@@ -1,4 +1,4 @@
-name: 🧪 Test UBI9 runner
+name: 🧪 Test Ubuntu Jammy (22.04 LTS) runner
 
 on:
   workflow_dispatch:
@@ -6,36 +6,33 @@ on:
     branches:
       - main
     paths:
-      - "images/ubi9.Dockerfile"
+      - "images/rootless-ubuntu-jammy.Dockerfile"
       - "images/**.sh"
       - "images/software/*"
-      - ".github/workflows/test-ubi9.yml"
+      - ".github/workflows/test-jammy.yml"
 
 jobs:
   build:
     name: Build test image
-    runs-on: ubuntu-latest  # use the GitHub-hosted runner to build the image
+    runs-on: ubuntu-latest  # use the GitHub-hosted runner to build the imag
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build the image
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          image: some-natalie/kubernoodles/ubi9
-          tags: test
-          containerfiles: images/ubi9.Dockerfile
-
-      - name: Push image
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          file: "images/rootless-ubuntu-jammy.Dockerfile"
+          push: true
+          tags: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
 
   deploy:
     name: Deploy test image to `test-runners` namespace
@@ -53,12 +50,12 @@ jobs:
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
-          helm install test-ubi9  \
+          helm install test-jammy-dind  \
           --namespace "test-runners" \
           --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
           --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
           --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-          -f deployments/helm-ubi9-test.yml \
+          -f deployments/helm-jammy-dind-test.yml \
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
 
         env:
@@ -72,7 +69,7 @@ jobs:
 
   test:
     name: Run tests!
-    runs-on: [self-hosted, test-ubi9]
+    runs-on: [self-hosted, test-jammy-dind]
     needs: [deploy]
 
     steps:
@@ -84,6 +81,12 @@ jobs:
 
       - name: Sudo fails
         uses: ./tests/sudo-fails
+      
+      - name: Docker tests
+        uses: ./tests/docker
+      
+      - name: Container Action test
+        uses: ./tests/container
 
   remove-deploy:
     name: Delete test image deployment
@@ -102,7 +105,7 @@ jobs:
 
       - name: Deploy
         run: |
-          helm uninstall test-ubi9 --namespace "test-runners"
+          helm uninstall test-jammy-dind --namespace "test-runners"
         env:
           KUBECONFIG: /tmp/config
 
