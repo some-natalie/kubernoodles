@@ -15,9 +15,9 @@ jobs:
   build:
     name: Build test image
     runs-on: ubuntu-latest  # use the GitHub-hosted runner to build the image
-    permissions: write-all
-      # contents: read
-      # packages: write
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout
