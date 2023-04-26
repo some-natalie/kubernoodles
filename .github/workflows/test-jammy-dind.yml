@@ -33,6 +33,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
+          file: "images/rootless-ubuntu-jammy.Dockerfile"
           push: true
           tags: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
 
