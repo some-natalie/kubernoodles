@@ -72,7 +72,7 @@ jobs:
 
   test:
     name: Run tests!
-    runs-on: [self-hosted, test-ubi9]
+    runs-on: [test-ubi9]
     needs: [deploy]
 
     steps:

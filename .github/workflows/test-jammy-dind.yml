@@ -69,7 +69,7 @@ jobs:
 
   test:
     name: Run tests!
-    runs-on: [self-hosted, test-jammy-dind]
+    runs-on: [test-jammy-dind]
     needs: [deploy]
 
     steps:
