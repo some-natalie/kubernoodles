@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kub
 
 # Arguments
 ARG TARGETPLATFORM=linux/amd64
-ARG RUNNER_VERSION=2.303.0
+ARG RUNNER_VERSION=2.304.0
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.3.1
 
 # Shell setup
@@ -78,10 +78,10 @@ RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-c
     && rm runner-container-hooks.zip
 
 # Copy in custom logger and startup script
-COPY images/logger.sh images/ubi-startup.sh /usr/bin/
-RUN chmod +x /usr/bin/ubi-startup.sh \
+COPY images/logger.sh images/startup.sh /usr/bin/
+RUN chmod +x /usr/bin/startup.sh \
     && chown -R $USERNAME:$UID /actions-runner
 
 USER $USERNAME
 
-CMD ["ubi-startup.sh"]
+CMD ["startup.sh"]
