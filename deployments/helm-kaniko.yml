@@ -1,0 +1,67 @@
+## githubConfigUrl is the GitHub url for where you want to configure runners
+## ex: https://github.com/myorg/myrepo or https://github.com/myorg
+githubConfigUrl: "https://github.com/some-natalie/kubernoodles"
+
+## githubConfigSecret is the k8s secrets to use when auth with GitHub API.
+## You can choose to use GitHub App or a PAT token
+# githubConfigSecret:
+#   ### GitHub Apps Configuration
+#   ## NOTE: IDs MUST be strings, use quotes
+#   github_app_id: ""
+#   github_app_installation_id: ""
+#   github_app_private_key: |
+#     -----BEGIN RSA PRIVATE KEY-----
+#     -----END RSA PRIVATE KEY-----
+
+## If you have a pre-define Kubernetes secret in the same namespace the auto-scaling-runner-set is going to deploy,
+## you can also reference it via `githubConfigSecret: pre-defined-secret`.
+## You need to make sure your predefined secret has all the required secret data set properly.
+##   For a pre-defined secret using GitHub PAT, the secret needs to be created like this:
+##   > kubectl create secret generic pre-defined-secret --namespace=my_namespace --from-literal=github_token='ghp_your_pat'
+##   For a pre-defined secret using GitHub App, the secret needs to be created like this:
+##   > kubectl create secret generic pre-defined-secret --namespace=my_namespace --from-literal=github_app_id=123456 --from-literal=github_app_installation_id=654321 --from-literal=github_app_private_key='-----BEGIN CERTIFICATE-----*******'
+# githubConfigSecret: pre-defined-secret
+
+## maxRunners is the max number of runners the auto scaling runner set will scale up to.
+maxRunners: 5
+
+## minRunners is the min number of runners the auto scaling runner set will scale down to.
+minRunners: 1
+
+# runnerGroup: "default"
+
+## template is the PodSpec for each runner Pod
+template:
+  spec:
+    initContainers:
+    - name: kube-init
+      image: ghcr.io/actions/actions-runner:latest
+      command: ["sudo", "chown", "-R", "runner:runner", "/home/runner/_work"]
+      volumeMounts:
+      - name: work
+        mountPath: /home/runner/_work
+    containers:
+      - name: runner
+        image: ghcr.io/actions/actions-runner:latest
+        command: ["/home/runner/run.sh"]
+        env:
+          - name: ACTIONS_RUNNER_CONTAINER_HOOKS
+            value: /home/runner/k8s/index.js
+          - name: ACTIONS_RUNNER_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
+            value: "false"  # allow non-container steps
+        volumeMounts:
+          - name: work
+            mountPath: /home/runner/_work
+
+containerMode:
+  type: "kubernetes" 
+  kubernetesModeWorkVolumeClaim:
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: "k8s-mode"
+    resources:
+      requests:
+        storage: 1Gi
