@@ -7,26 +7,30 @@ jobs:
   build:
     runs-on: [kaniko-worker]
     container:
-      image: gcr.io/kaniko-project/executor:debug
-    permissions:
-      contents: read
-      packages: write
-
+      image: busybox
     steps:
-      - name: Build and push container test
-        shell: bash
-        run: |
-          # Write config file
-          AUTH=$(echo -n ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} | base64)
-          echo "{\"auths\": {\"ghcr.io\": {\"auth\": \"${AUTH}\"}}}" > /kaniko/.docker/config.json
+      - name: test
+        run: echo "hello world"
+    # container:
+    #   image: gcr.io/kaniko-project/executor:debug
+    # permissions:
+    #   contents: read
+    #   packages: write
 
-          # Configure git
-          export GIT_USERNAME="kaniko-bot"
-          export GIT_PASSWORD="${{ secrets.GITHUB_TOKEN }}"
+    # steps:
+    #   - name: Build and push container test
+    #     run: |
+    #       # Write config file
+    #       AUTH=$(echo -n ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} | base64)
+    #       echo "{\"auths\": {\"ghcr.io\": {\"auth\": \"${AUTH}\"}}}" > /kaniko/.docker/config.json
 
-          # Build and push
-          /kaniko/executor --dockerfile="./images/ubi9.Dockerfile" \
-          --context="${{ github.repository }}#${{ github.ref }}#${{ github.sha }}" \
-          --destination="ghcr.io/some-natalie/kubernoodles/kaniko-build:test" \
-          --push-retry 5 \
-          --image-name-with-digest-file /workspace/image-digest.txt
+    #       # Configure git
+    #       export GIT_USERNAME="kaniko-bot"
+    #       export GIT_PASSWORD="${{ secrets.GITHUB_TOKEN }}"
+
+    #       # Build and push
+    #       /kaniko/executor --dockerfile="./images/ubi9.Dockerfile" \
+    #       --context="${{ github.repository }}#${{ github.ref }}#${{ github.sha }}" \
+    #       --destination="ghcr.io/some-natalie/kubernoodles/kaniko-build:test" \
+    #       --push-retry 5 \
+    #       --image-name-with-digest-file /workspace/image-digest.txt
