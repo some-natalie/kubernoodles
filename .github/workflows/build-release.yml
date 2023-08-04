@@ -16,6 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubi8, ubi9]
+    continue-on-error: true
 
     steps:
       - name: Checkout
@@ -75,7 +76,7 @@ jobs:
       - name: Sign the published Docker image
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
+        run: cosign sign -y ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
 
   build-ubuntu:
     runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
@@ -87,6 +88,7 @@ jobs:
     strategy:
       matrix:
         os: [rootless-ubuntu-jammy]
+    continue-on-error: true
 
     steps:
       - name: Checkout the repo
@@ -148,7 +150,7 @@ jobs:
       - name: Sign the published Docker image
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
+        run: cosign sign -y ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
 
       - name: Push the signed image
         run: docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
