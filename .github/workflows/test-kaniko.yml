@@ -25,7 +25,7 @@ jobs:
 
           # Build and push
           /kaniko/executor --dockerfile="./images/ubi9.Dockerfile" \
-          --context="${{ github.repository }}#${{ github.ref }}#${{ github.sha }}" \
-          --destination="ghcr.io/some-natalie/kubernoodles/kaniko-build:test" \
-          --push-retry 5 \
-          --image-name-with-digest-file /workspace/image-digest.txt
+            --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
+            --destination="ghcr.io/some-natalie/kubernoodles/kaniko-build:test" \
+            --push-retry 5 \
+            --image-name-with-digest-file /workspace/image-digest.txt
