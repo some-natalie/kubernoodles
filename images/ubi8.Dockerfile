@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-init:8.7
+FROM registry.access.redhat.com/ubi8/ubi-init:8.8
 
 LABEL org.opencontainers.image.source https://github.com/some-natalie/kubernoodles
 LABEL org.opencontainers.image.path "images/ubi8.Dockerfile"
