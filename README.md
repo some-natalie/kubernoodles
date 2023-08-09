@@ -1,16 +1,12 @@
 # Kubernoodles
 
-> **Warning**
->
-> :warning: There's a lot of work going on upstream in actions-runner-controller right now that will change quite a bit of the recommendations and defaults in this repository!  This is now using the private preview APIs and will not work as expected for users as-is right now.  Read more about the upcoming changes [here](https://github.com/actions/actions-runner-controller/pull/2153) :warning:
->
-> GHES and GHEC users, please navigate back to tag [v0.9.6](https://github.com/some-natalie/kubernoodles/tree/v0.9.6) ([release](https://github.com/some-natalie/kubernoodles/releases/tag/v0.9.6)) for the APIs that'll work for you. :heart:
+> GHES users prior to 3.9, please navigate back to tag [v0.9.6](https://github.com/some-natalie/kubernoodles/tree/v0.9.6) ([release](https://github.com/some-natalie/kubernoodles/releases/tag/v0.9.6)) for the APIs that'll work for you. :heart:
 
 Kubernoodles is a framework for managing custom self-hosted runners for GitHub Actions in Kubernetes at the enterprise-wide scale.  The design goal is to easily bootstrap a system where customized self-hosted runners update, build, test, deploy, and scale themselves with minimal interaction from enterprise admins and maximum input from the developers using it.
 
 This is an _opinionated_ reference implementation, designed to be taken and modified to your liking.  I use this to test GitHub Actions on my personal account, [GitHub Enterprise Cloud](https://github.com) (SaaS) or [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@latest) (self-hosted) from Docker Desktop, a Raspberry Pi cluster for `arm64`, a managed Kubernetes provider, and other random platforms as needed.  Your implementation may look wildly different, etc.
 
-:question: Are you a GitHub Enterprise admin that's new to GitHub Actions?  Don't know how to set up self-hosted runners at scale?  Start [here](docs/admin-introduction.md)!
+:question: Are you a GitHub Enterprise admin that's new to GitHub Actions?  Don't know how to set up self-hosted runners at scale?  Start [here](https://some-natalie.dev/blog/arch-guide-to-selfhosted-actions/)!
 
 Pull requests welcome! :heart:
 
@@ -24,31 +20,30 @@ Moving data around locally is exponentially cheaper and easier than pulling data
 
 ## Setup
 
-The [admin introduction](docs/admin-introduction.md) walks you through some key considerations on _how_ to think about implementing GitHub Actions at the enterprise scale, the implications of those decisions, and why this project is generally built out the way it is.
+The [admin introduction](https://some-natalie.dev/blog/arch-guide-to-selfhosted-actions/) walks you through some key considerations on _how_ to think about implementing GitHub Actions at the enterprise scale, the implications of those decisions, and why this project is generally built out the way it is.
 
-The [admin setup](docs/admin-setup.md) is a mostly copy-and-paste exercise to get a basic deployment up and going.
+The [admin setup](https://some-natalie.dev/blog/kubernoodles-pt-1) is a mostly copy-and-paste exercise to get a basic deployment up and going.
 
-The [customization](docs/admin-customization.md) guide has a quick writeup and links to learn more about the ways you can customize things to your needs.
+The [customization](https://some-natalie.dev/blog/kubernoodles-pt-5) guide has a quick writeup and links to learn more about the ways you can customize things to your needs.
 
 [Tips and tricks](docs/tips-and-tricks.md) has a few more considerations if things aren't quite going according to plan.
 
 ## Choosing the image(s)
 
-There are currently 4 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are deployed with `ephemeral: true` by actions-runner-controller.  If you're copy/pasting out of the [deployments](deployments), you should be set ... provided you give it the right repository/organization/enterprise to use!
+There are currently 3 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are ephemeral.  If you're copy/pasting out of the [deployments](deployments), you should be set ... provided you give it the right repository/organization/enterprise to use!
 
 | image name | base image | virtualization? | sudo? | notes |
 | --- | --- | --- | --- | --- |
-| ubuntu-focal | [ubuntu:focal](https://hub.docker.com/_/ubuntu) | rootful Docker-in-Docker | passwordless sudo | |
-| podman | [podman/stable:v4](https://quay.io/repository/podman/stable?tab=tags) | rootless Podman-in-Podman | nope | based on Fedora ([Containerfile](https://github.com/containers/podman/tree/main/contrib/podmanimage)) |
-| rootless-ubuntu-focal | [ubuntu:focal](https://hub.docker.com/_/ubuntu) | rootless Docker-in-Docker | nope | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
-| ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) | rootful Docker-in-Docker | passwordless sudo | |
+| ubi8 | [ubi8-init:8.7](https://catalog.redhat.com/software/containers/ubi8-init/5c6aea74dd19c77a158f0892) | :x: | :x: | n/a |
+| ubi9 | [ubi9-init:9.2](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | :x: | :x: | n/a |
+| rootless-ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) | rootless Docker-in-Docker | nope | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 
 ## Sources
 
 These are all excellent reads and can provide more insight into the customization options and updates than are available in this repository.  This entire repository is mostly gluing a bunch of these other bits together and explaining how/why to make this your own.
 
 - GitHub's official [documentation](https://docs.github.com/en/actions/hosting-your-own-runners) on hosting your own runners.
-- Kubernetes controller for self-hosted runners, on [GitHub](https://github.com/actions-runner-controller/actions-runner-controller), is the glue that makes this entire solution possible.
+- Kubernetes controller for self-hosted runners, on [GitHub](https://github.com/actions/actions-runner-controller), is the glue that makes this entire solution possible.
 - Docker image for runners that can automatically join, which solved a good bit of getting the runner agent started automatically on each pod, [write up](https://sanderknape.com/2020/03/self-hosted-github-actions-runner-kubernetes/) and [GitHub](https://github.com/SanderKnape/github-runner).
 - GitHub's repository used to generate the hosted runners' images ([GitHub](https://github.com/actions/virtual-environments)), where I got the idea of using shell scripts to layer discrete dependency management on top of a base image.  The [software](../images/software) scripts are (mostly) copy/pasted directly out of that repo.
 
