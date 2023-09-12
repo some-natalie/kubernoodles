@@ -103,7 +103,7 @@ jobs:
           mkdir -p "${{ runner.tool_cache }}"
 
       - name: Setup Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       # This step is needed for testing the tool cache in this demo repository.
       - name: Update tool cache for AKS
