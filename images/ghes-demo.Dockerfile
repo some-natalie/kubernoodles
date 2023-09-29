@@ -6,7 +6,7 @@ ARG RUNNER_VERSION=2.309.0
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.4.0
 
 # CodeQL arguments
-ARG CODEQL_VERSION=2.13.5
+# ARG CODEQL_VERSION=2.13.5
 
 # Docker and Compose arguments
 ARG DOCKER_VERSION=24.0.6
@@ -114,11 +114,11 @@ RUN export ARCH=$(echo ${RUNNER_ARCH} | cut -d / -f2) \
     && apt-get autoclean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install CodeQL binary
-RUN mkdir -p /opt/hostedtoolcache/CodeQL/${CODEQL_VERSION}/x64/ \
-    && curl -fLo codeql.tar.gz https://github.com/github/codeql-action/releases/download/codeql-bundle-v${CODEQL_VERSION}/codeql-bundle-linux64.tar.gz \
-    && tar -zxvf codeql.tar.gz -C /opt/hostedtoolcache/CodeQL/${CODEQL_VERSION}/x64/ \
-    && rm codeql.tar.gz
+# Install CodeQL binary (let this float and pull from GHES)
+# RUN mkdir -p /opt/hostedtoolcache/CodeQL/${CODEQL_VERSION}/x64/ \
+#     && curl -fLo codeql.tar.gz https://github.com/github/codeql-action/releases/download/codeql-bundle-v${CODEQL_VERSION}/codeql-bundle-linux64.tar.gz \
+#     && tar -zxvf codeql.tar.gz -C /opt/hostedtoolcache/CodeQL/${CODEQL_VERSION}/x64/ \
+#     && rm codeql.tar.gz
 
 # Install container hooks
 RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-container-hooks/releases/download/v${RUNNER_CONTAINER_HOOKS_VERSION}/actions-runner-hooks-k8s-${RUNNER_CONTAINER_HOOKS_VERSION}.zip \
