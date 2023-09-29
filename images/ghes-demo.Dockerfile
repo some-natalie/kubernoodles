@@ -115,7 +115,7 @@ RUN export ARCH=$(echo ${RUNNER_ARCH} | cut -d / -f2) \
     && rm -rf /var/lib/apt/lists/*
 
 # Install CodeQL binary
-RUN mkdir -p /actions-runner/_work/actions-runner/_work/_tool/CodeQL/${CODEQL_VERSION}/x64/ \
+RUN mkdir -p /actions-runner/_work/CodeQL/${CODEQL_VERSION}/x64/ \
     && curl -fLo codeql.tar.gz https://github.com/github/codeql-action/releases/download/codeql-bundle-v${CODEQL_VERSION}/codeql-bundle-linux64.tar.gz \
     && tar -zxvf codeql.tar.gz -C /actions-runner/_work/_tool/CodeQL/${CODEQL_VERSION}/x64/ \
     && rm codeql.tar.gz
