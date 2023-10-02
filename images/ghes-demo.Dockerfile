@@ -47,6 +47,7 @@ RUN apt-get update \
     curl \
     gcc \
     git \
+    gnupg \
     iproute2 \
     iptables \
     jq \
@@ -54,8 +55,6 @@ RUN apt-get update \
     locales \
     lsb-release \
     maven \
-    nodejs \
-    npm \
     openssl \
     pigz \
     pkg-config \
@@ -70,9 +69,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set up yarn
-RUN npm install --global yarn
-
 # Runner user
 RUN adduser --disabled-password --gecos "" --uid 1000 runner
 
@@ -81,6 +77,14 @@ RUN mkdir -p /actions-runner \
     && chown -R runner:1000 /actions-runner
 
 WORKDIR /actions-runner
+
+# Set up nodejs 20
+COPY images/software/node20.sh /node20.sh
+RUN bash /node20.sh && rm /node20.sh
+
+# Set up yarn
+COPY images/software/yarn.sh /yarn.sh
+RUN bash /yarn.sh && rm /yarn.sh
 
 # Install GitHub CLI
 COPY images/software/gh-cli.sh /gh-cli.sh
