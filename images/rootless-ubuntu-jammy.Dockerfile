@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 # GitHub runner arguments
 ARG RUNNER_ARCH=linux/amd64
-ARG RUNNER_VERSION=2.309.0
+ARG RUNNER_VERSION=2.310.2
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.4.0
 
 # Docker and Compose arguments
