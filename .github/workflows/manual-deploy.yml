@@ -3,28 +3,28 @@ name: 🐝 Manually deploy runners
 on:
   workflow_dispatch: # deploy on demand
     inputs:
-      target_scale_set:  # name our runner set
+      target_scale_set: # name our runner set
         # In this repository, this corresponds to the helm chart name in `/deployments/helm-***.yml`.
         # e.g., `ubi8` would target `/deployments/helm-ubi8.yml`
         description: "Which scale set to deploy?"
         type: string
         required: true
-      environment_name:  # this corresponds to the environments we set up for our `kubeconfig` files
+      environment_name: # this corresponds to the environments we set up for our `kubeconfig` files
         description: "Which environment to deploy to?"
-        type: choice  # drop-down menus are fantastic!
+        type: choice # drop-down menus are fantastic!
         required: true
-        options:  # change these to your own names or change :point_up: to a `string` for freeform entry.
-        - "bare-metal"
-        - "test"
-        - "production" 
+        options: # change these to your own names or change :point_up: to a `string` for freeform entry.
+          - "bare-metal"
+          - "test"
+          - "production"
         default: "test"
       runner_namespace:
         description: "Which namespace to deploy to?"
         type: choice
         required: true
-        options:  # again, change this to your own namespaces
-        - "runners"
-        - "test-runners"
+        options: # again, change this to your own namespaces
+          - "runners"
+          - "test-runners"
         default: "test-runners"
 
 jobs:
@@ -36,6 +36,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Write out the kubeconfig info
         run: |
