@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build test image
-    runs-on: ubuntu-latest  # use the GitHub-hosted runner to build the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
 
     steps:
       - name: Checkout
@@ -39,7 +39,7 @@ jobs:
 
   deploy:
     name: Deploy test image to `test-runners` namespace
-    runs-on: ubuntu-latest  # use the GitHub-hosted runner to deploy the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy the image
     needs: [build]
     environment: test
 
@@ -59,7 +59,7 @@ jobs:
           --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
           --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
           -f deployments/helm-ubi8-test.yml \
-          oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+          oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set:0.6.1
 
         env:
           KUBECONFIG: /tmp/config
@@ -87,7 +87,7 @@ jobs:
 
   remove-deploy:
     name: Delete test image deployment
-    runs-on: ubuntu-latest  # use the GitHub-hosted runner to remove the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to remove the image
     needs: [test]
     environment: test
     if: always()
