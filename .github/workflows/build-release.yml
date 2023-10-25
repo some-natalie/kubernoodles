@@ -1,4 +1,4 @@
-name: Build/publish/deploy all runners
+name: 🚀 Build/publish/deploy all runners
 
 on:
   workflow_dispatch: # build on demand
