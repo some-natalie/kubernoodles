@@ -78,6 +78,7 @@ jobs:
     name: Run tests!
     runs-on: [test-jammy-dind]
     needs: [deploy]
+    timeout-minutes: 15
 
     steps:
       - name: Checkout

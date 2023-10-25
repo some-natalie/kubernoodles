@@ -81,6 +81,7 @@ jobs:
     name: Run tests!
     runs-on: [test-ubi8]
     needs: [deploy]
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
