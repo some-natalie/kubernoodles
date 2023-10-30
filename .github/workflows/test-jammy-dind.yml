@@ -92,7 +92,7 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Setup test table
+      - name: Setup test summary
         run: |
           echo '### Test summary 🧪' >> $GITHUB_STEP_SUMMARY
           echo ' ' >> $GITHUB_STEP_SUMMARY

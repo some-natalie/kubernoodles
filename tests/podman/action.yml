@@ -14,11 +14,21 @@ runs:
       shell: bash
       run: |
         podman run hello-world
+        if $? -ne 0; then
+          echo "- ❌ podman run hello-world check failed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ✅ podman run hello-world check succeeded" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: "Docker alias test"
       shell: bash
       run: |
         docker run hello-world
+        if $? -ne 0; then
+          echo "- ❌ `docker` alias check failed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ✅ `docker` alias check succeeded" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: "Podman network info"
       shell: bash
@@ -29,13 +39,28 @@ runs:
       shell: bash
       run: |
         podman compose --version
+        if $? -ne 0; then
+          echo "- ❌ podman compose check failed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ✅ podman compose check succeeded" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: "Buildah info"
       shell: bash
       run: |
         buildah info
+        if $? -ne 0; then
+          echo "- ❌ buildah check failed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ✅ buildah check succeeded" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: "Skopeo info"
       shell: bash
       run: |
         skopeo -v
+        if $? -ne 0; then
+          echo "- ❌ skopeo check failed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ✅ skopeo check succeeded" >> $GITHUB_STEP_SUMMARY
+        fi

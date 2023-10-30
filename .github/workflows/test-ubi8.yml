@@ -17,6 +17,17 @@ jobs:
     runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
 
     steps:
+      - name: Set release id
+        run: echo "SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Set up build summary
+        run: |
+          echo '### Build summary 🚀' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '- Changes that produced this build [here](${{ github.server_url }}/${{ github.repository }}/commit/${{ env.SHA_SHORT }}) ' >> $GITHUB_STEP_SUMMARY
+          echo '- Full code at this point in time [here](${{ github.server_url }}/${{ github.repository }}/tree/${{ env.SHA_SHORT }})' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -84,6 +95,12 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Setup test summary
+        run: |
+          echo '### Test summary 🧪' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '- ✅ runner builds and deploys' >> $GITHUB_STEP_SUMMARY
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -116,3 +133,8 @@ jobs:
 
       - name: Remove kubeconfig info
         run: rm -f /tmp/config
+
+      - name: Output removal
+        run: |
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
