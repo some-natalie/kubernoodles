@@ -116,6 +116,11 @@ jobs:
         uses: ./tests/container
 
       - name: Log container failure (if applicable)
+        if: ${{ success().steps.container }}
+        run: |
+          echo '- ✅ container action succeeded' >> $GITHUB_STEP_SUMMARY
+
+      - name: Log container failure (if applicable)
         if: ${{ failure().steps.container }}
         run: |
           echo '- ❌ container action failed' >> $GITHUB_STEP_SUMMARY
