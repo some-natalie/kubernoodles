@@ -8,4 +8,12 @@ runs:
     - name: "Sudo fails"
       shell: bash
       run: |
-        sudo echo "sudo works"
+        if [ $(sudo echo "sudo works") -eq 0 ]; then
+          echo "sudo succeeds"
+          echo "- ✅ sudo succeeds" >> $GITHUB_STEP_SUMMARY
+          exit 0
+        else
+          echo "sudo failed"
+          echo "- ❌ sudo failed" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi s
