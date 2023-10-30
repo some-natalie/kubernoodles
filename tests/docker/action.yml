@@ -15,9 +15,9 @@ runs:
       run: |
         docker run hello-world
         if $? -ne 0; then
-          echo "| ❌ | docker run hello-world failed |" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ docker run hello-world failed" >> $GITHUB_STEP_SUMMARY
         else
-          echo "| ✅ | docker run hello-world succeeded |" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ docker run hello-world succeeded" >> $GITHUB_STEP_SUMMARY
         fi
 
     - name: "Docker network info"
@@ -30,7 +30,7 @@ runs:
       run: |
         docker-compose --version
         if $? -ne 0; then
-          echo "| ❌ | docker-compose check failed |" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ docker-compose check failed" >> $GITHUB_STEP_SUMMARY
         else
-          echo "| ✅ | docker-compose check succeeded |" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ docker-compose check succeeded" >> $GITHUB_STEP_SUMMARY
         fi

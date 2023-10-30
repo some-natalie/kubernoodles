@@ -18,15 +18,14 @@ jobs:
 
     steps:
       - name: Set release id
-        id: vars
-        run: echo ::set-output name=sha_short::${GITHUB_SHA::7}
+        run: echo "SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Set up build summary
         run: |
           echo '### Build summary 🚀' >> $GITHUB_STEP_SUMMARY
           echo ' ' >> $GITHUB_STEP_SUMMARY
-          echo '- Changes that produced this build [here](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.vars.outputs.sha_short }}) ' >> $GITHUB_STEP_SUMMARY
-          echo '- Full code at this point in time [here](${{ github.server_url }}/${{ github.repository }}/tree/${{ steps.vars.outputs.sha_short }})' >> $GITHUB_STEP_SUMMARY
+          echo '- Changes that produced this build [here](${{ github.server_url }}/${{ github.repository }}/commit/${{ env.SHA_SHORT }}) ' >> $GITHUB_STEP_SUMMARY
+          echo '- Full code at this point in time [here](${{ github.server_url }}/${{ github.repository }}/tree/${{ env.SHA_SHORT }})' >> $GITHUB_STEP_SUMMARY
           echo ' ' >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout
@@ -97,9 +96,7 @@ jobs:
         run: |
           echo '### Test summary 🧪' >> $GITHUB_STEP_SUMMARY
           echo ' ' >> $GITHUB_STEP_SUMMARY
-          echo '| Status | Test |' >> $GITHUB_STEP_SUMMARY
-          echo '|---|---|' >> $GITHUB_STEP_SUMMARY
-          echo '| ✅ | runner builds and deploys |' >> $GITHUB_STEP_SUMMARY
+          echo '- ✅ runner builds and deploys' >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -121,7 +118,7 @@ jobs:
       - name: Log container failure (if applicable)
         if: ${{ failure().steps.container }}
         run: |
-          echo '| ❌ | container action failed |' >> $GITHUB_STEP_SUMMARY
+          echo '- ❌ container action failed' >> $GITHUB_STEP_SUMMARY
 
   remove-deploy:
     name: Delete test image deployment
