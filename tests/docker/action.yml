@@ -28,9 +28,9 @@ runs:
     - name: "Docker compose test"
       shell: bash
       run: |
-        docker-compose --version
+        docker compose --version
         if $? -ne 0; then
-          echo "- ❌ docker-compose check failed" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ docker compose check failed" >> $GITHUB_STEP_SUMMARY
         else
-          echo "- ✅ docker-compose check succeeded" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ docker compose check succeeded" >> $GITHUB_STEP_SUMMARY
         fi
