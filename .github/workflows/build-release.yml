@@ -118,17 +118,23 @@ jobs:
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.VERSION }}-${{ env.SHA_SHORT }}
 
-      - name: Scan it
-        uses: anchore/scan-action@v3
-        id: scan
+      - name: Download Grype
+        uses: anchore/scan-action/download-grype@v3
+        id: grype
         with:
-          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}"
-          fail-build: false
+          grype-version: "v0.72.0"
+
+      - name: Scan it
+        id: scan
+        run: |
+          ${{steps.grype.outputs.cmd}} -o sarif -f ${{github.workspace}}/results.sarif \
+          ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
 
       - name: Upload the container scan report
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: ${{ steps.scan.outputs.sarif }}
+          sarif_file: ${{ github.workspace }}/results.sarif
+          category: ${{ matrix.os }}
 
       - name: Generate that SBOM
         uses: anchore/sbom-action@v0
