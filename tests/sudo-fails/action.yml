@@ -50,8 +50,7 @@ runs:
         group_list=('wheel' 'adm' 'admin' 'sudo' 'root')
         for i in "${group_list[@]}"
         do
-          groups | grep -q $i
-          if [ $? == "0" ]; then
+          if [ "$(groups | grep -q $i)" == "0" ]; then
             echo "- ❌ runner agent in privileged group $i" >> $GITHUB_STEP_SUMMARY
             exit 1
           else
