@@ -8,7 +8,7 @@ runs:
     - name: "Sudo fails"
       shell: bash
       run: |
-        if [ $(sudo echo "test") -eq 0 ]; then
+        if [ $(sudo echo "test") == "0" ]; then
           echo "sudo should fail, but didn't"
           echo "- ❌ sudo should fail, but didn't" >> $GITHUB_STEP_SUMMARY
           exit 1
@@ -17,3 +17,42 @@ runs:
           echo "- ✅ sudo failed as expected" >> $GITHUB_STEP_SUMMARY
           exit 0
         fi
+
+    - name: "UID check"
+      shell: bash
+      run: |
+        if [ "$(id -u)" != "0" ]; then
+          echo "not running as root"
+          echo "- ✅ runner agent not executing as root"
+          exit 0
+        else
+          echo "running as root"
+          echo "- ❌ runner agent executing as root" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+    - name: "EUID check"
+      shell: bash
+      run: |
+        if [ "$EUID" != "0" ]; then
+          echo "not running as root"
+          echo "- ✅ runner agent not effectively executing as root"
+          exit 0
+        else
+          echo "running as root"
+          echo "- ❌ runner agent is effectively root" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+    - name: "Privileged group check"
+      shell: bash
+      run: |
+        group_list=('wheel' 'adm' 'admin' 'sudo' 'root')
+        for i in "${group_list[@]}"; do
+          if [ "$(groups | grep -q $i)" == "0" ]; then
+            echo "- ❌ runner agent in privileged group $i" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "- ✅ runner agent not in commonly privileged group $i" >> $GITHUB_STEP_SUMMARY
+          fi
+        done

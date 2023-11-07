@@ -10,6 +10,11 @@ runs:
       run: |
         printenv
 
+    - name: "$PATH dump"
+      shell: bash
+      run: |
+        echo $PATH
+
     - name: "Who am I?"
       shell: bash
       run: |
