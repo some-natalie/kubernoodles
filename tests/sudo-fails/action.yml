@@ -48,13 +48,11 @@ runs:
       shell: bash
       run: |
         group_list=('wheel' 'adm' 'admin' 'sudo' 'root')
-        for i in "${group_list[@]}"
-        do
+        for i in "${group_list[@]}"; do
           if [ "$(groups | grep -q $i)" == "0" ]; then
             echo "- ❌ runner agent in privileged group $i" >> $GITHUB_STEP_SUMMARY
             exit 1
           else
             echo "- ✅ runner agent not in commonly privileged group $i" >> $GITHUB_STEP_SUMMARY
-            exit 0
           fi
         done
