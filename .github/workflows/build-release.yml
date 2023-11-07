@@ -47,17 +47,23 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           digestfile: digest.txt
 
-      - name: Run Anchore scan
-        uses: anchore/scan-action@v3
-        id: scan
+      - name: Download Grype
+        uses: anchore/scan-action/download-grype@v3
+        id: grype
         with:
-          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.VERSION }}"
-          fail-build: false
+          grype-version: "v0.72.0"
 
-      - name: Upload Anchore scan report
+      - name: Scan it
+        id: scan
+        run: |
+          ${{steps.grype.outputs.cmd}} -o sarif --file ${{github.workspace}}/results.sarif \
+          ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
+
+      - name: Upload the container scan report
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: ${{ steps.scan.outputs.sarif }}
+          sarif_file: ${{ github.workspace }}/results.sarif
+          category: ${{ matrix.os }}
 
       - name: Generate SBOM for the UBI runners
         uses: anchore/sbom-action@v0
@@ -127,7 +133,7 @@ jobs:
       - name: Scan it
         id: scan
         run: |
-          ${{steps.grype.outputs.cmd}} -o sarif -f ${{github.workspace}}/results.sarif \
+          ${{steps.grype.outputs.cmd}} -o sarif --file ${{github.workspace}}/results.sarif \
           ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
 
       - name: Upload the container scan report
