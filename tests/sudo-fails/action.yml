@@ -8,7 +8,7 @@ runs:
     - name: "Sudo fails"
       shell: bash
       run: |
-        if [ $(sudo echo "test") -eq 0 ]; then
+        if [ $(sudo echo "test") == "0" ]; then
           echo "sudo should fail, but didn't"
           echo "- ❌ sudo should fail, but didn't" >> $GITHUB_STEP_SUMMARY
           exit 1
@@ -51,10 +51,11 @@ runs:
         for i in "${group_list[@]}"
         do
           groups | grep -q $i
-          if [ $? -eq 0 ]; then
+          if [ $? == "0" ]; then
             echo "- ❌ runner agent in privileged group $i" >> $GITHUB_STEP_SUMMARY
             exit 1
           else
             echo "- ✅ runner agent not in commonly privileged group $i" >> $GITHUB_STEP_SUMMARY
+            exit 0
           fi
         done
