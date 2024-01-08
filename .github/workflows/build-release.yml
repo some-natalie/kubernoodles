@@ -153,4 +153,7 @@ jobs:
         run: cosign sign -y ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
 
       - name: Push the signed image
-        run: docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
+        run: |
+          docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
+          docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
+          docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.VERSION }}-${{ env.SHA_SHORT }}
