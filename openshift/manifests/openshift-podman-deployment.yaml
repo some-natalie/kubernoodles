@@ -2,36 +2,30 @@ apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
   name: openshift-podman-runner
-  # Claim namespace if needed
-  # namespace:
 spec:
   # Using "HorizontalRunnerAutoscaler"
-  replicas: 0 # 0 if using HRA
+  # replicas: 0
   template:
     metadata:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     spec:
       # Assign runner group
-      group: OpenShift
-      # Add lables for targeting
+      dockerdWithinRunnerContainer: false #disable the docker container
+      group: ${RUNNER_GROUP_NAME}
       labels:
-        - podman,openshift
-      # Adding the security context
-      securityContext:
-        privileged: true
-        fsGroup: 1000
-      # Name of the GitHub Org
-      organization: ocpdude
+        - podman
+      organization: ${ORG}
       imagePullPolicy: Always
       resources:
         limits:
-          cpu: "4"
-          memory: "8Gi"
+          cpu: "1"
+          memory: "1Gi"
         requests:
-          cpu: "2"
-          memory: "2Gi"
-      image: ghcr.io/ocpdude/podman-runner:6
+          cpu: "250m"
+          memory: "250Mi"
+      image: ${PATH_TO_IMAGE}
+      
       # Optionally break out the storage layer for podman,
       # handy for large builds that need persistant data 
       # between runners
