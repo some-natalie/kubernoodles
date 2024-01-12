@@ -77,7 +77,7 @@ Note: If you deploy runners in other (!= actions-runner-system) projects/namespa
       ---
       kind: RunnerDeployment
       metadata:
-        namespace: org1-runners
+        name: example-runner
       spec:
         template:
           spec:
@@ -87,7 +87,7 @@ Note: If you deploy runners in other (!= actions-runner-system) projects/namespa
       ---
       kind: HorizontalRunnerAutoscaler
       metadata:
-        namespace: org1-runners
+        name: example-runner-hra
       spec:
         githubAPICredentialsFrom:
           secretRef:
