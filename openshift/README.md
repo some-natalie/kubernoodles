@@ -1,60 +1,57 @@
-## GitHub Actions Runner Controller (Community Version) for OpenShift 4.X
+# Multitenancy on OpenShift (Community Version)
 
-Source : https://github.com/actions-runner-controller/actions-runner-controller
-
-There are multiple ways of installing ARC, I have chosen to use GitHub Apps to store credentials and access controls and to configure my runners at the *Org* level so that all repos underneath could have access to them. I also will install everything using .yaml files vs Helm.
+With a few changes we can leverage a single ARC controller-manager across multiple orgazations. A quick prereq is that the controller must be on 
+version 0.26.0+. The initial advantage of this is no having the overhead of multiple controllers and crd's that need to be managed, being our of 
+sync with multiple deployments causes issues with your runner deployments.
 
 ### Cert-Manager Installation
-Prior to installing ARC, you will need to install and configure cert-manager, this can be done by installing the `cert-manager` operator from the Operator Hub. Once the operator is installed (using the defaults), we will need to setup the private CA cert & key.
+Prior to installing ARC, it's highly recommended to install and configure cert-manager, this can be done by installing the `cert-manager` operator from the Operator Hub. Once the operator is installed (using the defaults), we will need to setup your Issuer. I've chosen to use the ClusterIssuer so it will apply to all namespaces.
 
-1. Copy your ca.crt & ca.key files locally
+1. Copy any private ca.crt & ca.key files locally, or configure for [ACME](https://cert-manager.io/docs/configuration/acme/).
 
 2. Create a SECRET with these files in the openshift-operators namespace \
   `oc create secret tls ca-key-pair --cert=ca.crt --key=ca.key`
 
 3. I chose to provide acces to the cluster by creating a kind ClusterIssuer
-    ```
-      kind: ClusterIssuer
-      apiVersion: cert-manager.io/v1
-      metadata:
-        name: my-clusterissuer
-      spec:
-        selfSigned:
-          ca:
-            secretName: ca-key-pair
-      ```
+  ```
+    kind: ClusterIssuer
+    apiVersion: cert-manager.io/v1
+    metadata:
+      name: my-clusterissuer
+    spec:
+      selfSigned:
+        ca:
+          secretName: ca-key-pair
+```
 
-### ARC Installation w/ GitHub Apps Authentication
-Releases : https://github.com/actions/actions-runner-controller/releases/
+## ARC to 0.27.6
+### Using PAT
+1. If this is your initial deployment, install the ARC controller \
+`oc create -f https://github.com/actions/actions-runner-controller/releases/download/v0.27.6/actions-runner-controller.yaml` \
 
-1. Install the current release \
-`oc create -f https://github.com/actions/actions-runner-controller/releases/download/v0.27.6/actions-runner-controller.yaml`
+    [Notes](#Troubleshooting) - If you are upgrading to multitenancy, you must remove all of your runnerdeployments and horizontalrunnerautoscaler 
+    deployments prior to upgrading. Not doing this _could_ cause your reinstall to hang and fail. Additionaly, if your controller version complains _"metadata.annotations: Too long: must have at most 262144 bytes"_ then use `kubectl replace --force -f https...` instead of the `oc` command above.
 
 3. When deploying the solution for a GHES environment you need to provide an additional environment variable as part of the controller deployment \
-  `oc set env deploy controller-manager -c manager GITHUB_ENTERPRISE_URL=https://${YOUR_GHES_SERVER} -n actions-runner-system`
+`oc -n actions-runner-system set env deploy controller-manager -c manager GITHUB_ENTERPRISE_URL=https://${YOUR_GHES_SERVER}`
 
-4. To support docker containers use _privileged_ & anyuid access \
-  `oc adm policy add-scc-to-user privileged -z default -n actions-runner-system`
-  `oc adm policy add-scc-to-user anyuid -z default -n actions-runner-system`
+4. In this example, we'll set _privileged_ & _anyuid_ access \
+`oc adm policy add-scc-to-user privileged -z default -n actions-runner-system`
+`oc adm policy add-scc-to-user anyuid -z default -n actions-runner-system`
 
-### GitHub App Authentication
-You can create a GitHub App for either your user account or any organization, below are the app permissions required for each supported type of runner.
+Note: If you deploy runners in other (!= actions-runner-system) projects/namespaces, you will need to do step 4 in those namespaces to provide access to the 'default' service account. Alternatively, you can you may managed your own SCC and SA for improved RBAC (out-of-scope).
 
-**Required Permissions for Repository Runners:**
-* Actions (read)
-* Administration (read / write)
-* Checks (read) (if you are going to use Webhook Driven Scaling)
-* Metadata (read)
+6. Since we'll use 1 controller for all of our jobs, we'll deploy it using a Personal Access Token. Create a PAT using an Admin that has access to the orgs you'll be deploying ARC into. \
+    admin:org, admin:org_hook, notifications, read:public_key, read:repo_hook, repo, workflow
 
-**Required Permissions for Organization Runners:**
-* Actions (read)
-* Metadata (read)
+7. Set the controller-manager secret using this PAT \
+    `oc -n actions-runner-system  create secret generic controller-manager  --from-literal=github_token=${GITHUB_TOKEN}`
+   
+### Using GitHub Apps
 
-**Organization Permissions**
-* Self-hosted runners (read / write)
-
-### GitHub App for your organization
-1. Replace the `${PARTS}` of the following URL with your GHES address & organization name before opening it. Then enter any unique name in the "GitHub App name" field, and hit the "Create GitHub App" button at the bottom of the page to create a GitHub App.
+1. Optionally, if you want a spepart controller-manager & namespace for each Organzation (runner group), it will require it's own GitHub App \
+    Replace the ${PARTS} of the following URL with your GHES address & Org name before opening it in your browser. 
+    Then enter any unique name in the "GitHub App name" field, and hit the "Create GitHub App" button at the bottom of the page to create a GitHub App.
 
     `https://${YOUR_GHES_SERVER}/organizations/${YOUR_ORG}/settings/apps/new?url=http://github.com/actions/actions-runner-controller&webhook_active=false&public=false&administration=write&organization_self_hosted_runners=write&actions=read&checks=read`
 
@@ -62,48 +59,50 @@ You can create a GitHub App for either your user account or any organization, be
 
 2. Download the private key file by pushing the "Generate a private key" button at the bottom of the GitHub App page. This file will also be used later.
 
-3. Go to the "Install App" tab on the left side of the page and install the GitHub App that you created for your account or organization. \
-    ##### ```NOTE: You will need to Installation ID, to retrieve it go to your ORG that you've installed the app into, visit Settings > GitHub Apps > {YOUR_APP} > and then when you highlight the URL in your browser. The number at the end would be your Intallation ID, example: https://${YOUR_GHES_SERVER}/organizations/${YOUR_ORG}/settings/installation/${INSTALLATION_ID}.```
+3. Go to the "Install App" tab on the left side of the page and install the GitHub App that you created for your account or organization.
 
 4. Register the App ID `${APP_ID}`, Installation ID `${INSTALLATION_ID}`, and the downloaded private key file `${PRIVATE_KEY_FILE_PATH}` to OpenShift as a secret.
-  ```
-  $ kubectl create secret generic controller-manager \
-      -n actions-runner-system \
-      --from-literal=github_app_id=${APP_ID} \
-      --from-literal=github_app_installation_id=${INSTALLATION_ID} \
-      --from-file=github_app_private_key=${PRIVATE_KEY_FILE_PATH}
-  ```
+    ```
+    $ kubectl create secret generic org1-github-app \
+        -n actions-runner-system \
+        --from-literal=github_app_id=${APP_ID} \
+        --from-literal=github_app_installation_id=${INSTALLATION_ID} \
+        --from-file=github_app_private_key=${PRIVATE_KEY_FILE_PATH}
+    ```
 
-### Runner Deployments
-There are additional ways to launch your runners, here I chose using kind: RunnerDeployment
-#### NOTE: Keep in mind that OpenShift will not natively display your deployments, to view them as well as the later HorizontalRunnerAutoscaler, you'll need to use `oc get runnerdeployment`, `oc get runner', `oc get hra` or `oc get horizonalrunnerautoscaler`.
+### Running the deployments - see [manifests](./manifests) for more examples
+13. You'll now call out org1-github-app in your manifests for RunnerDeployment and HorizonalRunnerAutoscaler
+      ```
+      Example:
+      ---
+      kind: RunnerDeployment
+      metadata:
+        name: example-runner
+      spec:
+        template:
+          spec:
+            githubAPICredentialsFrom:
+              secretRef:
+                name: org1-github-app
+      ---
+      kind: HorizontalRunnerAutoscaler
+      metadata:
+        name: example-runner-hra
+      spec:
+        githubAPICredentialsFrom:
+          secretRef:
+            name: org1-github-app
+      ```
+ 👉 Repeat for each deployment (RunnerDeployment/HorizontalRunnerAutoscaler)
+ 
 
-   ```
-   apiVersion: actions.summerwind.dev/v1alpha1
-    kind: RunnerDeployment
-    metadata:
-      name: example-runner-deployment
-    spec:
-      template:
-        spec:
-          organization: ${ORG_NAME}
-          #repository: example/myrepo
+--------
 
-    ---
-    apiVersion: actions.summerwind.dev/v1alpha1
-    kind: HorizontalRunnerAutoscaler
-    metadata:
-      name: example-runner-deployment-autoscaler
-    spec:
-      scaleTargetRef:
-        name: example-runner-deployment
-      minReplicas: 1
-      maxReplicas: 5
-      metrics:
-      - type: TotalNumberOfQueuedAndInProgressWorkflowRuns
-        repositoryNames:
-        - example/my-repo
-        - example/myother-repo
+## Troubleshooting
+1. You upgraded to 0.26.0 without removing your deployments beforehand and the removal has hung.
+    If your pods are in a 'Terminating' state, select the pod, switch to YAML and then remove finalizers, save and move to the next pod. This should remove them one-by-one.
+2. During the replace phase, your upgrade stops deleting CRD's.
+    Search your CRD's for runners \
+    `oc get crd | grep runner`
+    Edit the CRD and remove the finalizers, when you save/exit the CRD will be removed and the install should complete.
 
-```
-There are a lot of options here, so I am only showing the defaults, but if you'd like an example I have included my scripts under [manifests](./manifests/. Additionally, I have evaluated two custom runners - one based on docker and the other based on podman (buildah). I will include these as examples under [builds](./builds).
