@@ -25,20 +25,3 @@ spec:
           cpu: "250m"
           memory: "250Mi"
       image: ${PATH_TO_IMAGE}
----
-apiVersion: actions.summerwind.dev/v1alpha1
-kind: HorizontalRunnerAutoscaler
-metadata:
-  name: openshift-podman-autoscaler
-spec:
-  scaleDownDelaySecondsAfterScaleOut: 300
-  scaleTargetRef:
-    name: openshift-podman-runner
-  minReplicas: 1
-  maxReplicas: 3
-  metrics:
-  - type: PercentageRunnersBusy
-    scaleUpThreshold: '0.75'
-    scaleDownThreshold: '0.25'
-    scaleUpFactor: '2'
-    scaleDownFactor: '0.5'
