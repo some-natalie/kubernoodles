@@ -1,6 +1,6 @@
 # Multitenancy on OpenShift (Community Version)
 
-With a few changes we can leverage a single ARC controller-manager across multiple orgazations. A quick prereq is that the controller must be on 
+With a few changes we can leverage a single ARC controller-manager across multiple organizations. A quick prereq is that the controller must be on 
 version 0.26.0+. The initial advantage of this is no having the overhead of multiple controllers and crd's that need to be managed, being our of 
 sync with multiple deployments causes issues with your runner deployments.
 
