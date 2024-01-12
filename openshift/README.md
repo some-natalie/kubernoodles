@@ -1,4 +1,4 @@
-## GitHub Actions Runner Controller (ARC) for OpenShift 4.X
+## GitHub Actions Runner Controller (Community Version) for OpenShift 4.X
 
 Source : https://github.com/actions-runner-controller/actions-runner-controller
 
@@ -17,7 +17,7 @@ Prior to installing ARC, you will need to install and configure cert-manager, th
       kind: ClusterIssuer
       apiVersion: cert-manager.io/v1
       metadata:
-        name: redcloud-clusterissuer
+        name: my-clusterissuer
       spec:
         selfSigned:
           ca:
@@ -27,14 +27,15 @@ Prior to installing ARC, you will need to install and configure cert-manager, th
 ### ARC Installation w/ GitHub Apps Authentication
 Releases : https://github.com/actions/actions-runner-controller/releases/
 
-1. Install the current release, we'll use the "replace --force" to install the controller on OCP or it'll complain that _"metadata.annotations: Too long: must have at most 262144 bytes"_ \
-  `kubectl replace --force -f https://github.com/actions/actions-runner-controller/releases/download/v0.22.0/actions-runner-controller.yaml`
+1. Install the current release \
+`oc create -f https://github.com/actions/actions-runner-controller/releases/download/v0.27.6/actions-runner-controller.yaml`
 
-2. When deploying the solution for a GHES environment you need to provide an additional environment variable as part of the controller deployment \
-  `kubectl set env deploy controller-manager -c manager GITHUB_ENTERPRISE_URL=https://${YOUR_GHES_SERVER} --namespace actions-runner-system`
+3. When deploying the solution for a GHES environment you need to provide an additional environment variable as part of the controller deployment \
+  `oc set env deploy controller-manager -c manager GITHUB_ENTERPRISE_URL=https://${YOUR_GHES_SERVER} -n actions-runner-system`
 
-3. Prior to 0.25 you have to set _privileged_ access \
+4. To support docker containers use _privileged_ & anyuid access \
   `oc adm policy add-scc-to-user privileged -z default -n actions-runner-system`
+  `oc adm policy add-scc-to-user anyuid -z default -n actions-runner-system`
 
 ### GitHub App Authentication
 You can create a GitHub App for either your user account or any organization, below are the app permissions required for each supported type of runner.
@@ -75,7 +76,7 @@ You can create a GitHub App for either your user account or any organization, be
 
 ### Runner Deployments
 There are additional ways to launch your runners, here I chose using kind: RunnerDeployment
-#### NOTE: Keep in mind that OpenShift will not natively display your deployments, to view them as well as the later HorizontalRunnerAutoscaler, you'll need to use `oc get runnerdeployment`, `oc get hra` & `oc get horizonalrunnerautoscaler`.
+#### NOTE: Keep in mind that OpenShift will not natively display your deployments, to view them as well as the later HorizontalRunnerAutoscaler, you'll need to use `oc get runnerdeployment`, `oc get runner', `oc get hra` or `oc get horizonalrunnerautoscaler`.
 
    ```
    apiVersion: actions.summerwind.dev/v1alpha1
@@ -85,7 +86,9 @@ There are additional ways to launch your runners, here I chose using kind: Runne
     spec:
       template:
         spec:
-          repository: example/myrepo
+          organization: ${ORG_NAME}
+          #repository: example/myrepo
+
     ---
     apiVersion: actions.summerwind.dev/v1alpha1
     kind: HorizontalRunnerAutoscaler
@@ -94,14 +97,13 @@ There are additional ways to launch your runners, here I chose using kind: Runne
     spec:
       scaleTargetRef:
         name: example-runner-deployment
-        # IMPORTANT : If your HRA is targeting a RunnerSet you must specify the kind in the scaleTargetRef:, uncomment the below
-        #kind: RunnerSet
       minReplicas: 1
       maxReplicas: 5
       metrics:
       - type: TotalNumberOfQueuedAndInProgressWorkflowRuns
         repositoryNames:
-        - example/myrepo
+        - example/my-repo
+        - example/myother-repo
 
 ```
-There are a lot of options here, so I am only showing the defaults, but if you'd like an example I have included my scripts under /manifests. Additionally, I have evaluated two custom runners - one based on docker and the other based on podman (buildah). I will include these as examples under /builds.
+There are a lot of options here, so I am only showing the defaults, but if you'd like an example I have included my scripts under [manifests](./manifests/. Additionally, I have evaluated two custom runners - one based on docker and the other based on podman (buildah). I will include these as examples under [builds](./builds).
