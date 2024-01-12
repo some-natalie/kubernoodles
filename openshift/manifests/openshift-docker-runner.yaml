@@ -1,45 +1,49 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
-  name: openshift-runner
-  # Optional namesapce
-  # namespace: 
+  name: openshift-docker-runners
 spec:
-  replicas: 0 # 0 if using HRA
+  # Using "HorizontalRunnerAutoscaler"
+  # replicas: 1
   template:
     metadata:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     spec:
+      group: OpenShift
+      labels:
+        - docker,openshift
+      organization: ${ORG_NAME}
+      imagePullPolicy: Always
+      resources:
+        limits:
+          cpu: "250m"
+          memory: "500Mi"
+      image: ${PATH_TO_IMAGE}
       containers:
-      # Optional - passing in daemon.json entries via ConfigMap
-      # See daemon-json-configmap.yaml
       - name: docker
-        resources: {}
         volumeMounts:
         - mountPath: /etc/docker/daemon.json
           name: daemon-json
           subPath: daemon.json
-      dockerdContainerResources: {}
-      # GitHub Runner Group
-      group: OpenShift
-      image: ghcr.io/ocpdude/actions-custom-runner:latest
-      imagePullPolicy: Always
-      # Lables to focus jobs
-      labels:
-      - docker,openshift
-      # GitHub Org
-      organization: ocpdude
-      resources:
-        limits:
-          cpu: "2"
-          memory: 4Gi
-        requests:
-          cpu: "1"
-          memory: 2Gi
-      securityContext:
-        fsGroup: 1000
       volumes:
-      - configMap:
+      - name: daemon-json
+        configMap:
           name: daemon-json
-        name: daemon-json
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: HorizontalRunnerAutoscaler
+metadata:
+  name: openshift-docker-autoscaler
+spec:
+  scaleDownDelaySecondsAfterScaleOut: 300
+  scaleTargetRef:
+    name: openshift-docker-runners
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+  - type: PercentageRunnersBusy
+    scaleUpThreshold: '0.75'
+    scaleDownThreshold: '0.25'
+    scaleUpFactor: '2'
+    scaleDownFactor: '0.5'
