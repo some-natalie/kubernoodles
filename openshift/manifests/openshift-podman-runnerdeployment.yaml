@@ -1,0 +1,27 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: openshift-podman-runner
+spec:
+  # Using "HorizontalRunnerAutoscaler"
+  # replicas: 0
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+    spec:
+      # Assign runner group
+      dockerdWithinRunnerContainer: false #disable the docker container
+      group: ${RUNNER_GROUP_NAME}
+      labels:
+        - podman
+      organization: ${ORG}
+      imagePullPolicy: Always
+      resources:
+        limits:
+          cpu: "1"
+          memory: "1Gi"
+        requests:
+          cpu: "250m"
+          memory: "250Mi"
+      image: ${PATH_TO_IMAGE}

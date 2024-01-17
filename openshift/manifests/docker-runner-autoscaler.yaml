@@ -1,18 +1,16 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: HorizontalRunnerAutoscaler
 metadata:
-  name: openshift-runner-autoscaler
-  # Optional
-  # namespace:
+  name: openshift-docker-autoscaler
 spec:
-  maxReplicas: 6
-  metrics:
-  - scaleDownFactor: "0.5"
-    scaleDownThreshold: "0.25"
-    scaleUpFactor: "2"
-    scaleUpThreshold: "0.75"
-    type: PercentageRunnersBusy
-  minReplicas: 2
   scaleDownDelaySecondsAfterScaleOut: 300
   scaleTargetRef:
-    name: openshift-runner
+    name: openshift-docker-runners
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+  - type: PercentageRunnersBusy
+    scaleUpThreshold: '0.75'
+    scaleDownThreshold: '0.25'
+    scaleUpFactor: '2'
+    scaleDownFactor: '0.5'
