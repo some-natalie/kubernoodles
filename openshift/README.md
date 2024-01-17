@@ -1,8 +1,6 @@
 # Multitenancy on OpenShift (Community Version)
 
-With a few changes we can leverage a single ARC controller-manager across multiple organizations. A quick prereq is that the controller must be on 
-version 0.26.0+. The initial advantage of this is no having the overhead of multiple controllers and crd's that need to be managed, being our of 
-sync with multiple deployments causes issues with your runner deployments.
+With a few changes we can leverage a single ARC controller-manager across multiple organizations. A quick prereq is that the controller must be on version >0.26.0. The initial advantage of this is not having the overhead of multiple controllers and crd's that need to be managed, being out of sync with multiple deployments causes issues with your runner deployments.
 
 ### Cert-Manager Installation
 Prior to installing ARC, it's highly recommended to install and configure cert-manager, this can be done by installing the `cert-manager` operator from the Operator Hub. Once the operator is installed (using the defaults), we will need to setup your Issuer. I've chosen to use the ClusterIssuer so it will apply to all namespaces.
@@ -32,24 +30,25 @@ Prior to installing ARC, it's highly recommended to install and configure cert-m
     [Notes](#Troubleshooting) - If you are upgrading to multitenancy, you must remove all of your runnerdeployments and horizontalrunnerautoscaler 
     deployments prior to upgrading. Not doing this _could_ cause your reinstall to hang and fail. Additionaly, if your controller version complains _"metadata.annotations: Too long: must have at most 262144 bytes"_ then use `kubectl replace --force -f https...` instead of the `oc` command above.
 
-3. When deploying the solution for a GHES environment you need to provide an additional environment variable as part of the controller deployment \
+2. When deploying the solution for a GHES environment you need to provide an additional environment variable as part of the controller deployment \
 `oc -n actions-runner-system set env deploy controller-manager -c manager GITHUB_ENTERPRISE_URL=https://${YOUR_GHES_SERVER}`
 
-4. In this example, we'll set _privileged_ & _anyuid_ access \
-`oc adm policy add-scc-to-user privileged -z default -n actions-runner-system`
+3. In this example, we'll set _privileged_ & _anyuid_ access \
+`oc adm policy add-scc-to-user privileged -z default -n actions-runner-system` \
 `oc adm policy add-scc-to-user anyuid -z default -n actions-runner-system`
 
-Note: If you deploy runners in other (!= actions-runner-system) projects/namespaces, you will need to do step 4 in those namespaces to provide access to the 'default' service account. Alternatively, you can you may managed your own SCC and SA for improved RBAC (out-of-scope).
-
-6. Since we'll use 1 controller for all of our jobs, we'll deploy it using a Personal Access Token. Create a PAT using an Admin that has access to the orgs you'll be deploying ARC into. \
+4. Since we'll use 1 controller for all of our jobs, we'll deploy it using a Personal Access Token. Create a PAT using an Admin that has access to the orgs you'll be deploying ARC into. \
     admin:org, admin:org_hook, notifications, read:public_key, read:repo_hook, repo, workflow
 
-7. Set the controller-manager secret using this PAT \
-    `oc -n actions-runner-system  create secret generic controller-manager  --from-literal=github_token=${GITHUB_TOKEN}`
+   Note: If you deploy runners in other (!= actions-runner-system) projects/namespaces, you will need to do step 4 in those namespaces to provide access to the 'default' service account. Alternatively, you can you may managed your own SCC and SA for improved RBAC (out-of-scope).
+
+
+6. Set the controller-manager secret using this PAT \
+    `oc -n actions-runner-system  create secret generic controller-manager  --from-literal=github_token=${GITHUB_PAT}`
    
 ### Using GitHub Apps
 
-1. Optionally, if you want a spepart controller-manager & namespace for each Organzation (runner group), it will require it's own GitHub App \
+1. Optionally, if you want a separate controller-manager & namespace for each Organzation (runner group), it will require it's own GitHub App \
     Replace the ${PARTS} of the following URL with your GHES address & Org name before opening it in your browser. 
     Then enter any unique name in the "GitHub App name" field, and hit the "Create GitHub App" button at the bottom of the page to create a GitHub App.
 
@@ -63,8 +62,8 @@ Note: If you deploy runners in other (!= actions-runner-system) projects/namespa
 
 4. Register the App ID `${APP_ID}`, Installation ID `${INSTALLATION_ID}`, and the downloaded private key file `${PRIVATE_KEY_FILE_PATH}` to OpenShift as a secret.
     ```
-    $ kubectl create secret generic org1-github-app \
-        -n actions-runner-system \
+    $ kubectl create secret generic ${SECRET_NAME} \
+        -n ${NAMESPACE} \
         --from-literal=github_app_id=${APP_ID} \
         --from-literal=github_app_installation_id=${INSTALLATION_ID} \
         --from-file=github_app_private_key=${PRIVATE_KEY_FILE_PATH}
@@ -83,7 +82,7 @@ Note: If you deploy runners in other (!= actions-runner-system) projects/namespa
           spec:
             githubAPICredentialsFrom:
               secretRef:
-                name: org1-github-app
+                name: ${SECRET_NAME}
       ---
       kind: HorizontalRunnerAutoscaler
       metadata:
@@ -91,7 +90,7 @@ Note: If you deploy runners in other (!= actions-runner-system) projects/namespa
       spec:
         githubAPICredentialsFrom:
           secretRef:
-            name: org1-github-app
+            name: ${SECRET_NAME}
       ```
  👉 Repeat for each deployment (RunnerDeployment/HorizontalRunnerAutoscaler)
  
