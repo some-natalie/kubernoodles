@@ -15,6 +15,15 @@ ARG DUMB_INIT_VERSION=1.2.5
 ARG DEBUG=false
 ARG TARGETPLATFORM
 
+# Label all the things!!
+LABEL org.opencontainers.image.source = "https://github.com/vivacitylabs/kubernoodles"
+LABEL org.opencontainers.image.path "images/rootless-ubuntu-jammy.Dockerfile"
+LABEL org.opencontainers.image.title "rootless-ubuntu-jammy"
+LABEL org.opencontainers.image.description "An Ubuntu Jammy (22.04 LTS) based runner image for GitHub Actions, rootless"
+# LABEL org.opencontainers.image.authors "Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses "MIT"
+LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
+
 # Set environment variables needed at build or run
 ENV DEBIAN_FRONTEND=noninteractive
 ENV RUNNER_MANUALLY_TRAP_SIG=1
@@ -63,6 +72,14 @@ RUN mkdir -p /home/runner \
   && chown -R $USERNAME:$GID /home/runner
 
 WORKDIR /home/runner
+
+# Set up nodejs 20
+COPY images/software/node20.sh /node20.sh
+RUN bash /node20.sh && rm /node20.sh
+
+# Set up yarn
+COPY images/software/yarn.sh /yarn.sh
+RUN bash /yarn.sh && rm /yarn.sh
 
 # Install GitHub CLI
 COPY images/software/gh-cli.sh /gh-cli.sh
