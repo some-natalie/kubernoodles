@@ -92,8 +92,8 @@ COPY images/software/yarn.sh /yarn.sh
 RUN bash /yarn.sh && rm /yarn.sh
 
 # # Set up nodejs 20
-# COPY images/software/node20.sh /node20.sh
-# RUN bash /node20.sh && rm /node20.sh
+COPY images/software/node20.sh /node20.sh
+RUN bash /node20.sh && rm /node20.sh
 
 # # Set up yarn
 # COPY images/software/yarn.sh /yarn.sh
