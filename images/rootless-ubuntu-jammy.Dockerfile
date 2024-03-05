@@ -91,6 +91,15 @@ RUN bash /node20.sh && rm /node20.sh
 COPY images/software/yarn.sh /yarn.sh
 RUN bash /yarn.sh && rm /yarn.sh
 
+
+# # Set up nodejs 16
+COPY images/software/node16.sh /node16.sh
+RUN bash /node16.sh && rm /node16.sh
+
+# # Set up nodejs 18
+COPY images/software/node18.sh /node18.sh
+RUN bash /node18.sh && rm /node18.sh
+
 # # Set up nodejs 20
 COPY images/software/node20.sh /node20.sh
 RUN bash /node20.sh && rm /node20.sh
