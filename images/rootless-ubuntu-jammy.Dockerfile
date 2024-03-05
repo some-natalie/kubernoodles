@@ -51,7 +51,6 @@ RUN apt-get update \
     libyaml-dev \
     locales \
     lsb-release \
-    # maven \
     openssl \
     pigz \
     pkg-config \
@@ -80,8 +79,8 @@ COPY images/software/node20.sh /node20.sh
 RUN bash /node20.sh && rm /node20.sh
 
 # # Set up yarn
-# COPY images/software/yarn.sh /yarn.sh
-# RUN bash /yarn.sh && rm /yarn.sh
+COPY images/software/yarn.sh /yarn.sh
+RUN bash /yarn.sh && rm /yarn.sh
 
 # Install GitHub CLI
 COPY images/software/gh-cli.sh /gh-cli.sh
