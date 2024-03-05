@@ -44,12 +44,14 @@ RUN apt-get update \
     curl \
     gcc \
     git \
+    gnupg \
     iproute2 \
     iptables \
     jq \
     libyaml-dev \
     locales \
     lsb-release \
+    # maven \
     openssl \
     pigz \
     pkg-config \
