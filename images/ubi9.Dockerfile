@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kub
 
 # Arguments
 ARG TARGETPLATFORM=linux/amd64
-ARG RUNNER_VERSION=2.313.0
+ARG RUNNER_VERSION=2.314.1
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.5.1
 
 # Shell setup
