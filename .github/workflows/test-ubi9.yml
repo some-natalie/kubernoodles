@@ -78,7 +78,7 @@ jobs:
           --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
           -f deployments/helm-ubi9-test.yml \
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-          --version 0.8.2
+          --version 0.8.3
 
         env:
           KUBECONFIG: /tmp/config
