@@ -68,7 +68,7 @@ jobs:
       - name: Write out the kubeconfig info
         run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
-
+  
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
           helm install test-ubi9  \
@@ -78,7 +78,7 @@ jobs:
           --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
           -f deployments/helm-ubi9-test.yml \
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-          --version 0.8.3
+          --version 0.9.0
 
         env:
           KUBECONFIG: /tmp/config
@@ -125,7 +125,7 @@ jobs:
       - name: Write out the kubeconfig info
         run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
-
+  
       - name: Deploy
         run: |
           helm uninstall test-ubi9 --namespace "test-runners"
