@@ -66,6 +66,12 @@ jobs:
         run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
           helm install test-jammy-dind  \
@@ -140,6 +146,12 @@ jobs:
       - name: Write out the kubeconfig info
         run: |
           echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
 
       - name: Deploy
         run: |
