@@ -47,7 +47,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: ./images/${{ matrix.os }}.Dockerfile
-          push: true
+          push: false
+          load: true
           platforms: linux/${{ matrix.arch }}
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
