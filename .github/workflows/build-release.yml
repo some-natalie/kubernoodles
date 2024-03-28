@@ -35,7 +35,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ghcr.io/${{ github.repository }}/${{ matrix.os }}
-          platforms: linux/${{ matrix.arch }}
+          archs: ${{ matrix.arch }}
           tags: latest ${{ env.VERSION }} ${{ env.VERSION }}-${{ env.SHA_SHORT }}
           containerfiles: images/ubi8.Dockerfile
 
@@ -121,7 +121,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: ./images/${{ matrix.os }}.Dockerfile
-          push: false
+          push: true
           platforms: linux/${{ matrix.arch }}
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
@@ -163,7 +163,7 @@ jobs:
         run: cosign sign -y ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
 
       - name: Push the signed image, other tags
-        run: | 
+        run: |
           docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
           docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.VERSION }}-${{ env.SHA_SHORT }}
           docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
