@@ -6,7 +6,7 @@ on:
     types: [published] # build on release
 
 jobs:
-  build-all:
+  build-ubuntu:
     runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
     permissions:
       contents: write # for uploading the SBOM to the release
