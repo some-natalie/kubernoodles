@@ -1,19 +1,19 @@
 FROM ubuntu:22.04
 
 # GitHub runner arguments
-ARG RUNNER_ARCH=linux/amd64
-ARG RUNNER_VERSION=2.313.0
-ARG RUNNER_CONTAINER_HOOKS_VERSION=0.5.1
+ARG RUNNER_VERSION=2.315.0
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.0
 
 # Docker and Compose arguments
-ARG DOCKER_VERSION=25.0.3
-ARG COMPOSE_VERSION=v2.24.5
+ARG DOCKER_VERSION=26.0.1
+ARG COMPOSE_VERSION=v2.26.0
 
 # Dumb-init version
 ARG DUMB_INIT_VERSION=1.2.5
 
-# Other arguments
+# Other arguments, expose TARGETPLATFORM for multi-arch builds
 ARG DEBUG=false
+ARG TARGETPLATFORM
 
 # Label all the things!!
 LABEL org.opencontainers.image.source = "https://github.com/vivacitylabs/kubernoodles"
@@ -102,8 +102,6 @@ RUN bash /kubectl.sh && rm /kubectl.sh
 # Install helm
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-RUN test -n "$RUNNER_ARCH" || (echo "RUNNER_ARCH must be set" && false)
-
 # Install Docker
 RUN export DOCKER_ARCH=x86_64 \
     && if [ "$RUNNER_ARCH" = "arm64" ]; then export DOCKER_ARCH=aarch64 ; fi \
@@ -114,7 +112,8 @@ RUN export DOCKER_ARCH=x86_64 \
 RUN install -o root -g root -m 755 docker/* /usr/bin/ && rm -rf docker
 
 # Runner download supports amd64 as x64
-RUN export ARCH=$(echo ${RUNNER_ARCH} | cut -d / -f2) \
+RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+    && echo "ARCH: $ARCH" \
     && if [ "$ARCH" = "amd64" ]; then export ARCH=x64 ; fi \
     && curl -L -o runner.tar.gz https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${ARCH}-${RUNNER_VERSION}.tar.gz \
     && tar xzf ./runner.tar.gz \
@@ -129,7 +128,7 @@ RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-c
     && rm runner-container-hooks.zip
 
 # Install dumb-init, arch command on OS X reports "i386" for Intel CPUs regardless of bitness
-RUN ARCH=$(echo ${RUNNER_ARCH} | cut -d / -f2) \
+RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && export ARCH \
     && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
     && if [ "$ARCH" = "amd64" ] || [ "$ARCH" = "i386" ]; then export ARCH=x86_64 ; fi \

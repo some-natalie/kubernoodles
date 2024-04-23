@@ -9,9 +9,9 @@ LABEL org.opencontainers.image.licenses "MIT"
 LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
 
 # Arguments
-ARG TARGETPLATFORM=linux/amd64
-ARG RUNNER_VERSION=2.313.0
-ARG RUNNER_CONTAINER_HOOKS_VERSION=0.5.1
+ARG TARGETPLATFORM
+ARG RUNNER_VERSION=2.315.0
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.0
 
 # Shell setup
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
