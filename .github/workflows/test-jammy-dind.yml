@@ -43,7 +43,7 @@ jobs:
         with:
           file: "images/rootless-ubuntu-jammy.Dockerfile"
           push: true
-          tags: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
+          tags: ghcr.io/vivacitylabs/kubernoodles/rootless-ubuntu-jammy:test
 
   deploy:
     name: Deploy test image to `test-runners` namespace

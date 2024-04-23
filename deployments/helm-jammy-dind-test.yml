@@ -3,7 +3,7 @@
 
 # These runners test and attach themselves to this repo
 # ** change this to what you really want **
-githubConfigUrl: "https://github.com/some-natalie/kubernoodles"
+githubConfigUrl: "https://github.com/vivacitylabs/kubernoodles"
 
 ## githubConfigSecret is the k8s secrets to use when auth with GitHub API.
 ## You can choose to use GitHub App or a PAT token
