@@ -3,11 +3,11 @@
 
 # These runners test and attach themselves to this repo
 # ** change this to what you really want **
-githubConfigUrl: "https://github.com/some-natalie/kubernoodles"
+githubConfigUrl: "https://github.com/vivacitylabs/kubernoodles"
 
 ## githubConfigSecret is the k8s secrets to use when auth with GitHub API.
 ## You can choose to use GitHub App or a PAT token
-# githubConfigSecret: 
+# githubConfigSecret:
   ### GitHub Apps Configuration
   ## NOTE: IDs MUST be strings, use quotes
 #   github_app_id: ""
@@ -31,7 +31,7 @@ template:
   spec:
     initContainers:
     - name: init-dind-externals
-      image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
+      image: ghcr.io/vivacitylabs/kubernoodles/rootless-ubuntu-jammy:test
       imagePullPolicy: Always
       command: ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
       volumeMounts:
@@ -39,7 +39,7 @@ template:
           mountPath: /home/runner/tmpDir
     containers:
     - name: runner
-      image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
+      image: ghcr.io/vivacitylabs/kubernoodles/rootless-ubuntu-jammy:test
       imagePullPolicy: Always
       command: ["/actions-runner/run.sh"]
       env:
