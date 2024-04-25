@@ -64,7 +64,7 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > ~/kube-config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > kube-config
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
@@ -78,10 +78,10 @@ jobs:
           --version 0.9.1
 
         env:
-          KUBECONFIG: ~/kube-config
+          KUBECONFIG: kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f ~/kube-config
+        run: rm -f kube-config
 
       - name: Wait 5 minutes to let the new pod come up
         run: sleep 300
@@ -139,16 +139,16 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > ~/kube-config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > kube-config
 
       - name: Deploy
         run: |
           helm uninstall test-jammy-dind --namespace "test-runners"
         env:
-          KUBECONFIG: ~/kube-config
+          KUBECONFIG: kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f ~/kube-config
+        run: rm -f kube-config
 
       - name: Output removal
         run: |
