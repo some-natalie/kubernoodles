@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build test image
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the imag
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
 
     steps:
       - name: Set release id
@@ -47,7 +47,7 @@ jobs:
 
   deploy:
     name: Deploy test image to `test-runners` namespace
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy the image
+    runs-on: deploy-controller # use a self-hosted runner to deploy the image
     needs: [build]
     environment: test
 
@@ -128,7 +128,7 @@ jobs:
 
   remove-deploy:
     name: Delete test image deployment
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to remove the image
+    runs-on: deploy-controller # use a self-hosted runner to remove the image
     needs: [test]
     environment: test
     if: always()
