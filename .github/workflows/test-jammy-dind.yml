@@ -62,13 +62,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Write out the kubeconfig info
-      #   run: |
-      #     echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > ~/kube-config
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
-          kubectl config set-context ${{ secrets.K8S_CONTEXT }}
           helm install test-jammy-dind  \
           --namespace "test-runners" \
           --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
@@ -79,10 +78,10 @@ jobs:
           --version 0.9.1
 
         env:
-          KUBECONFIG: /tmp/config
+          KUBECONFIG: ~/kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+        run: rm -f ~/kube-config
 
       - name: Wait 5 minutes to let the new pod come up
         run: sleep 300
@@ -140,16 +139,16 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > ~/kube-config
 
       - name: Deploy
         run: |
           helm uninstall test-jammy-dind --namespace "test-runners"
         env:
-          KUBECONFIG: /tmp/config
+          KUBECONFIG: ~/kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+        run: rm -f ~/kube-config
 
       - name: Output removal
         run: |
