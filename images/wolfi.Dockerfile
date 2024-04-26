@@ -27,11 +27,9 @@ RUN apk update \
     curl \
     git \
     gh \
-    helm \
     icu \
     jq \
     krb5-libs \
-    kubectl \
     lttng-ust \
     nodejs \
     openssl \
