@@ -72,13 +72,13 @@ jobs:
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
           helm install test-ubi8  \
-          --namespace "test-runners" \
-          --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
-          --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
-          --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-          -f deployments/helm-ubi8-test.yml \
-          oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-          --version 0.9.1
+            --namespace "test-runners" \
+            --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+            --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+            --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+            -f deployments/helm-ubi8-test.yml \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
+            --version 0.9.1
 
         env:
           KUBECONFIG: /tmp/config
