@@ -25,6 +25,7 @@ RUN apk update \
     build-base \
     ca-certificates \
     curl \
+    docker-cli \
     git \
     gh \
     icu \
