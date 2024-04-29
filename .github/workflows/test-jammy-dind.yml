@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build test image
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the imag
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
 
     steps:
       - name: Set release id
@@ -47,7 +47,7 @@ jobs:
 
   deploy:
     name: Deploy test image to `test-runners` namespace
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy the image
+    runs-on: deploy-controller # use a self-hosted runner to deploy the image
     needs: [build]
     environment: test
 
@@ -64,24 +64,24 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > kube-config
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
           helm install test-jammy-dind  \
-          --namespace "test-runners" \
-          --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
-          --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
-          --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-          -f deployments/helm-jammy-dind-test.yml \
-          oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-          --version 0.9.1
+            --namespace "test-runners" \
+            --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+            --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+            --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+            -f deployments/helm-jammy-dind-test.yml \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
+            --version 0.9.1
 
         env:
-          KUBECONFIG: /tmp/config
+          KUBECONFIG: kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+        run: rm -f kube-config
 
       - name: Wait 5 minutes to let the new pod come up
         run: sleep 300
@@ -128,7 +128,7 @@ jobs:
 
   remove-deploy:
     name: Delete test image deployment
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to remove the image
+    runs-on: deploy-controller # use a self-hosted runner to remove the image
     needs: [test]
     environment: test
     if: always()
@@ -139,16 +139,16 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > kube-config
 
       - name: Deploy
         run: |
           helm uninstall test-jammy-dind --namespace "test-runners"
         env:
-          KUBECONFIG: /tmp/config
+          KUBECONFIG: kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+        run: rm -f kube-config
 
       - name: Output removal
         run: |
