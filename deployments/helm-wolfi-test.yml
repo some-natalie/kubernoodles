@@ -27,10 +27,43 @@ minRunners: 1
 
 # runnerGroup: "default"
 
+# template:
+#   spec:
+#     containers:
+#     - name: runner
+#       image: ghcr.io/some-natalie/kubernoodles/wolfi-runner:test
+#       imagePullPolicy: Always
+#       command: ["/actions-runner/run.sh"]
+
 template:
   spec:
     containers:
-    - name: runner
-      image: ghcr.io/some-natalie/kubernoodles/wolfi-runner:test
-      imagePullPolicy: Always
-      command: ["/actions-runner/run.sh"]
+      - name: runner
+        image: ghcr.io/some-natalie/kubernoodles/wolfi-runner:test
+        command: ["/actions-runner/run.sh"]
+        securityContext:
+          runAsUser: 100
+          runAsGroup: 100
+        env:
+          - name: ACTIONS_RUNNER_CONTAINER_HOOKS
+            value: /actions-runner/k8s/index.js
+          - name: ACTIONS_RUNNER_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
+            value: "false"  # allow non-container steps
+        volumeMounts:
+          - name: work
+            mountPath: /actions-runner/_work
+
+containerMode:
+  type: "kubernetes" 
+  kubernetesModeWorkVolumeClaim:
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: "local-path"
+    resources:
+      requests:
+        storage: 1Gi
+      limits:
+        storage: 5Gi

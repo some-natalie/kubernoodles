@@ -1,0 +1,24 @@
+name: 🐿️ ARC-2 javascript test
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-scale-set:
+        description: "Which scale set to test?"
+        type: string
+        required: true
+
+jobs:
+  javascript-test:
+    runs-on: ${{ github.event.inputs.target-scale-set }}
+    steps:
+      - name: "Test a pre-made Javascript Action"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Run Javascript inline"
+        run: |
+          node -v
+          echo "console.log('Hello, world!');" > hello.js
+          node hello.js
