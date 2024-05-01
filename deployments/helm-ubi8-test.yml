@@ -33,4 +33,4 @@ template:
     - name: runner
       image: ghcr.io/some-natalie/kubernoodles/ubi8:test
       imagePullPolicy: Always
-      command: ["/actions-runner/run.sh"]
+      command: ["/home/runner/run.sh"]

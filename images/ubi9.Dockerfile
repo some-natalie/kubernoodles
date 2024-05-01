@@ -45,10 +45,10 @@ RUN useradd -G 0 $USERNAME
 ENV HOME /home/${USERNAME}
 
 # Make and set the working directory
-RUN mkdir -p /actions-runner \
-    && chown -R $USERNAME:$GID /actions-runner
+RUN mkdir -p /home/runner \
+    && chown -R $USERNAME:$GID /home/runner
 
-WORKDIR /actions-runner
+WORKDIR /home/runner
 
 # Install GitHub CLI
 COPY images/software/gh-cli.sh gh-cli.sh
@@ -80,7 +80,7 @@ RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-c
 # Copy in custom logger and startup script
 COPY images/logger.sh images/startup.sh /usr/bin/
 RUN chmod +x /usr/bin/startup.sh \
-    && chown -R $USERNAME:$UID /actions-runner
+    && chown -R $USERNAME:$UID /home/runner
 
 USER $USERNAME
 
