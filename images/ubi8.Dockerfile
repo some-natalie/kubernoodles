@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kub
 
 # Arguments
 ARG TARGETPLATFORM
-ARG RUNNER_VERSION=2.316.0
+ARG RUNNER_VERSION=2.316.1
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.0
 
 # Shell setup
@@ -77,11 +77,4 @@ RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-c
     && unzip ./runner-container-hooks.zip -d ./k8s \
     && rm runner-container-hooks.zip
 
-# Copy in custom logger and startup script
-COPY images/logger.sh images/startup.sh /usr/bin/
-RUN chmod +x /usr/bin/startup.sh \
-    && chown -R $USERNAME:$UID /home/runner
-
 USER $USERNAME
-
-CMD ["startup.sh"]

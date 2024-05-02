@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kub
 
 # Arguments
 ARG TARGETPLATFORM
-ARG RUNNER_VERSION=2.316.0
+ARG RUNNER_VERSION=2.316.1
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.0
 ARG DOTNET_VERSION=7
 
@@ -72,11 +72,4 @@ ENV ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT=1
 # configure directory permissions; ref https://github.com/actions/runner-images/blob/main/images/ubuntu/scripts/build/configure-system.sh
 RUN chmod -R 777 /opt /usr/share
 
-# Copy in custom logger and startup script
-COPY images/logger.sh images/startup.sh /usr/bin/
-RUN chmod +x /usr/bin/startup.sh \
-    && chown -R runner:runner /home/runner
-
 USER runner
-
-CMD ["startup.sh"]
