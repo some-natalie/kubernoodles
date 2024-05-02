@@ -27,14 +27,6 @@ minRunners: 1
 
 # runnerGroup: "default"
 
-# template:
-#   spec:
-#     containers:
-#     - name: runner
-#       image: ghcr.io/some-natalie/kubernoodles/wolfi-runner:test
-#       imagePullPolicy: Always
-#       command: ["/actions-runner/run.sh"]
-
 template:
   spec:
     containers:
