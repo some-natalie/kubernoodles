@@ -86,8 +86,8 @@ jobs:
       - name: Remove kubeconfig info
         run: rm -f /tmp/config
 
-      - name: Wait 5 minutes to let the new pod come up
-        run: sleep 300
+      - name: Wait 2 minutes to let the new pod come up
+        run: sleep 120
 
   test:
     name: Run tests!
