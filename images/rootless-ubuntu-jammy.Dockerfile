@@ -1,12 +1,12 @@
 FROM ubuntu:22.04
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.315.0
+ARG RUNNER_VERSION=2.316.1
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.0
 
 # Docker and Compose arguments
-ARG DOCKER_VERSION=26.0.1
-ARG COMPOSE_VERSION=v2.26.0
+ARG DOCKER_VERSION=26.1.1
+ARG COMPOSE_VERSION=v2.27.0
 
 # Dumb-init version
 ARG DUMB_INIT_VERSION=1.2.5
@@ -69,10 +69,10 @@ RUN apt-get update \
 RUN adduser --disabled-password --gecos "" --uid 1000 runner
 
 # Make and set the working directory
-RUN mkdir -p /actions-runner \
-    && chown -R $USERNAME:$GID /actions-runner
+RUN mkdir -p /home/runner \
+    && chown -R $USERNAME:$GID /home/runner
 
-WORKDIR /actions-runner
+WORKDIR /home/runner
 
 
 # # Set up nodejs 16
@@ -135,16 +135,11 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && curl -f -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_${ARCH} \
     && chmod +x /usr/local/bin/dumb-init
 
-# We place the scripts in `/usr/bin` so that users who extend this image can
-# override them with scripts of the same name placed in `/usr/local/bin`.
-COPY images/startup.sh images/logger.sh /usr/bin/
-RUN chmod +x /usr/bin/startup.sh
-
 # Make the rootless runner directory and externals directory executable
-RUN mkdir /run/user/1000 \
+RUN mkdir -p /run/user/1000 \
     && chown runner:runner /run/user/1000 \
     && chmod a+x /run/user/1000 \
-    && mkdir /home/runner/externals \
+    && mkdir -p /home/runner/externals \
     && chown runner:runner /home/runner/externals \
     && chmod a+x /home/runner/externals
 
@@ -162,4 +157,3 @@ RUN curl --create-dirs -L "https://github.com/docker/compose/releases/download/$
     chmod +x /home/runner/bin/docker-compose
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
-CMD ["startup.sh"]

@@ -9,3 +9,4 @@ trustedRegistries:
   - quay.io
   - ghcr.io
   - registry.access.redhat.com
+  - cgr.dev

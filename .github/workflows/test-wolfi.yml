@@ -1,4 +1,4 @@
-name: 🧪 Test Ubuntu Jammy (22.04 LTS) runner
+name: 🧪 Test Wolfi runner
 
 on:
   workflow_dispatch:
@@ -6,10 +6,9 @@ on:
     branches:
       - main
     paths:
-      - "images/rootless-ubuntu-jammy.Dockerfile"
+      - "images/wolfi.Dockerfile"
       - "images/**.sh"
-      - "images/software/*"
-      - ".github/workflows/test-jammy-dind.yml"
+      - ".github/workflows/test-wolfi.yml"
 
 jobs:
   build:
@@ -31,19 +30,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
+      - name: Build the image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
         with:
+          image: some-natalie/kubernoodles/wolfi
+          tags: test
+          containerfiles: images/wolfi.Dockerfile
+
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          file: "images/rootless-ubuntu-jammy.Dockerfile"
-          push: true
-          tags: ghcr.io/vivacitylabs/kubernoodles/rootless-ubuntu-jammy:test
 
   deploy:
     name: Deploy test image to `test-runners` namespace
@@ -64,31 +66,31 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > kube-config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
-          helm install test-jammy-dind  \
-            --namespace "test-runners" \
-            --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
-            --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
-            --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-            -f deployments/helm-jammy-dind-test.yml \
-            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-            --version 0.9.1
+          helm install test-wolfi  \
+          --namespace "test-runners" \
+          --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+          --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+          --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+          -f deployments/helm-wolfi-test.yml \
+          oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
+          --version 0.9.1
 
         env:
-          KUBECONFIG: kube-config
+          KUBECONFIG: /tmp/config
 
       - name: Remove kubeconfig info
-        run: rm -f kube-config
+        run: rm -f /tmp/config
 
       - name: Wait 2 minutes to let the new pod come up
         run: sleep 120
 
   test:
     name: Run tests!
-    runs-on: [test-jammy-dind]
+    runs-on: [test-wolfi]
     needs: [deploy]
     timeout-minutes: 15
 
@@ -108,24 +110,6 @@ jobs:
       - name: Sudo fails
         uses: ./tests/sudo-fails
 
-      - name: Docker tests
-        uses: ./tests/docker
-
-      - name: Container Action test
-        id: container
-        continue-on-error: true
-        uses: ./tests/container
-
-      - name: Log container success (if applicable)
-        if: steps.container.outcome == 'success'
-        run: |
-          echo '- ✅ container action succeeded' >> $GITHUB_STEP_SUMMARY
-
-      - name: Log container failure (if applicable)
-        if: steps.container.outcome == 'failure'
-        run: |
-          echo '- ❌ container action failed' >> $GITHUB_STEP_SUMMARY
-
   remove-deploy:
     name: Delete test image deployment
     runs-on: deploy-controller # use a self-hosted runner to remove the image
@@ -139,16 +123,16 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > kube-config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
 
       - name: Deploy
         run: |
-          helm uninstall test-jammy-dind --namespace "test-runners"
+          helm uninstall test-wolfi --namespace "test-runners"
         env:
-          KUBECONFIG: kube-config
+          KUBECONFIG: /tmp/config
 
       - name: Remove kubeconfig info
-        run: rm -f kube-config
+        run: rm -f /tmp/config
 
       - name: Output removal
         run: |

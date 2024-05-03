@@ -41,7 +41,7 @@ template:
     - name: runner
       image: ghcr.io/vivacitylabs/kubernoodles/rootless-ubuntu-jammy:test
       imagePullPolicy: Always
-      command: ["/actions-runner/run.sh"]
+      command: ["/home/runner/run.sh"]
       env:
         - name: DOCKER_HOST
           value: tcp://localhost:2376
