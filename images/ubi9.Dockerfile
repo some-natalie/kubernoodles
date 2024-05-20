@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi-init:9.3
+FROM registry.access.redhat.com/ubi9/ubi-init:9.4
 
 LABEL org.opencontainers.image.source https://github.com/some-natalie/kubernoodles
 LABEL org.opencontainers.image.path "images/ubi9.Dockerfile"
