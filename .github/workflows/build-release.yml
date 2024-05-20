@@ -70,6 +70,7 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}"
+          artifact-name: "${{ matrix.os }}-${{ matrix.arch }}-${{ env.SHA_SHORT }}.sbom"
 
       - name: Get image digest
         run: |
