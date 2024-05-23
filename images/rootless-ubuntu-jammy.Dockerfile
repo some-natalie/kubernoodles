@@ -55,6 +55,7 @@ RUN apt-get update \
     pigz \
     pkg-config \
     software-properties-common \
+    ssh \
     time \
     tzdata \
     uidmap \
