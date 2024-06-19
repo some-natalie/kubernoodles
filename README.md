@@ -22,15 +22,19 @@ The [customization](https://some-natalie.dev/blog/kubernoodles-pt-5) guide has a
 
 There are currently 4 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are ephemeral.  If you're copy/pasting out of the [deployments](deployments), you should be set ... provided you give it the right repository/organization/enterprise to use!
 
+<!-- START_SECTION:table -->
 | image name | base image | CVE count<br>(crit/high/med) | virtualization? | sudo? | notes |
 |---|---|---|---|---|---|
 | ubi8 | [ubi8-init:8.9](https://catalog.redhat.com/software/containers/ubi8/ubi-init/5c359b97d70cc534b3a378c8) | 4/13/579 | :x: | :x: | n/a |
 | ubi9 | [ubi9-init:9.4](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | 0/21/577 | :x: | :x: | n/a |
 | rootless-ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) | 0/4/145 | rootless Docker-in-Docker | nope | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 | wolfi | [wolfi-base:latest](https://images.chainguard.dev/directory/image/wolfi-base/versions) | 0/0/6 | :x: | :x: | n/a |
+<!-- END_SECTION:table -->
 
+<!-- START_SECTION:date -->
 > [!NOTE]
 > CVE count was done on 20 May 2024 with the latest versions of [grype](https://github.com/anchore/grype) and runner image tags.
+<!-- END_SECTION:date -->
 
 ## Design goals and compromises
 
@@ -47,7 +51,7 @@ These are all excellent reads and can provide more insight into the customizatio
 - GitHub's official [documentation](https://docs.github.com/en/actions/hosting-your-own-runners) on hosting your own runners.
 - Kubernetes controller for self-hosted runners, on [GitHub](https://github.com/actions/actions-runner-controller), is the glue that makes this entire solution possible.
 - Docker image for runners that can automatically join, which solved a good bit of getting the runner agent started automatically on each pod, [write up](https://sanderknape.com/2020/03/self-hosted-github-actions-runner-kubernetes/) and [GitHub](https://github.com/SanderKnape/github-runner).
-- GitHub's repository used to generate the hosted runners' images ([GitHub](https://github.com/actions/virtual-environments)), where I got the idea of using shell scripts to layer discrete dependency management on top of a base image.  The [software](../images/software) scripts are (mostly) copy/pasted directly out of that repo. 
+- GitHub's repository used to generate the hosted runners' images ([GitHub](https://github.com/actions/virtual-environments)), where I got the idea of using shell scripts to layer discrete dependency management on top of a base image.  The [software](../images/software) scripts are (mostly) copy/pasted directly out of that repo.
 
 ### Learn more
 
