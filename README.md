@@ -23,17 +23,17 @@ The [customization](https://some-natalie.dev/blog/kubernoodles-pt-5) guide has a
 There are currently 4 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are ephemeral.  If you're copy/pasting out of the [deployments](deployments), you should be set ... provided you give it the right repository/organization/enterprise to use!
 
 <!-- START_SECTION:table -->
-| image name | base image | CVE count<br>(crit/high/med) | virtualization? | sudo? | notes |
+| image name | base image | CVE count<br>(crit/high/med+below) | virtualization? | sudo? | notes |
 |---|---|---|---|---|---|
-| ubi8 | [ubi8-init:8.9](https://catalog.redhat.com/software/containers/ubi8/ubi-init/5c359b97d70cc534b3a378c8) | 4/13/579 | :x: | :x: | n/a |
-| ubi9 | [ubi9-init:9.4](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | 0/21/577 | :x: | :x: | n/a |
-| rootless-ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) | 0/4/145 | rootless Docker-in-Docker | nope | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
-| wolfi | [wolfi-base:latest](https://images.chainguard.dev/directory/image/wolfi-base/versions) | 0/0/6 | :x: | :x: | n/a |
+| ubi8 | [ubi8-init:8.10](https://catalog.redhat.com/software/containers/ubi8/ubi-init/5c359b97d70cc534b3a378c8) | 5/17/557 | :x: | :x: | n/a |
+| ubi9 | [ubi9-init:9.4](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | 0/18/560 | :x: | :x: | n/a |
+| rootless-ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) | 8/8/208 | :x: | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
+| wolfi:latest | [wolfi-base:latest](https://images.chainguard.dev/directory/image/wolfi-base/versions) | 0/2/6 | :x: | :x: | n/a |
 <!-- END_SECTION:table -->
 
 <!-- START_SECTION:date -->
 > [!NOTE]
-> CVE count was done on 20 May 2024 with the latest versions of [grype](https://github.com/anchore/grype) and runner image tags.
+> CVE count was done on 20 June 2024 with the latest versions of [grype](https://github.com/anchore/grype) and runner image tags.
 <!-- END_SECTION:date -->
 
 ## Design goals and compromises
