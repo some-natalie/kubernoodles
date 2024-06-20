@@ -1,0 +1,156 @@
+name: 🧪 Test Ubuntu Numbat (24.04 LTS) runner
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "images/rootless-ubuntu-numbat.Dockerfile"
+      - "images/**.sh"
+      - "images/software/*"
+      - ".github/workflows/test-numbat-dind.yml"
+
+jobs:
+  build:
+    name: Build test image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
+
+    steps:
+      - name: Set release id
+        run: echo "SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Set up build summary
+        run: |
+          echo '### Build summary 🚀' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '- Changes that produced this build [here](${{ github.server_url }}/${{ github.repository }}/commit/${{ env.SHA_SHORT }}) ' >> $GITHUB_STEP_SUMMARY
+          echo '- Full code at this point in time [here](${{ github.server_url }}/${{ github.repository }}/tree/${{ env.SHA_SHORT }})' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          file: "images/rootless-ubuntu-numbat.Dockerfile"
+          push: true
+          tags: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-numbat:test
+
+  deploy:
+    name: Deploy test image to `test-runners` namespace
+    runs-on: deploy-controller # use a self-hosted runner to deploy the image
+    needs: [build]
+    environment: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > kube-config
+
+      - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
+        run: |
+          helm install test-numbat-dind  \
+            --namespace "test-runners" \
+            --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+            --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+            --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+            -f deployments/helm-numbat-dind-test.yml \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
+            --version 0.9.2
+
+        env:
+          KUBECONFIG: kube-config
+
+      - name: Remove kubeconfig info
+        run: rm -f kube-config
+
+      - name: Wait 2 minutes to let the new pod come up
+        run: sleep 120
+
+  test:
+    name: Run tests!
+    runs-on: [test-numbat-dind]
+    needs: [deploy]
+    timeout-minutes: 15
+
+    steps:
+      - name: Setup test summary
+        run: |
+          echo '### Test summary 🧪' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '- ✅ runner builds and deploys' >> $GITHUB_STEP_SUMMARY
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print debug info
+        uses: ./tests/debug
+
+      - name: Sudo fails
+        uses: ./tests/sudo-fails
+
+      - name: Docker tests
+        uses: ./tests/docker
+
+      - name: Container Action test
+        id: container
+        continue-on-error: true
+        uses: ./tests/container
+
+      - name: Log container success (if applicable)
+        if: steps.container.outcome == 'success'
+        run: |
+          echo '- ✅ container action succeeded' >> $GITHUB_STEP_SUMMARY
+
+      - name: Log container failure (if applicable)
+        if: steps.container.outcome == 'failure'
+        run: |
+          echo '- ❌ container action failed' >> $GITHUB_STEP_SUMMARY
+
+  remove-deploy:
+    name: Delete test image deployment
+    runs-on: deploy-controller # use a self-hosted runner to remove the image
+    needs: [test]
+    environment: test
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > kube-config
+
+      - name: Deploy
+        run: |
+          helm uninstall test-numbat-dind --namespace "test-runners"
+        env:
+          KUBECONFIG: kube-config
+
+      - name: Remove kubeconfig info
+        run: rm -f kube-config
+
+      - name: Output removal
+        run: |
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY

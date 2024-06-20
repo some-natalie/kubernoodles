@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: "38 5 * * 1"  # every Monday at 5:38 AM UTC
   workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   update-posts:
