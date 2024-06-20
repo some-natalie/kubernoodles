@@ -1,0 +1,42 @@
+name: 🧚🏻‍♀️ Update project readme
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/scripts/update-readme.py"
+  schedule:
+    - cron: "38 5 * * 1"  # every Monday at 5:38 AM UTC
+  workflow_dispatch:
+
+jobs:
+  update-posts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Setup Grype
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sudo sh -s -- -b /usr/local/bin
+      - name: Get latest grype scan results for latest images, insert into README.md
+        shell: bash
+        run: |
+          python3 ./.github/scripts/update-readme.py
+      - name: Commit and push changes (if any)
+        env:
+          CI_COMMIT_MESSAGE: update profile readme with latest posts
+          CI_COMMIT_AUTHOR: github-actions[bot]
+        run: |
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "username@users.noreply.github.com"
+          if [[ `git status --porcelain --untracked-files=no` ]]; then
+            # Changes
+            git add README.md
+            git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
+            git push
+          else
+            # No changes
+            echo "no changes to commit"
+            exit 0
+          fi
