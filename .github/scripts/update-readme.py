@@ -32,7 +32,7 @@ image_list = [
         "shortname": "rootless-ubuntu-jammy",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest",
         "baseimage": "[ubuntu:jammy](https://hub.docker.com/_/ubuntu)",
-        "virtualization": ":x:",
+        "virtualization": "rootless Docker-in-Docker",
         "sudo": ":x:",
         "notes": "[common rootless problems](docs/tips-and-tricks.md#rootless-images)",
     },
