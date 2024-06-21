@@ -36,20 +36,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        env:
-          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
-        with:
-          images: ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
-
       - name: Build the container
         uses: docker/build-push-action@v6
         id: push
         with:
           file: ./images/${{ matrix.os }}.Dockerfile
-          annotations: ${{ steps.meta.outputs.annotations }}
           push: true
           load: true
           platforms: linux/${{ matrix.arch }}
