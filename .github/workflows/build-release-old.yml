@@ -1,9 +1,9 @@
-name: Build/publish/deploy all runners
+name: (legacy) Build/publish/deploy all runners on release
 
 on:
   workflow_dispatch: # build on demand
-  release:
-    types: [published] # build on release
+  # release:
+  #   types: [published] # build on release
 
 jobs:
   build-all:

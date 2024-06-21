@@ -1,0 +1,75 @@
+name: 🍜 Build/publish all runners
+
+on:
+  workflow_dispatch: # build on demand
+  schedule:
+    - cron: "43 6 * * 0" # build every Sunday at 6:43 AM UTC
+
+jobs:
+  build-all:
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
+    permissions:
+      contents: write # for uploading the SBOM to the release
+      packages: write # for uploading the finished container
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      id-token: write # to complete the identity challenge with sigstore/fulcio when running outside of PRs
+      attestations: write # for actions/attest-build-provenance
+    strategy:
+      matrix:
+        os: [rootless-ubuntu-jammy, rootless-ubuntu-numbat, ubi8, ubi9, wolfi]
+        arch: [amd64, arm64]
+    continue-on-error: true
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the container
+        uses: docker/build-push-action@v6
+        id: push
+        with:
+          file: ./images/${{ matrix.os }}.Dockerfile
+          push: true
+          load: true
+          platforms: linux/${{ matrix.arch }}
+          tags: |
+            ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
+
+      - name: Scan it
+        uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest"
+          fail-build: false
+
+      - name: Upload the container scan report
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+
+      - name: Generate that SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest"
+          artifact-name: "${{ matrix.os }}-${{ matrix.arch }}.sbom"
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        id: attest
+        with:
+          subject-name: ghcr.io/${{ github.repository }}/${{ matrix.os }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
