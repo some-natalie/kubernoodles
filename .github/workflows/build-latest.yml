@@ -42,7 +42,6 @@ jobs:
         with:
           file: ./images/${{ matrix.os }}.Dockerfile
           push: true
-          load: true
           platforms: linux/${{ matrix.arch }}
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
@@ -54,9 +53,3 @@ jobs:
           subject-name: ghcr.io/${{ github.repository }}/${{ matrix.os }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
-
-      - name: Generate that SBOM
-        uses: anchore/sbom-action@v0
-        with:
-          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest"
-          artifact-name: "${{ matrix.os }}-${{ matrix.arch }}.sbom"
