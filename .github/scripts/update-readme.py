@@ -118,7 +118,6 @@ if __name__ == "__main__":
         header = "| image name | base image | CVE count<br>(crit/high/med+below) | virtualization? | sudo? | notes |\n"
         header += "|---|---|---|---|---|---|\n"
         for i in image_list:
-            os.popen("docker pull " + i["fulltag"])
             cve_count = get_cve_count(i["fulltag"])
             cve_block = (
                 "| "

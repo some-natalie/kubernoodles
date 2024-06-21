@@ -45,11 +45,3 @@ jobs:
           platforms: linux/${{ matrix.arch }}
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
-
-      - name: Attest
-        uses: actions/attest-build-provenance@v1
-        id: attest
-        with:
-          subject-name: ghcr.io/${{ github.repository }}/${{ matrix.os }}
-          subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: true
