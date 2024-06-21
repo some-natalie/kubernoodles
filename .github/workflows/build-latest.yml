@@ -43,7 +43,6 @@ jobs:
         with:
           file: ./images/${{ matrix.os }}.Dockerfile
           push: true
-          load: true
           platforms: linux/${{ matrix.arch }}
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
