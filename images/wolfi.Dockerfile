@@ -1,12 +1,12 @@
 FROM cgr.dev/chainguard/wolfi-base:latest
 
-LABEL org.opencontainers.image.source https://github.com/some-natalie/kubernoodles
-LABEL org.opencontainers.image.path "images/wolfi.Dockerfile"
-LABEL org.opencontainers.image.title "wolfi"
-LABEL org.opencontainers.image.description "A Chainguard Wolfi based runner image for GitHub Actions"
-LABEL org.opencontainers.image.authors "Natalie Somersall (@some-natalie)"
-LABEL org.opencontainers.image.licenses "MIT"
-LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
+LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
+LABEL org.opencontainers.image.path="images/wolfi.Dockerfile"
+LABEL org.opencontainers.image.title="wolfi"
+LABEL org.opencontainers.image.description="A Chainguard Wolfi based runner image for GitHub Actions"
+LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
 
 # Arguments
 ARG TARGETPLATFORM

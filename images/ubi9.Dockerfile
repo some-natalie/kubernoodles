@@ -1,12 +1,12 @@
 FROM registry.access.redhat.com/ubi9/ubi-init:9.4
 
-LABEL org.opencontainers.image.source https://github.com/some-natalie/kubernoodles
-LABEL org.opencontainers.image.path "images/ubi9.Dockerfile"
-LABEL org.opencontainers.image.title "ubi9"
-LABEL org.opencontainers.image.description "A RedHat UBI 9 based runner image for GitHub Actions"
-LABEL org.opencontainers.image.authors "Natalie Somersall (@some-natalie)"
-LABEL org.opencontainers.image.licenses "MIT"
-LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
+LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
+LABEL org.opencontainers.image.path="images/ubi9.Dockerfile"
+LABEL org.opencontainers.image.title="ubi9"
+LABEL org.opencontainers.image.description="A RedHat UBI 9 based runner image for GitHub Actions"
+LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
 
 # Arguments
 ARG TARGETPLATFORM
