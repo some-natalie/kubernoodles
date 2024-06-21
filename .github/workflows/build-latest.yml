@@ -47,12 +47,6 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
 
-      - name: Generate that SBOM
-        uses: anchore/sbom-action@v0
-        with:
-          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest"
-          artifact-name: "${{ matrix.os }}-${{ matrix.arch }}.sbom"
-
       - name: Attest
         uses: actions/attest-build-provenance@v1
         id: attest
@@ -60,3 +54,9 @@ jobs:
           subject-name: ghcr.io/${{ github.repository }}/${{ matrix.os }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
+      - name: Generate that SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest"
+          artifact-name: "${{ matrix.os }}-${{ matrix.arch }}.sbom"
