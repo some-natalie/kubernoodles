@@ -25,7 +25,7 @@ There are currently 5 images that are "prebuilt" by this project, although you c
 <!-- START_SECTION:table -->
 | image name | base image | CVE count<br>(crit/high/med+below) | virtualization? | sudo? | notes |
 |---|---|---|---|---|---|
-| ubi8 | [ubi8-init:8.10](https://catalog.redhat.com/software/containers/ubi8/ubi-init/5c359b97d70cc534b3a378c8) | 4/13/548 | :x: | :x: | n/a |
+| ubi8 | [ubi8-init:8.10](https://catalog.redhat.com/software/containers/ubi8/ubi-init/5c359b97d70cc534b3a378c8) | 4/13/549 | :x: | :x: | n/a |
 | ubi9 | [ubi9-init:9.4](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | 0/14/556 | :x: | :x: | n/a |
 | rootless-ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) | 0/4/195 | rootless Docker-in-Docker | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 | rootless-ubuntu-numbat | [ubuntu:numbat](https://hub.docker.com/_/ubuntu) | 0/4/119 | rootless Docker-in-Docker | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
@@ -34,7 +34,7 @@ There are currently 5 images that are "prebuilt" by this project, although you c
 
 <!-- START_SECTION:date -->
 > [!NOTE]
-> CVE count was done on 21 June 2024 with the latest versions of [grype](https://github.com/anchore/grype) and runner image tags.
+> CVE count was done on 23 June 2024 with the latest versions of [grype](https://github.com/anchore/grype) and runner image tags.
 <!-- END_SECTION:date -->
 
 ## Design goals and compromises
