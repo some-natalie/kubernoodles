@@ -42,6 +42,9 @@ RUN apk update \
 
 RUN export PATH=$HOME/.local/bin:$PATH
 
+# Shell setup
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # Make and set the working directory
 RUN mkdir -p /home/runner \
     && chown -R runner:runner /home/runner
