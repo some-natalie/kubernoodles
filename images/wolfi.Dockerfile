@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/ku
 
 # Arguments
 ARG TARGETPLATFORM
-ARG RUNNER_VERSION=2.318.0
+ARG RUNNER_VERSION=2.319.0
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.1
 ARG DOTNET_VERSION=7
 
@@ -41,6 +41,9 @@ RUN apk update \
     zlib
 
 RUN export PATH=$HOME/.local/bin:$PATH
+
+# Shell setup
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Make and set the working directory
 RUN mkdir -p /home/runner \
