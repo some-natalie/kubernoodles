@@ -31,7 +31,7 @@ template:
   spec:
     initContainers:
     - name: init-dind-externals
-      image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest
+      image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-numbat:latest
       imagePullPolicy: Always
       command: ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
       volumeMounts:
@@ -39,7 +39,7 @@ template:
           mountPath: /home/runner/tmpDir
     containers:
     - name: runner
-      image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest
+      image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-numbat:latest
       imagePullPolicy: Always
       command: ["/home/runner/run.sh"]
       env:
