@@ -120,7 +120,7 @@ if __name__ == "__main__":
         ]
 
         # Make the new cve block
-        header = "| image name | base image | CVE count<br>(crit/high/med+below) | architectures | virtualization? | sudo? | notes |\n"
+        header = "| image name | base image | CVE count<br>(crit/high/med+below) | archs | virtualization? | sudo? | notes |\n"
         header += "|---|---|---|---|---|---|---|\n"
         for i in image_list:
             cve_count = get_cve_count(i["fulltag"])
@@ -136,7 +136,7 @@ if __name__ == "__main__":
                 + "/"
                 + str(cve_count[2])
                 + " | "
-                + i["archs"]
+                + i["architectures"]
                 + " | "
                 + i["virtualization"]
                 + " | "
