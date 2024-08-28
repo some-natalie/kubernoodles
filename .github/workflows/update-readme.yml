@@ -23,7 +23,7 @@ jobs:
           python3 ./.github/scripts/update-readme.py
       - name: Commit and push changes (if any)
         env:
-          CI_COMMIT_MESSAGE: update profile readme with latest posts
+          CI_COMMIT_MESSAGE: update readme with latest CVE data
           CI_COMMIT_AUTHOR: github-actions[bot]
         run: |
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
