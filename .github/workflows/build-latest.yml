@@ -57,12 +57,14 @@ jobs:
       - name: Scan it
         uses: anchore/scan-action@v4
         id: scan
+        if: matrix.arch == 'amd64'
         with:
           image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}"
           fail-build: false
 
       - name: Upload the container scan report
         uses: github/codeql-action/upload-sarif@v3
+        if: matrix.arch == 'amd64'
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
