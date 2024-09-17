@@ -1,12 +1,12 @@
-name: Build/publish/deploy all runners
+name: 🍜 Build/publish all runners
 
 on:
   workflow_dispatch: # build on demand
-  release:
-    types: [published] # build on release
+  schedule:
+    - cron: "43 6 * * 0" # build every Sunday at 6:43 AM UTC
 
 jobs:
-  build-ubuntu:
+  build-all:
     runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
     permissions:
       contents: write # for uploading the SBOM to the release
@@ -44,7 +44,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build the container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           file: ./images/${{ matrix.os }}.Dockerfile
           push: false
@@ -55,21 +55,33 @@ jobs:
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
 
       - name: Scan it
-        uses: anchore/scan-action@v3
+        uses: anchore/scan-action@v4
         id: scan
         with:
           image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}"
           fail-build: false
 
       - name: Upload the container scan report
+        id: upload
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
+          wait-for-processing: true
+
+      - name: Dismiss alerts on other architectures
+        if: matrix.arch != 'amd64'
+        uses: advanced-security/dismiss-alerts@v1
+        with:
+          sarif-id: ${{ steps.upload.outputs.sarif-id }}
+          sarif-file: ${{ steps.scan.outputs.sarif }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Generate that SBOM
         uses: anchore/sbom-action@v0
         with:
           image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}"
+          artifact-name: "${{ matrix.os }}-${{ matrix.arch }}-${{ env.SHA_SHORT }}.sbom"
 
       - name: Get image digest
         run: |

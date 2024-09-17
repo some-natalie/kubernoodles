@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # GitHub runner arguments
 ARG RUNNER_VERSION=2.319.1
@@ -16,13 +16,13 @@ ARG DEBUG=false
 ARG TARGETPLATFORM
 
 # Label all the things!!
-LABEL org.opencontainers.image.source = "https://github.com/vivacitylabs/kubernoodles"
-LABEL org.opencontainers.image.path "images/rootless-ubuntu-jammy.Dockerfile"
-LABEL org.opencontainers.image.title "rootless-ubuntu-jammy"
-LABEL org.opencontainers.image.description "An Ubuntu Jammy (22.04 LTS) based runner image for GitHub Actions, rootless"
-# LABEL org.opencontainers.image.authors "Natalie Somersall (@some-natalie)"
-LABEL org.opencontainers.image.licenses "MIT"
-LABEL org.opencontainers.image.documentation https://github.com/some-natalie/kubernoodles/README.md
+LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
+LABEL org.opencontainers.image.path="images/rootless-ubuntu-numbat.Dockerfile"
+LABEL org.opencontainers.image.title="rootless-ubuntu-numbat"
+LABEL org.opencontainers.image.description="An Ubuntu Numbat (24.04 LTS) based runner image for GitHub Actions, rootless"
+LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
 
 # Set environment variables needed at build or run
 ENV DEBIAN_FRONTEND=noninteractive
@@ -44,7 +44,6 @@ RUN apt-get update \
   curl \
   gcc \
   git \
-  gnupg \
   iproute2 \
   iptables \
   jq \
@@ -62,38 +61,17 @@ RUN apt-get update \
   wget \
   xz-utils \
   zip \
-  openssh-client \
-  ssh \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-
-
 # Runner user
-RUN adduser --disabled-password --gecos "" --uid 1000 runner
+RUN adduser --disabled-password --gecos "" --uid 1001 runner
 
 # Make and set the working directory
 RUN mkdir -p /home/runner \
   && chown -R $USERNAME:$GID /home/runner
 
 WORKDIR /home/runner
-
-
-# # Set up nodejs 16
-COPY images/software/node16.sh /node16.sh
-RUN bash /node16.sh && rm /node16.sh
-
-# # Set up nodejs 18
-COPY images/software/node18.sh /node18.sh
-RUN bash /node18.sh && rm /node18.sh
-
-# # Set up nodejs 20
-COPY images/software/node20.sh /node20.sh
-RUN bash /node20.sh && rm /node20.sh
-
-# # Set up yarn
-COPY images/software/yarn.sh /yarn.sh
-RUN bash /yarn.sh && rm /yarn.sh
 
 # Install GitHub CLI
 COPY images/software/gh-cli.sh /gh-cli.sh
@@ -140,16 +118,16 @@ RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
   && chmod +x /usr/local/bin/dumb-init
 
 # Make the rootless runner directory and externals directory executable
-RUN mkdir -p /run/user/1000 \
-  && chown runner:runner /run/user/1000 \
-  && chmod a+x /run/user/1000 \
+RUN mkdir -p /run/user/1001 \
+  && chown runner:runner /run/user/1001 \
+  && chmod a+x /run/user/1001 \
   && mkdir -p /home/runner/externals \
   && chown runner:runner /home/runner/externals \
   && chmod a+x /home/runner/externals
 
 # Add the Python "User Script Directory" to the PATH
 ENV PATH="${PATH}:${HOME}/.local/bin:/home/runner/bin"
-ENV ImageOS=ubuntu22
+ENV ImageOS=ubuntu24
 
 ENV HOME=/home/runner
 
