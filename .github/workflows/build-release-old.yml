@@ -1,0 +1,95 @@
+name: (legacy) Build/publish/deploy all runners on release
+
+on:
+  workflow_dispatch: # build on demand
+  # release:
+  #   types: [published] # build on release
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
+    permissions:
+      contents: write # for uploading the SBOM to the release
+      packages: write # for uploading the finished container
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      id-token: write # to complete the identity challenge with sigstore/fulcio when running outside of PRs
+    strategy:
+      matrix:
+        os: [rootless-ubuntu-jammy] # [rootless-ubuntu-jammy, ubi8, ubi9, wolfi]
+        arch: [amd64] # [amd64, arm64]
+    continue-on-error: true
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - name: Set version
+        run: echo "VERSION=$(cat ${GITHUB_EVENT_PATH} | jq -r '.release.tag_name')" >> $GITHUB_ENV
+        if: github.event_name == 'release'
+
+      - name: Set short SHA
+        run: echo "SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the container
+        uses: docker/build-push-action@v6
+        with:
+          file: ./images/${{ matrix.os }}.Dockerfile
+          push: false
+          load: true
+          platforms: linux/${{ matrix.arch }}
+          tags: |
+            ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
+            ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
+
+      - name: Scan it
+        uses: anchore/scan-action@v4
+        id: scan
+        with:
+          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}"
+          fail-build: false
+
+      - name: Upload the container scan report
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+
+      - name: Generate that SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}"
+          artifact-name: "${{ matrix.os }}-${{ matrix.arch }}-${{ env.SHA_SHORT }}.sbom"
+
+      - name: Get image digest
+        run: |
+          echo "IMAGE_DIGEST=$(docker inspect \
+          ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }} | \
+          jq -r '.[0].Id')" >> $GITHUB_ENV
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Log in to GHCR
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Sign the published Docker image
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: cosign sign -y ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
+
+      - name: Push the signed image, other tags
+        run: |
+          docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
+          docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest

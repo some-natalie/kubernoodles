@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           file: "images/rootless-ubuntu-jammy.Dockerfile"
           push: true
@@ -75,7 +75,7 @@ jobs:
             --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
             -f deployments/helm-jammy-dind-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-            --version 0.9.1
+            --version 0.9.3
 
         env:
           KUBECONFIG: kube-config
