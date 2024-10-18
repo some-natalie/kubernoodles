@@ -67,7 +67,7 @@ jobs:
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
           wait-for-processing: true
-      
+
       - name: Dismiss alerts on other architectures
         if: matrix.arch != 'amd64'
         uses: advanced-security/dismiss-alerts@v1
@@ -75,7 +75,7 @@ jobs:
           sarif-id: ${{ steps.upload.outputs.sarif-id }}
           sarif-file: ${{ steps.scan.outputs.sarif }}
         env:
-            GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Generate that SBOM
         uses: anchore/sbom-action@v0
@@ -100,7 +100,12 @@ jobs:
           COSIGN_EXPERIMENTAL: "true"
         run: cosign sign -y ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
 
-      - name: Push the signed image, other tags
-        run: |
-          docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
-          docker push ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
+      - name: Push the container
+        uses: docker/build-push-action@v6
+        with:
+          file: ./images/${{ matrix.os }}.Dockerfile
+          platforms: ${{ matrix.arch }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
+            ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest
