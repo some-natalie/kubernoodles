@@ -100,9 +100,10 @@ jobs:
           COSIGN_EXPERIMENTAL: "true"
         run: cosign sign -y ghcr.io/${{ github.repository }}/${{ matrix.os }}@${{ env.IMAGE_DIGEST }}
 
-      - name: Build and push
+      - name: Push the container
         uses: docker/build-push-action@v6
         with:
+          file: ./images/${{ matrix.os }}.Dockerfile
           platforms: ${{ matrix.arch }}
           push: true
           tags: |
