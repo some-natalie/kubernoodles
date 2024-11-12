@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi-init:9.4
+FROM registry.access.redhat.com/ubi9/ubi-init:9.5
 
 LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
 LABEL org.opencontainers.image.path="images/ubi9.Dockerfile"
@@ -11,7 +11,7 @@ LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/ku
 # Arguments
 ARG TARGETPLATFORM
 ARG RUNNER_VERSION=2.320.0
-ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.1
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.2
 
 # Shell setup
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
