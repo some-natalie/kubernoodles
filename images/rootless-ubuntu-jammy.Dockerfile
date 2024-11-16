@@ -126,10 +126,9 @@ RUN mkdir -p /run/user/1000 \
   && chmod a+x /home/runner/externals
 
 # Add the Python "User Script Directory" to the PATH
+ENV HOME=/home/runner
 ENV PATH="${PATH}:${HOME}/.local/bin:/home/runner/bin"
 ENV ImageOS=ubuntu22
-
-ENV HOME=/home/runner
 
 # No group definition, as that makes it harder to run docker.
 USER runner
