@@ -1,0 +1,28 @@
+name: 🍜 Verify all runners tags got built
+
+on:
+  workflow_dispatch: # build on demand
+  schedule:
+    - cron: "43 8 * * 0" # build every Sunday at 8:43 AM UTC, two hours after the build job
+
+jobs:
+  pull-all:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [rootless-ubuntu-jammy, rootless-ubuntu-numbat, ubi8, ubi9, wolfi]
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - name: Set short SHA
+        run: echo "SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Pull each image
+        run: |
+          docker pull ghcr.io/${{ github.repository }}/${{ matrix.os }}:latest --platform linux/${{ matrix.arch }}
+          docker pull ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }} --platform linux/${{ matrix.arch }}
+        env:
+          SHA_SHORT: ${{ github.sha }}
