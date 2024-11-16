@@ -18,8 +18,7 @@ ARG DOTNET_VERSION=8
 RUN addgroup -S runner && adduser -S runner -G runner
 
 # Install software
-RUN apk update \
-  && apk add --no-cache \
+RUN apk add --no-cache \
   aspnet-${DOTNET_VERSION}-runtime \
   bash \
   build-base \
@@ -29,6 +28,7 @@ RUN apk update \
   dumb-init \
   git \
   gh \
+  helm \
   icu \
   jq \
   krb5-libs \
