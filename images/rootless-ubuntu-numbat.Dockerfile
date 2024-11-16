@@ -83,7 +83,8 @@ COPY images/software/kubectl.sh /kubectl.sh
 RUN bash /kubectl.sh && rm /kubectl.sh
 
 # Install helm
-RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+COPY images/software/get-helm.sh /helm.sh
+RUN bash /helm.sh && rm /helm.sh
 
 # Install Docker
 RUN export DOCKER_ARCH=x86_64 \
