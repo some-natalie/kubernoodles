@@ -42,7 +42,7 @@ RUN dnf update -y \
 
 # This is to mimic the OpenShift behaviour of adding the dynamic user to group 0.
 RUN useradd -G 0 $USERNAME
-ENV HOME /home/${USERNAME}
+ENV HOME=/home/${USERNAME}
 
 # Make and set the working directory
 RUN mkdir -p /home/runner \
