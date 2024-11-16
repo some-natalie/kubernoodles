@@ -82,10 +82,6 @@ RUN bash /gh-cli.sh && rm /gh-cli.sh
 COPY images/software/kubectl.sh /kubectl.sh
 RUN bash /kubectl.sh && rm /kubectl.sh
 
-# Install helm
-COPY images/software/get-helm.sh /helm.sh
-RUN bash /helm.sh && rm /helm.sh
-
 # Install Docker
 RUN export DOCKER_ARCH=x86_64 \
   && if [ "$RUNNER_ARCH" = "arm64" ]; then export DOCKER_ARCH=aarch64 ; fi \
