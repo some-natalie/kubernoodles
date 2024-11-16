@@ -54,6 +54,7 @@ RUN apt-get update \
   pigz \
   pkg-config \
   software-properties-common \
+  tar \
   time \
   tzdata \
   uidmap \
