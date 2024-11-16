@@ -3,7 +3,7 @@ name: 🍜 Verify all runners tags got built
 on:
   workflow_dispatch: # build on demand
   schedule:
-    - cron: "43 8 * * 0" # build every Sunday at 8:43 AM UTC, two hours after the build job
+    - cron: "43 7 * * 0" # build every Sunday at 7:43 AM UTC, an hour after the build job
 
 jobs:
   pull-all:
