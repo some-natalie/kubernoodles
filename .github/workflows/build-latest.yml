@@ -104,7 +104,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ./images/${{ matrix.os }}.Dockerfile
-          platforms: ${{ matrix.arch }}
+          platforms: linux/${{ matrix.arch }}
           push: true
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}
