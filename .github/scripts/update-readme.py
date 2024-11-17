@@ -15,7 +15,7 @@ image_list = [
     {
         "shortname": "ubi8",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/ubi8:latest",
-        "baseimage": "[ubi8-init:8.10](https://catalog.redhat.com/software/containers/ubi8/ubi-init/5c359b97d70cc534b3a378c8)",
+        "baseimage": "[ubi8-init:8.10](https://catalog.redhat.com/software/containers/ubi8-init/5c6aea74dd19c77a158f0892)",
         "architectures": "x86_64<br>arm64",
         "virtualization": ":x:",
         "sudo": ":x:",
@@ -24,8 +24,8 @@ image_list = [
     {
         "shortname": "ubi9",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/ubi9:latest",
-        "baseimage": "[ubi9-init:9.4](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd)",
-        "architectures": "x86_64<br>arm64", 
+        "baseimage": "[ubi9-init:9.5](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd)",
+        "architectures": "x86_64<br>arm64",
         "virtualization": ":x:",
         "sudo": ":x:",
         "notes": "n/a",
@@ -33,7 +33,7 @@ image_list = [
     {
         "shortname": "rootless-ubuntu-jammy",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest",
-        "baseimage": "[ubuntu:jammy](https://hub.docker.com/_/ubuntu)",
+        "baseimage": "[ubuntu:jammy](https://hub.docker.com/_/ubuntu) (22.04 LTS)",
         "architectures": "x86_64<br>arm64",
         "virtualization": "rootless Docker-in-Docker",
         "sudo": ":x:",
@@ -42,8 +42,8 @@ image_list = [
     {
         "shortname": "rootless-ubuntu-numbat",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-numbat:latest",
-        "baseimage": "[ubuntu:numbat](https://hub.docker.com/_/ubuntu)",
-        "architectures": "x86_64<br>arm64", 
+        "baseimage": "[ubuntu:numbat](https://hub.docker.com/_/ubuntu) (24.04 LTS)",
+        "architectures": "x86_64<br>arm64",
         "virtualization": "rootless Docker-in-Docker",
         "sudo": ":x:",
         "notes": "[common rootless problems](docs/tips-and-tricks.md#rootless-images)",
@@ -52,7 +52,7 @@ image_list = [
         "shortname": "wolfi:latest",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/wolfi:latest",
         "baseimage": "[wolfi-base:latest](https://images.chainguard.dev/directory/image/wolfi-base/versions)",
-        "architectures": "x86_64<br>arm64", 
+        "architectures": "x86_64<br>arm64",
         "virtualization": ":x:",
         "sudo": ":x:",
         "notes": "n/a",
