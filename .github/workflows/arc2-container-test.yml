@@ -9,11 +9,24 @@ on:
         required: true
 
 jobs:
-  hello-world:
+  hello-world-alpine:
     runs-on: ${{ github.event.inputs.target-scale-set }}
     container: "alpine:3"
     strategy:
-      matrix:  # A matrix of 4 is probably quite plenty
+      matrix: # A matrix of 4 is probably quite plenty
+        number: [1, 2]
+        letter: [a, b]
+    steps:
+      - name: Hello world
+        run: |
+          echo "Hello world"
+          echo "Number: ${{ matrix.number }}"
+          echo "Letter: ${{ matrix.letter }}"
+  hello-world-wolfi:
+    runs-on: ${{ github.event.inputs.target-scale-set }}
+    container: "cgr.dev/chainguard/wolfi-base:latest"
+    strategy:
+      matrix: # A matrix of 4 is probably quite plenty
         number: [1, 2]
         letter: [a, b]
     steps:
