@@ -132,7 +132,11 @@ ENV ImageOS=ubuntu24
 USER runner
 
 # Docker-compose installation
-RUN curl --create-dirs -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-Linux-x86_64" -o /home/runner/bin/docker-compose ; \
+RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+  && export ARCH \
+  && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
+  && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
+  && curl --create-dirs -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-Linux-${ARCH}" -o /home/runner/bin/docker-compose ; \
   chmod +x /home/runner/bin/docker-compose
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
