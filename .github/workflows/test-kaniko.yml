@@ -24,9 +24,8 @@ jobs:
           export GIT_PASSWORD="${{ secrets.GITHUB_TOKEN }}"
 
           # Build and push
-          /kaniko/executor --dockerfile="./images/ubi9.Dockerfile" \
+          /kaniko/executor --dockerfile="./images/kaniko-build-test.Dockerfile" \
             --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
             --destination="ghcr.io/some-natalie/kubernoodles/kaniko-build:test" \
             --push-retry 5 \
-            --build-arg opts="TARGETPLATFORM=linux/amd64" \
             --image-name-with-digest-file /workspace/image-digest.txt
