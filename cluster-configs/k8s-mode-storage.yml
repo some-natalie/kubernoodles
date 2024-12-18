@@ -15,13 +15,13 @@ metadata:
 provisioner: file.csi.azure.com # replace with "kubernetes.io/azure-file" if aks version is less than 1.21
 allowVolumeExpansion: true
 mountOptions:
- - dir_mode=0777
- - file_mode=0777
- - uid=1000
- - gid=1000
- - mfsymlinks
- - cache=strict
- - actimeo=30
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=1001
+  - gid=1001
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -40,23 +40,23 @@ kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: k8s-mode
-  namespace: runners
+  namespace: ghec-runners
 provisioner: file.csi.azure.com # replace with "kubernetes.io/azure-file" if aks version is less than 1.21
 allowVolumeExpansion: true
 mountOptions:
- - dir_mode=0777
- - file_mode=0777
- - uid=1000
- - gid=1000
- - mfsymlinks
- - cache=strict
- - actimeo=30
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=1001
+  - gid=1001
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: prod-k8s-cache-pvc
-  namespace: runners
+  namespace: ghec-runners
 spec:
   accessModes:
     - ReadWriteOnce

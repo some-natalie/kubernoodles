@@ -28,4 +28,5 @@ jobs:
             --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
             --destination="ghcr.io/some-natalie/kubernoodles/kaniko-build:test" \
             --push-retry 5 \
+            --build-arg opts="TARGETPLATFORM=linux/amd64" \
             --image-name-with-digest-file /workspace/image-digest.txt
