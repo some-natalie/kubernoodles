@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS build
 
 # GitHub runner arguments
 ARG RUNNER_VERSION=2.321.0
@@ -14,15 +14,6 @@ ARG DUMB_INIT_VERSION=1.2.5
 # Other arguments, expose TARGETPLATFORM for multi-arch builds
 ARG DEBUG=false
 ARG TARGETPLATFORM
-
-# Label all the things!!
-LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
-LABEL org.opencontainers.image.path="images/rootless-ubuntu-numbat.Dockerfile"
-LABEL org.opencontainers.image.title="rootless-ubuntu-numbat"
-LABEL org.opencontainers.image.description="An Ubuntu Numbat (24.04 LTS) based runner image for GitHub Actions, rootless"
-LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
 
 # Set environment variables needed at build or run
 ENV DEBIAN_FRONTEND=noninteractive
@@ -123,6 +114,31 @@ RUN mkdir -p /run/user/1001 \
   && chown runner:runner /home/runner/externals \
   && chmod a+x /home/runner/externals
 
+# Docker-compose installation
+RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+  && export ARCH \
+  && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
+  && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
+  && curl --create-dirs -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-Linux-${ARCH}" -o /home/runner/bin/docker-compose ; \
+  chmod +x /home/runner/bin/docker-compose
+
+# Squash it!
+FROM scratch AS final
+
+# Label all the things!!
+LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
+LABEL org.opencontainers.image.path="images/rootless-ubuntu-numbat.Dockerfile"
+LABEL org.opencontainers.image.title="rootless-ubuntu-numbat"
+LABEL org.opencontainers.image.description="An Ubuntu Numbat (24.04 LTS) based runner image for GitHub Actions, rootless"
+LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
+
+# Set environment variables needed at build or run
+ENV DEBIAN_FRONTEND=noninteractive
+ENV RUNNER_MANUALLY_TRAP_SIG=1
+ENV ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT=1
+
 # Add the Python "User Script Directory" to the PATH
 ENV HOME=/home/runner
 ENV PATH="${PATH}:${HOME}/.local/bin:/home/runner/bin"
@@ -131,12 +147,7 @@ ENV ImageOS=ubuntu24
 # No group definition, as that makes it harder to run docker.
 USER runner
 
-# Docker-compose installation
-RUN ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
-  && export ARCH \
-  && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
-  && if [ "$ARCH" = "amd64" ]; then export ARCH=x86_64 ; fi \
-  && curl --create-dirs -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-Linux-${ARCH}" -o /home/runner/bin/docker-compose ; \
-  chmod +x /home/runner/bin/docker-compose
+# Squashing time ...
+COPY --from=build / /
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
