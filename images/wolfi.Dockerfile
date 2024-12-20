@@ -1,12 +1,4 @@
-FROM cgr.dev/chainguard/wolfi-base:latest
-
-LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
-LABEL org.opencontainers.image.path="images/wolfi.Dockerfile"
-LABEL org.opencontainers.image.title="wolfi"
-LABEL org.opencontainers.image.description="A Chainguard Wolfi based runner image for GitHub Actions"
-LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
-LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
+FROM cgr.dev/chainguard/wolfi-base:latest AS build
 
 # Arguments
 ARG TARGETPLATFORM
@@ -69,10 +61,23 @@ RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-c
   && unzip ./runner-container-hooks.zip -d ./k8s \
   && rm runner-container-hooks.zip
 
-ENV RUNNER_MANUALLY_TRAP_SIG=1
-ENV ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT=1
-
 # configure directory permissions; ref https://github.com/actions/runner-images/blob/main/images/ubuntu/scripts/build/configure-system.sh
 RUN chmod -R 777 /opt /usr/share
 
+# squash it!
+FROM scratch AS final
+
+LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
+LABEL org.opencontainers.image.path="images/wolfi.Dockerfile"
+LABEL org.opencontainers.image.title="wolfi"
+LABEL org.opencontainers.image.description="A Chainguard Wolfi based runner image for GitHub Actions"
+LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
+
+ENV RUNNER_MANUALLY_TRAP_SIG=1
+ENV ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT=1
+
 USER runner
+
+COPY --from=build / /
