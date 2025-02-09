@@ -7,17 +7,17 @@ githubConfigUrl: "https://github.com/some-natalie/kubernoodles"
 
 ## githubConfigSecret is the k8s secrets to use when auth with GitHub API.
 ## You can choose to use GitHub App or a PAT token
-# githubConfigSecret: 
-  ### GitHub Apps Configuration
-  ## NOTE: IDs MUST be strings, use quotes
+# githubConfigSecret:
+### GitHub Apps Configuration
+## NOTE: IDs MUST be strings, use quotes
 #   github_app_id: ""
 #   github_app_installation_id: ""
 #   github_app_private_key: |
 #     -----BEGIN RSA PRIVATE KEY-----
 #     -----END RSA PRIVATE KEY-----
 
-  ### GitHub PAT Configuration
-  # github_token: ""
+### GitHub PAT Configuration
+# github_token: ""
 
 ## maxRunners is the max number of runners the auto scaling runner set will scale up to.
 maxRunners: 5
@@ -32,6 +32,7 @@ template:
     containers:
       - name: runner
         image: ghcr.io/some-natalie/kubernoodles/wolfi-runner:test
+        imagePullPolicy: Always
         command: ["/home/runner/run.sh"]
         securityContext:
           runAsUser: 100
@@ -44,13 +45,13 @@ template:
               fieldRef:
                 fieldPath: metadata.name
           - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
-            value: "false"  # allow non-container steps
+            value: "false" # allow non-container steps
         volumeMounts:
           - name: work
             mountPath: /home/runner/_work
 
 containerMode:
-  type: "kubernetes" 
+  type: "kubernetes"
   kubernetesModeWorkVolumeClaim:
     accessModes: ["ReadWriteOnce"]
     storageClassName: "local-path"
