@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build test image
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
+    runs-on: ubuntu-24.04-arm # use the GitHub-hosted runner to build the image
 
     steps:
       - name: Set release id
@@ -31,22 +31,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build the image
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          image: some-natalie/kubernoodles/ubi9
-          tags: test
-          containerfiles: images/ubi9.Dockerfile
-
-      - name: Push image
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          file: "images/ubi9.Dockerfile"
+          push: true
+          tags: ghcr.io/some-natalie/kubernoodles/ubi9:test
 
   deploy:
     name: Deploy test image to `test-runners` namespace
