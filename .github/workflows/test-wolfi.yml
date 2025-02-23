@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     name: Build test image
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
+    runs-on: ubuntu-24.04-arm # use the GitHub-hosted runner to build the image
 
     steps:
       - name: Set release id
