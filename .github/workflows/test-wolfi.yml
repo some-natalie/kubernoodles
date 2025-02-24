@@ -65,7 +65,7 @@ jobs:
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
           --version 0.10.1
         env:
-          KUBECONFIG: ~/.kube/config
+          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
 
   test:
     name: Run tests!
@@ -104,7 +104,7 @@ jobs:
         run: |
           helm uninstall test-wolfi --namespace "test-runners"
         env:
-          KUBECONFIG: ~/.kube/config
+          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
 
       - name: Output removal
         run: |
