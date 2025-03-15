@@ -54,17 +54,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Write out the kubeconfig info
-        run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
-
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
           helm install test-wolfi  \
@@ -75,15 +64,8 @@ jobs:
           -f deployments/helm-wolfi-test.yml \
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
           --version 0.10.1
-
         env:
-          KUBECONFIG: /tmp/config
-
-      - name: Remove kubeconfig info
-        run: rm -f /tmp/config
-
-      - name: Wait 2 minutes to let the new pod come up
-        run: sleep 120
+          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
 
   test:
     name: Run tests!
@@ -118,18 +100,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Write out the kubeconfig info
-        run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
-
       - name: Deploy
         run: |
           helm uninstall test-wolfi --namespace "test-runners"
         env:
-          KUBECONFIG: /tmp/config
-
-      - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
 
       - name: Output removal
         run: |
