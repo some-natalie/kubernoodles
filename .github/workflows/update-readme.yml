@@ -2,7 +2,7 @@ name: 🧚🏻‍♀️ Update project readme
 
 on:
   schedule:
-    - cron: "38 8 * * 0"  # every Sunday at 8:38 AM UTC
+    - cron: "38 8 * * 0" # every Sunday at 8:38 AM UTC
   workflow_dispatch:
   release:
     types: [published]
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Setup Grype
         shell: bash
         run: |
