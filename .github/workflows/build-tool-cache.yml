@@ -27,7 +27,7 @@ jobs:
 
       # Have as many of these "actions/setup-LANGUAGE" steps as you need
       - name: Setup Python 3.10
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: "3.10"
 
@@ -44,7 +44,7 @@ jobs:
           tar -czf tool_cache.tgz *
 
       - name: Upload tool cache artifact for airgapped usage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: tool_cache
           path: ${{runner.tool_cache}}/tool_cache.tar.gz
@@ -61,7 +61,7 @@ jobs:
           mkdir -p "${{ runner.tool_cache }}"
 
       - name: Setup Go 1.19
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
           go-version: "1.19"
 
@@ -82,7 +82,7 @@ jobs:
           mkdir -p "${{ runner.tool_cache }}"
 
       - name: Setup NodeJS 16
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
           node-version: "16"
 
@@ -103,7 +103,7 @@ jobs:
           mkdir -p "${{ runner.tool_cache }}"
 
       - name: Setup Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
 
       # This step is needed for testing the tool cache in this demo repository.
       - name: Update tool cache for AKS

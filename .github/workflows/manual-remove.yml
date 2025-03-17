@@ -12,17 +12,17 @@ on:
         type: choice
         required: true
         options:
-        - "bare-metal"
-        - "test"
-        - "production" 
+          - "bare-metal"
+          - "test"
+          - "production"
         default: "test"
       runner_namespace:
         description: "Which namespace to remove from?"
         type: choice
         required: true
         options:
-        - "runners"
-        - "test-runners"
+          - "runners"
+          - "test-runners"
         default: "test-runners"
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Write out the kubeconfig info
         run: |

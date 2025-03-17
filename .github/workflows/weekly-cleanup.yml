@@ -20,15 +20,13 @@ jobs:
           - ubi8
           - ubi9
     steps:
-      - name: Delete untagged containers
-        uses: snok/container-retention-policy@v2
+      - name: Delete untagged container images older than 2 months
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
         with:
-          image-names: kubernoodles/${{ matrix.runner }}
-          cut-off: Two hours ago UTC
-          timestamp-to-use: created_at
-          account-type: personal
-          filter-tags: null*
-          skip-tags: latest, v*
+          package-name: kubernoodles/${{ matrix.runner }}
+          package-type: "container"
+          min-versions-to-keep: 8
+          delete-only-untagged-versions: "true"
           token: ${{ secrets.GHCR_CLEANUP_TOKEN }}
 
   stale:
@@ -36,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Close stale issues and pull requests
-        uses: actions/stale@v9
+        uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
         with:
           stale-issue-message: "This issue is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 2 weeks."
           close-issue-message: "This issue was closed because it has been stalled for 2 weeks with no activity."
@@ -56,6 +54,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete offline self-hosted runners
-        uses: some-natalie/runner-reaper@main
+        uses: some-natalie/runner-reaper@589129231ab2291c2a53210b092bc9e9d1bae414
         env:
           GITHUB_PAT: ${{ secrets.RUNNER_REAPER }}
