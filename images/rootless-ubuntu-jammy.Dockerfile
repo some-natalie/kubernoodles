@@ -1,11 +1,11 @@
 FROM ubuntu:22.04 AS build
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.322.0
+ARG RUNNER_VERSION=2.323.0
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.2
 
 # Docker and Compose arguments
-ARG DOCKER_VERSION=28.0.1
+ARG DOCKER_VERSION=28.0.4
 ARG COMPOSE_VERSION=v2.34.0
 
 # Dumb-init version
@@ -77,8 +77,9 @@ COPY images/software/get-helm.sh /helm.sh
 RUN bash /helm.sh && rm /helm.sh
 
 # Install Docker
-RUN export DOCKER_ARCH=x86_64 \
-  && if [ "$RUNNER_ARCH" = "arm64" ]; then export DOCKER_ARCH=aarch64 ; fi \
+RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+  && if [ "$ARCH" = "arm64" ]; then export DOCKER_ARCH=aarch64 ; fi \
+  && if [ "$ARCH" = "amd64" ]; then export DOCKER_ARCH=x86_64 ; fi \
   && curl -fLo docker.tgz https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-${DOCKER_VERSION}.tgz \
   && tar zxvf docker.tgz \
   && rm -rf docker.tgz
