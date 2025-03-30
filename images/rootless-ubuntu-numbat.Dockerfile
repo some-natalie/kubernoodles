@@ -75,7 +75,7 @@ RUN bash /kubectl.sh && rm /kubectl.sh
 
 # Install Docker
 RUN export DOCKER_ARCH=x86_64 \
-  && if [ "$TARGETPLATFORM" = "arm64" ]; then export DOCKER_ARCH=aarch64 ; fi \
+  && if [ $(echo ${TARGETPLATFORM} | cut -d / -f2) = "arm64" ]; then export DOCKER_ARCH=aarch64 ; fi \
   && curl -fLo docker.tgz https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-${DOCKER_VERSION}.tgz \
   && tar zxvf docker.tgz \
   && rm -rf docker.tgz
