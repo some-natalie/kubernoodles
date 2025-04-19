@@ -3,7 +3,7 @@ FROM registry.access.redhat.com/ubi9/ubi-init:9.5 AS build
 # Arguments
 ARG TARGETPLATFORM
 ARG RUNNER_VERSION=2.323.0
-ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.2
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
 
 # Shell setup
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]

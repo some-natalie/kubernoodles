@@ -3,7 +3,7 @@ FROM registry.access.redhat.com/ubi8/ubi-init:8.10 AS build
 # Arguments
 ARG TARGETPLATFORM
 ARG RUNNER_VERSION=2.323.0
-ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.2
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
 
 # Shell setup
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
