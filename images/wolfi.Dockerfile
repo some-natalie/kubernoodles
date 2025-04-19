@@ -3,7 +3,7 @@ FROM cgr.dev/chainguard/wolfi-base:latest AS build
 # Arguments
 ARG TARGETPLATFORM
 ARG RUNNER_VERSION=2.323.0
-ARG RUNNER_CONTAINER_HOOKS_VERSION=0.6.2
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
 ARG DOTNET_VERSION=8
 
 # Set up the non-root user (runner)
