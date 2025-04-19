@@ -14,11 +14,14 @@ jobs:
       matrix:
         runner:
           - ubuntu-focal
-          - podman
           - rootless-ubuntu-focal
           - ubuntu-jammy
+          - rootless-ubuntu-jammy
+          - rootless-ubuntu-numbat
+          - podman
           - ubi8
           - ubi9
+          - wolfi
     steps:
       - name: Delete untagged container images older than 2 months
         uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
@@ -27,7 +30,6 @@ jobs:
           package-type: "container"
           min-versions-to-keep: 8
           delete-only-untagged-versions: "true"
-          token: ${{ secrets.GHCR_CLEANUP_TOKEN }}
 
   stale:
     name: Destalinate!
@@ -49,11 +51,12 @@ jobs:
           stale-pr-label: "stale"
           exempt-pr-labels: "dependencies"
 
-  clean-offline-runners:
-    name: Delete offline self-hosted runners
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete offline self-hosted runners
-        uses: some-natalie/runner-reaper@589129231ab2291c2a53210b092bc9e9d1bae414
-        env:
-          GITHUB_PAT: ${{ secrets.RUNNER_REAPER }}
+  # unused these days, commenting it out
+  # clean-offline-runners:
+  #   name: Delete offline self-hosted runners
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Delete offline self-hosted runners
+  #       uses: some-natalie/runner-reaper@589129231ab2291c2a53210b092bc9e9d1bae414
+  #       env:
+  #         GITHUB_PAT: ${{ secrets.RUNNER_REAPER }}
