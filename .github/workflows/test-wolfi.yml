@@ -89,7 +89,7 @@ jobs:
           kubectl get pod -n arc-systems
           kubectl describe deployment arc-gha-rs-controller -n arc-systems
 
-      - name: Deplyoy test runner image
+      - name: Deploy test runner image
         run: |
           kubectl create namespace test-runners
           helm install test-wolfi  \
@@ -100,22 +100,21 @@ jobs:
             -f deployments/helm-wolfi-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.11.0
-          echo "ARC_NAME=$ARC_NAME" >> $GITHUB_OUTPUT
           count=0
           while true; do
-            POD_NAME=$(kubectl get pods -n arc-systems -l actions.github.com/scale-set-name=$ARC_NAME -o name)
+            POD_NAME=$(kubectl get pods -n arc-systems -l actions.github.com/scale-set-name=test-wolfi -o name)
             if [ -n "$POD_NAME" ]; then
               echo "Pod found: $POD_NAME"
               break
             fi
             if [ "$count" -ge 60 ]; then
-              echo "Timeout waiting for listener pod with label actions.github.com/scale-set-name=$ARC_NAME"
+              echo "Timeout waiting for listener pod with label actions.github.com/scale-set-name=test-wolfi"
               exit 1
             fi
             sleep 1
             count=$((count+1))
           done
-          kubectl wait --timeout=30s --for=condition=ready pod -n arc-systems -l actions.github.com/scale-set-name=$ARC_NAME
+          kubectl wait --timeout=30s --for=condition=ready pod -n arc-systems -l actions.github.com/scale-set-name=test-wolfi
           kubectl get pod -n arc-systems
 
       - name: load bearing sleep statement
