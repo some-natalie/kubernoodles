@@ -99,7 +99,8 @@ jobs:
             --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
             -f deployments/helm-wolfi-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-            --version 0.11.0
+            --version 0.11.0 \
+            --debug
           count=0
           while true; do
             POD_NAME=$(kubectl get pods -n arc-systems -l actions.github.com/scale-set-name=test-wolfi -o name)
