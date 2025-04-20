@@ -56,13 +56,12 @@ jobs:
         run: |
           minikube start
           minikube addons enable ingress
-      - name: Set up kubectl
-        shell: bash
-        run: |
           minikube kubectl -- config use-context minikube
           mkdir -p ${{ github.workspace }}/.kube
           minikube kubectl -- config view --flatten > ${{ github.workspace }}/.kube/config
           kubectl get nodes
+          minikube image pull ghcr.io/actions/gha-runner-scale-set-controller:0.11.0
+          minikube image pull ghcr.io/some-natalie/kubernoodles/wolfi:test
       - name: Set up ARC
         shell: bash
         run: |
