@@ -46,32 +46,95 @@ jobs:
 
   deploy:
     name: Deploy test image to `test-runners` namespace
-    runs-on: deploy-controller # use a self-hosted runner to deploy the image
-    needs: [build]
-    environment: test
+    runs-on: ubuntu-24.04-arm # use the GitHub-hosted runner to deploy the image
+    needs: build
 
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
+      - name: Set up k3s
+        shell: bash
         run: |
+          curl -sfL https://get.k3s.io | sh -
+          sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+          sudo chown $USER ~/.kube/config
+          chmod 600 ~/.kube/config
+          export KUBECONFIG=~/.kube/config
+          echo "export KUBECONFIG=~/.kube/config" >> .bashrc
+
+      - name: Set up actions-runner-controller
+        shell: bash
+        run: |
+          helm install arc \
+            --namespace "arc-systems" \
+            --create-namespace \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+          count=0
+          while true; do
+            POD_NAME=$(kubectl get pods -n arc-systems -l app.kubernetes.io/name=gha-rs-controller -o name)
+            if [ -n "$POD_NAME" ]; then
+              echo "Pod found: $POD_NAME"
+              break
+            fi
+            if [ "$count" -ge 60 ]; then
+              echo "Timeout waiting for controller pod with label app.kubernetes.io/name=gha-rs-controller"
+              exit 1
+            fi
+            sleep 1
+            count=$((count+1))
+          done
+          kubectl wait --timeout=30s --for=condition=ready pod -n arc-systems -l app.kubernetes.io/name=gha-rs-controller
+          kubectl get pod -n arc-systems
+          kubectl describe deployment arc-gha-rs-controller -n arc-systems
+
+      - name: Deplyoy test runner image
+        run: |
+          kubectl create namespace test-runners
           helm install test-wolfi  \
-          --namespace "test-runners" \
-          --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
-          --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
-          --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-          -f deployments/helm-wolfi-test.yml \
-          oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-          --version 0.11.0
-        env:
-          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
+            --namespace "test-runners" \
+            --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+            --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+            --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+            -f deployments/helm-wolfi-test.yml \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
+            --version 0.11.0
+          echo "ARC_NAME=$ARC_NAME" >> $GITHUB_OUTPUT
+          count=0
+          while true; do
+            POD_NAME=$(kubectl get pods -n arc-systems -l actions.github.com/scale-set-name=$ARC_NAME -o name)
+            if [ -n "$POD_NAME" ]; then
+              echo "Pod found: $POD_NAME"
+              break
+            fi
+            if [ "$count" -ge 60 ]; then
+              echo "Timeout waiting for listener pod with label actions.github.com/scale-set-name=$ARC_NAME"
+              exit 1
+            fi
+            sleep 1
+            count=$((count+1))
+          done
+          kubectl wait --timeout=30s --for=condition=ready pod -n arc-systems -l actions.github.com/scale-set-name=$ARC_NAME
+          kubectl get pod -n arc-systems
+
+      - name: load bearing sleep statement
+        run: |
+          echo "Sleeping for 5 minutes to allow for test runners"
+          sleep 300
+
+      - name: Deploy
+        run: |
+          helm uninstall test-wolfi --namespace "test-runners"
+
+      - name: Output removal
+        run: |
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
 
   test:
     name: Run tests!
     runs-on: [test-wolfi]
-    needs: [deploy]
-    timeout-minutes: 15
+    needs: build
 
     steps:
       - name: Setup test summary
@@ -88,25 +151,3 @@ jobs:
 
       - name: Sudo fails
         uses: ./tests/sudo-fails
-
-  remove-deploy:
-    name: Delete test image deployment
-    runs-on: deploy-controller # use a self-hosted runner to remove the image
-    needs: [test]
-    environment: test
-    if: always()
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Deploy
-        run: |
-          helm uninstall test-wolfi --namespace "test-runners"
-        env:
-          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
-
-      - name: Output removal
-        run: |
-          echo ' ' >> $GITHUB_STEP_SUMMARY
-          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
