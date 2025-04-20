@@ -83,6 +83,8 @@ jobs:
             -f deployments/helm-wolfi-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.11.0
+          sleep 60
+          kubectl get pods -A
         env:
           KUBECONFIG: ${{ github.workspace }}/.kube/config
       - name: Wait for completion (5 mins)
