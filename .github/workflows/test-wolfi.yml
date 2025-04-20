@@ -55,11 +55,13 @@ jobs:
         shell: bash
         run: |
           minikube start
+          minikube addons enable ingress
       - name: Set up kubectl
         shell: bash
         run: |
           minikube kubectl -- config use-context minikube
           echo "KUBECONFIG=${{ github.workspace }}/.kube/config" >> $GITHUB_ENV
+          kubectl get nodes || { echo "Failed to connect to Kubernetes cluster"; exit 1; }
       - name: Set up ARC
         shell: bash
         run: |
@@ -67,8 +69,6 @@ jobs:
             --namespace "arc-systems" \
             --create-namespace \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
       - name: Set up test deployment
         shell: bash
         run: |
@@ -79,8 +79,6 @@ jobs:
             --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
             -f deployments/helm-wolfi-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
       - name: Wait for completion (5 mins)
         shell: bash
         run: sleep 300
@@ -90,13 +88,12 @@ jobs:
           helm uninstall test-wolfi --namespace "test-runners"
           echo ' ' >> $GITHUB_STEP_SUMMARY
           echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
-        env:
-          KUBECONFIG: ${{ env.KUBECONFIG }}
 
   test:
     name: Run tests!
     runs-on: test-wolfi
     needs: build
+    timeout-minutes: 10
 
     steps:
       - name: Setup test summary
