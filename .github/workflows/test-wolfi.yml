@@ -60,6 +60,7 @@ jobs:
         shell: bash
         run: |
           minikube kubectl -- config use-context minikube
+          mkdir -p ${{ github.workspace }}/.kube
           minikube kubectl -- config view --flatten > ${{ github.workspace }}/.kube/config
           kubectl get nodes
           cat ${{ github.workspace }}/.kube/config
