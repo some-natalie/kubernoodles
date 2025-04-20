@@ -63,7 +63,6 @@ jobs:
           mkdir -p ${{ github.workspace }}/.kube
           minikube kubectl -- config view --flatten > ${{ github.workspace }}/.kube/config
           kubectl get nodes
-          cat ${{ github.workspace }}/.kube/config
       - name: Set up ARC
         shell: bash
         run: |
@@ -76,6 +75,7 @@ jobs:
       - name: Set up test deployment
         shell: bash
         run: |
+          kubectl create namespace test-runners
           helm install test-wolfi  \
             --namespace "test-runners" \
             --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
