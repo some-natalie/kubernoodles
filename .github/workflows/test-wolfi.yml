@@ -44,34 +44,53 @@ jobs:
           push: true
           tags: ghcr.io/some-natalie/kubernoodles/wolfi:test
 
-  deploy:
-    name: Deploy test image to `test-runners` namespace
-    runs-on: deploy-controller # use a self-hosted runner to deploy the image
-    needs: [build]
-    environment: test
-
+  minikube:
+    name: Create minikube cluster
+    runs-on: ubuntu-24.04-arm # use the GitHub-hosted runner to create the cluster
+    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
+      - name: Set up minikube
+        shell: bash
+        run: |
+          minikube start
+      - name: Set up kubectl
+        shell: bash
+        run: |
+          minikube kubectl -- config use-context minikube
+          echo "KUBECONFIG=${{ github.workspace }}/.kube/config" >> $GITHUB_ENV
+      - name: Set up ARC
+        shell: bash
+        run: |
+          helm install arc \
+            --namespace "arc-systems" \
+            --create-namespace \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+      - name: Set up test deployment
+        shell: bash
         run: |
           helm install test-wolfi  \
-          --namespace "test-runners" \
-          --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
-          --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
-          --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-          -f deployments/helm-wolfi-test.yml \
-          oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-          --version 0.11.0
-        env:
-          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
+            --namespace "test-runners" \
+            --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+            --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+            --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+            -f deployments/helm-wolfi-test.yml \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+      - name: Wait for completion (5 mins)
+        shell: bash
+        run: sleep 300
+      - name: Remove deployment
+        shell: bash
+        run: |
+          helm uninstall test-wolfi --namespace "test-runners"
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
 
   test:
     name: Run tests!
-    runs-on: [test-wolfi]
-    needs: [deploy]
-    timeout-minutes: 15
+    runs-on: test-wolfi
+    needs: build
 
     steps:
       - name: Setup test summary
@@ -88,25 +107,3 @@ jobs:
 
       - name: Sudo fails
         uses: ./tests/sudo-fails
-
-  remove-deploy:
-    name: Delete test image deployment
-    runs-on: deploy-controller # use a self-hosted runner to remove the image
-    needs: [test]
-    environment: test
-    if: always()
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Deploy
-        run: |
-          helm uninstall test-wolfi --namespace "test-runners"
-        env:
-          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
-
-      - name: Output removal
-        run: |
-          echo ' ' >> $GITHUB_STEP_SUMMARY
-          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
