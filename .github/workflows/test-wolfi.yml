@@ -61,6 +61,7 @@ jobs:
         run: |
           minikube kubectl -- config use-context minikube
           kubectl get nodes
+          cat ${{ github.workspace }}/.kube/config
       - name: Set up ARC
         shell: bash
         run: |
