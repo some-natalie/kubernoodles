@@ -44,7 +44,7 @@ jobs:
         uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
 
       - name: Build the container
-        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
+        uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # v6.16.0
         with:
           file: ./images/${{ matrix.os }}.Dockerfile
           push: false
@@ -62,12 +62,12 @@ jobs:
           fail-build: false
 
       - name: Upload the container scan report
-        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47 # v3.28.15
+        uses: github/codeql-action/upload-sarif@28deaeda66b76a05916b6923827895f2b14ab387 # v3.28.16
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
       - name: Generate that SBOM
-        uses: anchore/sbom-action@f325610c9f50a54015d37c8d16cb3b0e2c8f4de0 # v0.18.0
+        uses: anchore/sbom-action@9f7302141466aa6482940f15371237e9d9f4c34a # v0.19.0
         with:
           image: "ghcr.io/${{ github.repository }}/${{ matrix.os }}:${{ env.SHA_SHORT }}"
           artifact-name: "${{ matrix.os }}-${{ matrix.arch }}-${{ env.SHA_SHORT }}.sbom"
@@ -79,7 +79,7 @@ jobs:
           jq -r '.[0].Id')" >> $GITHUB_ENV
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@d7d6bc7722e3daa8354c50bcb52f4837da5e9b6a # v3.8.1
+        uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
 
       - name: Log in to GHCR
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
