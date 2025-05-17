@@ -24,7 +24,7 @@ image_list = [
     {
         "shortname": "ubi9",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/ubi9:latest",
-        "baseimage": "[ubi9-init:9.5](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd)",
+        "baseimage": "[ubi9-init:9.6](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd)",
         "architectures": "x86_64<br>arm64",
         "virtualization": ":x:",
         "sudo": ":x:",

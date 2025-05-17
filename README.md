@@ -26,7 +26,7 @@ There are currently 5 images that are "prebuilt" by this project, although you c
 | image name | base image | CVE count<br>(crit/high/med+below) | archs | virtualization? | sudo? | notes |
 |---|---|---|---|---|---|---|
 | ubi8 | [ubi8-init:8.10](https://catalog.redhat.com/software/containers/ubi8-init/5c6aea74dd19c77a158f0892) | 2/1/622 | x86_64<br>arm64 | :x: | :x: | n/a |
-| ubi9 | [ubi9-init:9.5](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | 2/1/628 | x86_64<br>arm64 | :x: | :x: | n/a |
+| ubi9 | [ubi9-init:9.6](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | 2/1/628 | x86_64<br>arm64 | :x: | :x: | n/a |
 | rootless-ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) (22.04 LTS) | 2/2/212 | x86_64<br>arm64 | rootless Docker-in-Docker | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 | rootless-ubuntu-numbat | [ubuntu:numbat](https://hub.docker.com/_/ubuntu) (24.04 LTS) | 1/3/150 | x86_64<br>arm64 | rootless Docker-in-Docker | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 | wolfi:latest | [wolfi-base:latest](https://images.chainguard.dev/directory/image/wolfi-base/versions) | 0/1/2 | x86_64<br>arm64 | :x: | :x: | n/a |
