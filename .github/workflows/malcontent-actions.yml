@@ -1,0 +1,212 @@
+name: 🔍 Malcontent differential analysis 🔍
+
+on:
+  pull_request:
+    branches: ["main"]
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - ".github/workflows/**.yml"
+      - ".github/workflows/**.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  extract-action-repo:
+    name: Get repo name from the changed Action
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      old_action_repo: ${{ steps.action-info.outputs.old_action_repo }}
+      new_action_repo: ${{ steps.action-info.outputs.new_action_repo }}
+      old_ref: ${{ steps.action-info.outputs.old_ref }}
+      new_ref: ${{ steps.action-info.outputs.new_ref }}
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Get PR diff
+        shell: bash
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > pr.diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract old and new Action lines
+        shell: bash
+        run: |
+          OLD_LINE=$(grep '^-' pr.diff | grep 'uses:' | tail -1)
+          NEW_LINE=$(grep '^+' pr.diff | grep 'uses:' | tail -1)
+          echo "OLD_ACTION_LINE=$OLD_LINE" >> "$GITHUB_ENV"
+          echo "NEW_ACTION_LINE=$NEW_LINE" >> "$GITHUB_ENV"
+
+      - name: Parse Action repo and refs
+        shell: bash
+        id: action-info
+        run: |
+          # Remove diff markers and whitespace, then extract repo and ref
+          OLD_USE="${OLD_ACTION_LINE#-}"
+          OLD_USE="$(echo "$OLD_USE" | xargs)" # trim whitespace
+          OLD_USE="${OLD_USE#uses:}"
+          OLD_ACTION_REPO="${OLD_USE%@*}"
+          OLD_REF="${OLD_USE##*@}"
+          OLD_REF="${OLD_REF%%#*}" # Remove anything after a '#'
+
+          NEW_USE="${NEW_ACTION_LINE#+}"
+          NEW_USE="$(echo "$NEW_USE" | xargs)"
+          NEW_USE="${NEW_USE#uses:}"
+          NEW_ACTION_REPO="${NEW_USE%@*}"
+          NEW_REF="${NEW_USE##*@}"
+          NEW_REF="${NEW_REF%%#*}" # Remove anything after a '#'
+
+          echo "old_action_repo=$OLD_ACTION_REPO" >> "$GITHUB_OUTPUT"
+          echo "new_action_repo=$NEW_ACTION_REPO" >> "$GITHUB_OUTPUT"
+          echo "old_ref=$OLD_REF" >> "$GITHUB_OUTPUT"
+          echo "new_ref=$NEW_REF" >> "$GITHUB_OUTPUT"
+
+      - name: Show extracted variables
+        shell: bash
+        run: |
+          echo "Old Action repo: ${{ steps.action-info.outputs.old_action_repo }}"
+          echo "Old ref: ${{ steps.action-info.outputs.old_ref }}"
+          echo "New Action repo: ${{ steps.action-info.outputs.new_action_repo }}"
+          echo "New ref: ${{ steps.action-info.outputs.new_ref }}"
+
+  malcontent:
+    name: Malware analysis using malcontent
+    needs: extract-action-repo
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      # look at prior state
+      - name: Checkout original code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ needs.extract-action-repo.outputs.old_action_repo }}
+          ref: ${{ needs.extract-action-repo.outputs.old_ref }}
+          path: "prior-commit"
+          persist-credentials: false
+
+      - name: Setup original code
+        shell: bash
+        working-directory: ${{ github.workspace }}/prior-commit
+        run: |
+          # figure out type of Action
+          type=$(yq '.runs.using' action.yml)
+          if $type==docker; then
+            image=$(yq '.runs.image' action.yml)
+            if [[ $image == "Dockerfile" ]]; then
+              echo "This Action uses a Dockerfile, building it..."
+              docker build -t prior-action-image .
+              docker save prior-action-image -o prior-action-image.tar
+              untar -xf prior-action-image.tar
+            else
+              echo "This Action uses a pre-built Docker image: $image"
+              docker pull $image
+              docker save $image -o prior-action-image.tar
+              untar -xf prior-action-image.tar
+            fi
+          elif [[ $type == node* ]]; then
+            echo "This Action uses Node.js, installing dependencies..."
+            npm install
+          elif [[ $type == composite* ]]; then
+            echo "This is a composite Action, skipping build."
+          fi
+
+      # look at current commit
+      - name: Checkout the current code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ needs.extract-action-repo.outputs.new_action_repo }}
+          ref: ${{ needs.extract-action-repo.outputs.new_ref }}
+          path: "current-commit"
+          persist-credentials: false
+
+      - name: Setup new code
+        shell: bash
+        working-directory: ${{ github.workspace }}/current-commit
+        run: |
+          # figure out type of Action
+          type=$(yq '.runs.using' action.yml)
+          if $type==docker; then
+            image=$(yq '.runs.image' action.yml)
+            if [[ $image == "Dockerfile" ]]; then
+              echo "This Action uses a Dockerfile, building it..."
+              docker build -t prior-action-image .
+              docker save prior-action-image -o prior-action-image.tar
+              untar -xf prior-action-image.tar
+            else
+              echo "This Action uses a pre-built Docker image: $image"
+              docker pull $image
+              docker save $image -o prior-action-image.tar
+              untar -xf prior-action-image.tar
+            fi
+          elif [[ $type == node* ]]; then
+            echo "This Action uses Node.js, installing dependencies..."
+            npm install
+          elif [[ $type == composite* ]]; then
+            echo "This is a composite Action, skipping build."
+          fi
+
+      - name: Analyze the files
+        id: malcontent
+        shell: bash
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/tmp cgr.dev/chainguard/malcontent:latest --format=markdown --min-file-risk=high diff /tmp/prior-commit /tmp/current-commit >> malcontent-results.md
+
+      - name: Add comment if results are empty
+        shell: bash
+        run: |
+          if [ ! -s "malcontent-results.md" ]; then
+            echo "## malcontent detects no changes" >> "malcontent-results.md"
+            echo "" >> "malcontent-results.md"
+            echo "you may want to investigate manually" >> "malcontent-results.md"
+          fi
+
+      - name: Upload results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          path: malcontent-results.md
+          name: malcontent-results
+
+  comment:
+    name: Comment on the PR
+    runs-on: ubuntu-latest
+    needs: malcontent
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Download results
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: malcontent-results
+          path: .
+
+      - name: Comment on the PR
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const filePath = 'malcontent-results.md';
+
+            if (!fs.existsSync(filePath)) {
+              throw new Error(`File not found: ${filePath}`);
+            }
+
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: fileContent,
+            });
