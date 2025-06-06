@@ -58,7 +58,7 @@ jobs:
           OLD_USE="${OLD_USE#uses:}"
           OLD_ACTION_REPO="${OLD_USE%@*}"
           # if there's more than two / in the repo, make sure to capture the directory structure
-          if [[ $(echo "$OLD_ACTION_REPO" | grep -o '/' | wc -l) -gt 2 ]]; then
+          if [[ $(echo "$OLD_ACTION_REPO" | grep -o '/' | wc -l) -gt 1 ]]; then
             OLD_ACTION_REPO="${OLD_ACTION_REPO%/*/*}/*/${OLD_ACTION_REPO##*/}"
             OLD_ACTION_DIR="${OLD_ACTION_REPO%/*}"
           fi
@@ -70,7 +70,7 @@ jobs:
           NEW_USE="${NEW_USE#uses:}"
           NEW_ACTION_REPO="${NEW_USE%@*}"
           # if there's more than two / in the repo, make sure to capture the directory structure
-          if [[ $(echo "$NEW_ACTION_REPO" | grep -o '/' | wc -l) -gt 2 ]]; then
+          if [[ $(echo "$NEW_ACTION_REPO" | grep -o '/' | wc -l) -gt 1 ]]; then
             NEW_ACTION_REPO="${NEW_ACTION_REPO%/*/*}/*/${NEW_ACTION_REPO##*/}"
             NEW_ACTION_DIR="${NEW_ACTION_REPO%/*}"
           fi
