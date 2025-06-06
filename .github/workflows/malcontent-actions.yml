@@ -56,11 +56,13 @@ jobs:
           OLD_USE="${OLD_ACTION_LINE#-}"
           OLD_USE="$(echo "$OLD_USE" | xargs)" # trim whitespace
           OLD_USE="${OLD_USE#uses:}"
-          OLD_ACTION_REPO="${OLD_USE%@*}"
-          # if there's more than two / in the repo, make sure to capture the directory structure
-          if [[ $(echo "$OLD_ACTION_REPO" | grep -o '/' | wc -l) -gt 1 ]]; then
-            OLD_ACTION_REPO="${OLD_ACTION_REPO%/*/*}/*/${OLD_ACTION_REPO##*/}"
-            OLD_ACTION_DIR="${OLD_ACTION_REPO%/*}"
+          # if there's more than one / in the repo, make sure to capture the directory structure
+          if [[ $(echo "$OLD_USE" | grep -o '/' | wc -l) -gt 1 ]]; then
+            OLD_ACTION_REPO="${OLD_USE%/*}"  # everything before the last /
+            OLD_ACTION_DIR="${OLD_USE##*/}"  # path, if any, after the last /"
+          else
+            OLD_ACTION_REPO="${OLD_USE%@*}"
+            OLD_ACTION_DIR=""
           fi
           OLD_REF="${OLD_USE##*@}"
           OLD_REF="${OLD_REF%%#*}" # Remove anything after a '#'
@@ -68,11 +70,13 @@ jobs:
           NEW_USE="${NEW_ACTION_LINE#+}"
           NEW_USE="$(echo "$NEW_USE" | xargs)"
           NEW_USE="${NEW_USE#uses:}"
-          NEW_ACTION_REPO="${NEW_USE%@*}"
-          # if there's more than two / in the repo, make sure to capture the directory structure
-          if [[ $(echo "$NEW_ACTION_REPO" | grep -o '/' | wc -l) -gt 1 ]]; then
-            NEW_ACTION_REPO="${NEW_ACTION_REPO%/*/*}/*/${NEW_ACTION_REPO##*/}"
-            NEW_ACTION_DIR="${NEW_ACTION_REPO%/*}"
+          # if there's more than one / in the repo, make sure to capture the directory structure
+          if [[ $(echo "$NEW_USE" | grep -o '/' | wc -l) -gt 1 ]]; then
+            NEW_ACTION_REPO="${NEW_USE%/*}"  # everything before the last /
+            NEW_ACTION_DIR="${NEW_USE##*/}"  # path, if any, after the last /"
+          else
+            NEW_ACTION_REPO="${NEW_USE%@*}"
+            NEW_ACTION_DIR=""
           fi
           NEW_REF="${NEW_USE##*@}"
           NEW_REF="${NEW_REF%%#*}" # Remove anything after a '#'
