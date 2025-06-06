@@ -23,6 +23,8 @@ jobs:
     outputs:
       old_action_repo: ${{ steps.action-info.outputs.old_action_repo }}
       new_action_repo: ${{ steps.action-info.outputs.new_action_repo }}
+      old_action_dir: ${{ steps.action-info.outputs.old_action_dir }}
+      new_action_dir: ${{ steps.action-info.outputs.new_action_dir }}
       old_ref: ${{ steps.action-info.outputs.old_ref }}
       new_ref: ${{ steps.action-info.outputs.new_ref }}
     steps:
@@ -55,6 +57,11 @@ jobs:
           OLD_USE="$(echo "$OLD_USE" | xargs)" # trim whitespace
           OLD_USE="${OLD_USE#uses:}"
           OLD_ACTION_REPO="${OLD_USE%@*}"
+          # if there's more than two / in the repo, make sure to capture the directory structure
+          if [[ $(echo "$OLD_ACTION_REPO" | grep -o '/' | wc -l) -gt 2 ]]; then
+            OLD_ACTION_REPO="${OLD_ACTION_REPO%/*/*}/*/${OLD_ACTION_REPO##*/}"
+            OLD_ACTION_DIR="${OLD_ACTION_REPO%/*}"
+          fi
           OLD_REF="${OLD_USE##*@}"
           OLD_REF="${OLD_REF%%#*}" # Remove anything after a '#'
 
@@ -62,11 +69,18 @@ jobs:
           NEW_USE="$(echo "$NEW_USE" | xargs)"
           NEW_USE="${NEW_USE#uses:}"
           NEW_ACTION_REPO="${NEW_USE%@*}"
+          # if there's more than two / in the repo, make sure to capture the directory structure
+          if [[ $(echo "$NEW_ACTION_REPO" | grep -o '/' | wc -l) -gt 2 ]]; then
+            NEW_ACTION_REPO="${NEW_ACTION_REPO%/*/*}/*/${NEW_ACTION_REPO##*/}"
+            NEW_ACTION_DIR="${NEW_ACTION_REPO%/*}"
+          fi
           NEW_REF="${NEW_USE##*@}"
           NEW_REF="${NEW_REF%%#*}" # Remove anything after a '#'
 
           echo "old_action_repo=$OLD_ACTION_REPO" >> "$GITHUB_OUTPUT"
           echo "new_action_repo=$NEW_ACTION_REPO" >> "$GITHUB_OUTPUT"
+          echo "old_action_dir=$OLD_ACTION_DIR" >> "$GITHUB_OUTPUT"
+          echo "new_action_dir=$NEW_ACTION_DIR" >> "$GITHUB_OUTPUT"
           echo "old_ref=$OLD_REF" >> "$GITHUB_OUTPUT"
           echo "new_ref=$NEW_REF" >> "$GITHUB_OUTPUT"
 
@@ -74,8 +88,10 @@ jobs:
         shell: bash
         run: |
           echo "Old Action repo: ${{ steps.action-info.outputs.old_action_repo }}"
+          echo "Old Action dir: ${{ steps.action-info.outputs.old_action_dir }}"
           echo "Old ref: ${{ steps.action-info.outputs.old_ref }}"
           echo "New Action repo: ${{ steps.action-info.outputs.new_action_repo }}"
+          echo "New Action dir: ${{ steps.action-info.outputs.new_action_dir }}"
           echo "New ref: ${{ steps.action-info.outputs.new_ref }}"
 
   malcontent:
@@ -98,6 +114,10 @@ jobs:
         shell: bash
         working-directory: ${{ github.workspace }}/prior-commit
         run: |
+          # change to the Action directory if specified
+          if [[ -n "${{ needs.extract-action-repo.outputs.old_action_dir }}" ]]; then
+            cd "${{ needs.extract-action-repo.outputs.old_action_dir }}"
+          fi
           # figure out type of Action
           type=$(yq '.runs.using' action.yml)
           if $type==docker; then
@@ -133,6 +153,10 @@ jobs:
         shell: bash
         working-directory: ${{ github.workspace }}/current-commit
         run: |
+          # change to the Action directory if specified
+          if [[ -n "${{ needs.extract-action-repo.outputs.new_action_dir }}" ]]; then
+            cd "${{ needs.extract-action-repo.outputs.new_action_dir }}"
+          fi
           # figure out type of Action
           type=$(yq '.runs.using' action.yml)
           if $type==docker; then
