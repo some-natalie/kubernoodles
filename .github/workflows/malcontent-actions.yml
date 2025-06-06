@@ -59,7 +59,7 @@ jobs:
           # if there's more than one / in the repo, make sure to capture the directory structure
           if [[ $(echo "$OLD_USE" | grep -o '/' | wc -l) -gt 1 ]]; then
             OLD_ACTION_REPO="${OLD_USE%/*}"  # everything before the last /
-            OLD_ACTION_DIR="${OLD_USE##*/}"  # path, if any, after the last /"
+            OLD_ACTION_DIR="${OLD_USE##*/%%@*}"  # path, if any, after the last /"
           else
             OLD_ACTION_REPO="${OLD_USE%@*}"
             OLD_ACTION_DIR=""
@@ -73,7 +73,7 @@ jobs:
           # if there's more than one / in the repo, make sure to capture the directory structure
           if [[ $(echo "$NEW_USE" | grep -o '/' | wc -l) -gt 1 ]]; then
             NEW_ACTION_REPO="${NEW_USE%/*}"  # everything before the last /
-            NEW_ACTION_DIR="${NEW_USE##*/}"  # path, if any, after the last /"
+            NEW_ACTION_DIR="${NEW_USE##*/%%@*}"  # path, if any, after the last /"
           else
             NEW_ACTION_REPO="${NEW_USE%@*}"
             NEW_ACTION_DIR=""
