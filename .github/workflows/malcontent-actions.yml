@@ -74,7 +74,7 @@ jobs:
           OLD_REF="${OLD_USE##*@}"
           OLD_REF="${OLD_REF%%#*}" # Remove anything after a '#'
 
-          NEW_USE="${NEW_ACTION_LINE#-}"
+          NEW_USE="${NEW_ACTION_LINE#+}"
           NEW_USE="$(echo "$NEW_USE" | xargs)" # trim whitespace
           NEW_USE="${NEW_USE#uses:}"
           # if there's more than one / in the repo, capture the directory structure
