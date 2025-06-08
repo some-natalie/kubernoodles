@@ -61,10 +61,10 @@ jobs:
           # if there's more than one / in the repo, capture the directory structure
           if [[ $(echo "$OLD_USE" | grep -o '/' | wc -l) -gt 1 ]]; then
             OLD_ACTION_ORG="${OLD_USE%%/*}" # everything before the first /
-            OLD_ACTION_REPO="${OLD_USE#*/}"         # remove the first /
+            OLD_ACTION_REPO="${OLD_USE#*/}" # remove the first /
             OLD_ACTION_REPO="${OLD_ACTION_REPO%%/*}" # everything before the next /
-            OLD_ACTION_DIR="${OLD_USE#*/}"   # everything after the first /
-            OLD_ACTION_DIR="${OLD_ACTION_DIR#*/}"   # do it again
+            OLD_ACTION_DIR="${OLD_USE#*/}" # everything after the first /
+            OLD_ACTION_DIR="${OLD_ACTION_DIR#*/}" # do it again
             OLD_ACTION_DIR="${OLD_ACTION_DIR%@*}" # remove anything after the @
           else
             OLD_ACTION_ORG="${OLD_USE%%/*}"
@@ -82,10 +82,10 @@ jobs:
           # if there's more than one / in the repo, capture the directory structure
           if [[ $(echo "$NEW_USE" | grep -o '/' | wc -l) -gt 1 ]]; then
             NEW_ACTION_ORG="${NEW_USE%%/*}" # everything before the first /
-            NEW_ACTION_REPO="${NEW_USE#*/}"         # remove the first /
+            NEW_ACTION_REPO="${NEW_USE#*/}" # remove the first /
             NEW_ACTION_REPO="${NEW_ACTION_REPO%%/*}" # everything before the next /
-            NEW_ACTION_DIR="${NEW_USE#*/}"   # everything after the first /
-            NEW_ACTION_DIR="${NEW_ACTION_DIR#*/}"   # do it again
+            NEW_ACTION_DIR="${NEW_USE#*/}" # everything after the first /
+            NEW_ACTION_DIR="${NEW_ACTION_DIR#*/}" # do it again
             NEW_ACTION_DIR="${NEW_ACTION_DIR%@*}" # remove anything after the @
           else
             NEW_ACTION_ORG="${NEW_USE%%/*}"
@@ -124,6 +124,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
     steps:
       # look at prior state
       - name: Checkout original code
@@ -140,28 +141,32 @@ jobs:
         run: |
           # change to the Action directory if specified
           if [[ -n "${{ needs.extract-action-repo.outputs.old_action_dir }}" ]]; then
-            cd "${{ needs.extract-action-repo.outputs.old_action_dir }}"
+            echo "changing directory to ${{ needs.extract-action-repo.outputs.new_action_dir }}"
+            cd "${{ needs.extract-action-repo.outputs.old_action_dir }}" || true
+          fi
+          # rename action.yml to action.yaml if it exists
+          if [[ -f action.yaml ]]; then
+            mv action.yaml action.yml
           fi
           # figure out type of Action
           type=$(yq '.runs.using' action.yml)
-          if $type==docker; then
+          echo "OLD_ACTION_TYPE=$type" >> $GITHUB_ENV
+          if [[ $type == docker ]]; then
             image=$(yq '.runs.image' action.yml)
             if [[ $image == "Dockerfile" ]]; then
               echo "This Action uses a Dockerfile, building it..."
-              docker build -t prior-action-image .
-              docker save prior-action-image -o prior-action-image.tar
-              untar -xf prior-action-image.tar
+              docker build -t ghcr.io/${{ github.repo }}/prior-action-image:latest .
+              docker push ghcr.io/${{ github.repo }}/prior-action-image:latest
+              echo "OLD_ACTION_IMAGE=ghcr.io/${{ github.repo }}/prior-action-image:latest" >> $GITHUB_ENV
             else
               echo "This Action uses a pre-built Docker image: $image"
-              docker pull $image
-              docker save $image -o prior-action-image.tar
-              untar -xf prior-action-image.tar
+              echo "OLD_ACTION_IMAGE=$(echo $image | cut -d'/' -f3-)" >> $GITHUB_ENV
             fi
           elif [[ $type == node* ]]; then
             echo "This Action uses Node.js, installing dependencies..."
             npm install
           elif [[ $type == composite* ]]; then
-            echo "This is a composite Action, skipping build."
+            echo "The original Action is a composite Action, skipping build." >> $GITHUB_STEP_SUMMARY
           fi
 
       # look at current commit
@@ -175,39 +180,50 @@ jobs:
 
       - name: Setup new code
         shell: bash
+        id: setup-new-action
         working-directory: ${{ github.workspace }}/current-commit
         run: |
           # change to the Action directory if specified
           if [[ -n "${{ needs.extract-action-repo.outputs.new_action_dir }}" ]]; then
-            cd "${{ needs.extract-action-repo.outputs.new_action_dir }}"
+            echo "changing directory to ${{ needs.extract-action-repo.outputs.new_action_dir }}"
+            cd "${{ needs.extract-action-repo.outputs.new_action_dir }}" || true
+          fi
+          # rename action.yml to action.yaml if it exists
+          if [[ -f action.yaml ]]; then
+            mv action.yaml action.yml
           fi
           # figure out type of Action
           type=$(yq '.runs.using' action.yml)
-          if $type==docker; then
+          echo "NEW_ACTION_TYPE=$type" >> $GITHUB_ENV
+          if [[ $type == docker ]]; then
             image=$(yq '.runs.image' action.yml)
             if [[ $image == "Dockerfile" ]]; then
               echo "This Action uses a Dockerfile, building it..."
-              docker build -t prior-action-image .
-              docker save prior-action-image -o prior-action-image.tar
-              untar -xf prior-action-image.tar
+              docker build -t ghcr.io/${{ github.repo }}/prior-action-image:latest .
+              docker push ghcr.io/${{ github.repo }}/new-action-image:latest
+              echo "NEW_ACTION_IMAGE=ghcr.io/${{ github.repo }}/new-action-image:latest" >> $GITHUB_ENV
             else
               echo "This Action uses a pre-built Docker image: $image"
-              docker pull $image
-              docker save $image -o prior-action-image.tar
-              untar -xf prior-action-image.tar
+              echo "NEW_ACTION_IMAGE=$(echo $image | cut -d'/' -f3-)" >> $GITHUB_ENV
             fi
           elif [[ $type == node* ]]; then
             echo "This Action uses Node.js, installing dependencies..."
             npm install
           elif [[ $type == composite* ]]; then
-            echo "This is a composite Action, skipping build."
+            echo "The proposed new Action is a composite Action, skipping build." >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Analyze the files
         id: malcontent
         shell: bash
         run: |
-          docker run --rm --user 0 -v ${{ github.workspace }}:/tmp cgr.dev/chainguard/malcontent:latest --format=markdown --min-file-risk=high diff /tmp/prior-commit /tmp/current-commit >> malcontent-results.md
+          if [[ "${{ env.OLD_ACTION_TYPE }}" == "docker" && "${{ env.NEW_ACTION_TYPE }}" == "docker" ]]; then
+            echo "Original image ${{ env.OLD_ACTION_IMAGE }}"
+            echo "Proposed new image ${{ env.NEW_ACTION_IMAGE }}"
+            docker run --rm --privileged -v /var/run/docker.sock:/var/run/docker.sock --user 0 -v ${{ github.workspace }}:/tmp cgr.dev/chainguard/malcontent:latest --format=markdown diff -i ${{ env.OLD_ACTION_IMAGE}} ${{ env.NEW_ACTION_IMAGE }} >> malcontent-results.md
+          else
+            docker run --rm --user 0 -v ${{ github.workspace }}:/tmp cgr.dev/chainguard/malcontent:latest --format=markdown --min-file-risk=high diff /tmp/prior-commit /tmp/current-commit >> malcontent-results.md
+          fi
 
       - name: Add comment if results are empty
         shell: bash
