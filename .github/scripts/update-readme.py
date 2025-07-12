@@ -31,6 +31,15 @@ image_list = [
         "notes": "n/a",
     },
     {
+        "shortname": "ubi10",
+        "fulltag": "ghcr.io/some-natalie/kubernoodles/ubi10:latest",
+        "baseimage": "[ubi10-init:10.0](https://catalog.redhat.com/software/containers/ubi10-init/66f2aabb701371ba5f56497a?image=686bd755edf0de590015a72d&container-tabs=overview)",
+        "architectures": "x86_64<br>arm64",
+        "virtualization": ":x:",
+        "sudo": ":x:",
+        "notes": "n/a",
+    },
+    {
         "shortname": "rootless-ubuntu-jammy",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest",
         "baseimage": "[ubuntu:jammy](https://hub.docker.com/_/ubuntu) (22.04 LTS)",
