@@ -2,9 +2,9 @@ FROM cgr.dev/chainguard/wolfi-base:latest AS build
 
 # Arguments
 ARG TARGETPLATFORM
-ARG RUNNER_VERSION=2.324.0
+ARG RUNNER_VERSION=2.326.0
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
-ARG DOTNET_VERSION=8
+ARG DOTNET_VERSION=9
 
 # Set up the non-root user (runner)
 RUN addgroup -S runner && adduser -S runner -G runner
