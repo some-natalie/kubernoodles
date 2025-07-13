@@ -1,0 +1,96 @@
+FROM registry.access.redhat.com/ubi10-init:10.0 AS build
+
+# Arguments
+ARG TARGETPLATFORM
+ARG RUNNER_VERSION=2.326.0
+ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
+
+# Shell setup
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# The UID env var should be used in child Containerfile.
+ENV UID=1000
+ENV GID=0
+ENV USERNAME="runner"
+
+# Install software
+RUN dnf update -y \
+  && dnf install dnf-plugins-core -y \
+  && dnf install -y \
+  git \
+  jq \
+  krb5-libs \
+  libicu \
+  libyaml-devel \
+  openssl-libs \
+  openssl \
+  passwd \
+  rpm-build \
+  vim \
+  wget \
+  yum-utils \
+  zlib \
+  && dnf clean all
+
+# Red Hat moved lttng to a separate repo in UBI 10, use Rocky EL 10 instead
+RUN curl -f -L -o lttng-ust.rpm https://dl.rockylinux.org/stg/rocky/10/CRB/$(arch)/os/Packages/l/lttng-ust-2.13.7-5.el10.$(arch).rpm \
+  && dnf install -y ./lttng-ust.rpm \
+  && rm lttng-ust.rpm
+
+# This is to mimic the OpenShift behaviour of adding the dynamic user to group 0.
+RUN useradd -G 0 $USERNAME
+ENV HOME=/home/${USERNAME}
+
+# Make and set the working directory
+RUN mkdir -p /home/runner \
+  && chown -R $USERNAME:$GID /home/runner
+
+WORKDIR /home/runner
+
+# Install GitHub CLI
+COPY images/software/gh-cli.sh gh-cli.sh
+RUN bash gh-cli.sh && rm gh-cli.sh
+
+# Install kubectl
+COPY images/software/kubectl.sh kubectl.sh
+RUN bash kubectl.sh && rm kubectl.sh
+
+# Install helm
+COPY images/software/get-helm.sh /helm.sh
+RUN bash /helm.sh && rm /helm.sh
+
+RUN test -n "$TARGETPLATFORM" || (echo "TARGETPLATFORM must be set" && false)
+
+# Runner download supports amd64 as x64
+RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+  && if [ "$ARCH" = "amd64" ]; then export ARCH=x64 ; fi \
+  && curl -L -o runner.tar.gz https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${ARCH}-${RUNNER_VERSION}.tar.gz \
+  && tar xzf ./runner.tar.gz \
+  && rm runner.tar.gz \
+  && ./bin/installdependencies.sh \
+  && dnf clean all
+
+# Install container hooks
+RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-container-hooks/releases/download/v${RUNNER_CONTAINER_HOOKS_VERSION}/actions-runner-hooks-k8s-${RUNNER_CONTAINER_HOOKS_VERSION}.zip \
+  && unzip ./runner-container-hooks.zip -d ./k8s \
+  && rm runner-container-hooks.zip
+
+# Squash it!
+FROM scratch AS final
+
+LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
+LABEL org.opencontainers.image.path="images/ubi9.Dockerfile"
+LABEL org.opencontainers.image.title="ubi9"
+LABEL org.opencontainers.image.description="A RedHat UBI 9 based runner image for GitHub Actions"
+LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
+
+# The UID env var should be used in child Containerfile.
+ENV UID=1000
+ENV GID=0
+ENV USERNAME="runner"
+
+USER $USERNAME
+
+COPY --from=build / /
