@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/ubi10-init:10.0 AS build
 
 # Arguments
 ARG TARGETPLATFORM
-ARG RUNNER_VERSION=2.326.0
+ARG RUNNER_VERSION=2.327.0
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
 
 # Shell setup
