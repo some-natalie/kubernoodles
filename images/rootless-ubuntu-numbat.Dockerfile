@@ -1,7 +1,7 @@
 FROM ubuntu:24.04 AS build
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.327.0
+ARG RUNNER_VERSION=2.327.1
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
 
 # Docker and Compose arguments
