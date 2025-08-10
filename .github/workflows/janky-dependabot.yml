@@ -54,7 +54,7 @@ jobs:
           }'
 
           RESPONSE=$(curl -X POST \
-            -H "Authorization: bearer ${{ steps.octo-sts.outputs.token }}" \
+            -H "Authorization: bearer ${{ secrets.COPILOT_USER }}" \
             -H "Content-Type: application/json" \
             --data-raw "{\"query\": \"$(echo $REPO_QUERY | tr -d '\n' | sed 's/"/\\"/g')\"}" \
             https://api.github.com/graphql)
