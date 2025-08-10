@@ -92,7 +92,7 @@ jobs:
             --argjson body "$ESCAPED_BODY" \
             --arg copilotId "${{ steps.copilot-check.outputs.COPILOT_ID }}" \
             '{
-              query: "mutation($repoId: ID!, $title: String!, $body: String!, $copilotId: ID!) { createIssue(input: { repositoryId: $repoId, title: $title, body: $body, assigneeIds: [$copilotId] }) { issue { id number title url assignees(first: 10) { nodes { login } } } } }",
+              query: "mutation($repoId: ID!, $title: String!, $body: String!, $copilotId: String!) { createIssue(input: { repositoryId: $repoId, title: $title, body: $body, assigneeIds: [$copilotId] }) { issue { id number title url assignees(first: 10) { nodes { login } } } } }",
               variables: {
                 repoId: $repoId,
                 title: $title,
