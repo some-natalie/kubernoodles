@@ -91,10 +91,22 @@ docker build -f images/ubi8.Dockerfile -t syntax-test . --target build 2>&1 | he
 ### Testing Strategy
 
 This project uses **End-to-End testing only** - no unit tests. The test cycle is:
-1. Build Docker image and push to registry
-2. Deploy to Kubernetes cluster as GitHub Actions runner  
-3. Run tests as GitHub Actions workflows
-4. Clean up deployment
+1. Build Docker image and push to registry (15-45 minutes)
+2. Deploy to Kubernetes cluster as GitHub Actions runner (5-10 minutes)
+3. Run tests as GitHub Actions workflows (5-10 minutes)  
+4. Clean up deployment (2-5 minutes)
+
+**Total test cycle time: 25-70 minutes per image. NEVER CANCEL.**
+
+#### Test Workflow Structure
+```bash
+# Each test workflow follows this pattern:
+.github/workflows/test-{image}.yml
+├── build job    # Build and push test image
+├── deploy job   # Deploy to test Kubernetes namespace  
+├── test job     # Run actual tests (timeout: 15 minutes)
+└── cleanup job  # Remove deployment (runs even if tests fail)
+```
 
 #### Manual Validation Scenarios
 
@@ -176,6 +188,18 @@ images/wolfi.Dockerfile
 
 # ls tests/ should show:
 cache/  container/  debug/  docker/  podman/  sudo-fails/  sudo-works/
+```
+
+#### Dependency Management
+```bash
+# Check current versions in all images
+grep -r "ARG.*_VERSION" images/*.Dockerfile | sort
+
+# Verify version consistency across images (should show single version)
+grep "RUNNER_VERSION" images/*.Dockerfile | cut -d'=' -f2 | sort -u
+
+# Never update dependencies manually - use automated dependency bump workflow
+# See "AI Image Dependency Bump Workflow" section below for process
 ```
 
 ### Network Requirements and Enterprise Considerations
