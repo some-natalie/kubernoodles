@@ -36,7 +36,7 @@ jobs:
         run: |
           # Get repository ID and check for Copilot
           REPO_QUERY='query {
-            repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
+            repository(owner: "${{ github.repository_owner }}", name: "kubernoodles") {
               id
               suggestedActors(capabilities: [CAN_BE_ASSIGNED], first: 100) {
                 nodes {
