@@ -80,33 +80,32 @@ jobs:
           echo "Repository ID: ${{ steps.copilot-check.outputs.REPO_ID }}"
           echo "Copilot ID: ${{ steps.copilot-check.outputs.COPILOT_ID }}"
 
-          # Prepare the GraphQL mutation
-          MUTATION='mutation {
-            createIssue(input: {
-              repositoryId: "${{ steps.copilot-check.outputs.REPO_ID }}",
-              title: "${{ steps.extract.outputs.title }} for '"$DATE"'",
-              body: "${{ steps.extract.outputs.body }}",
-              assigneeIds: ["${{ steps.copilot-check.outputs.COPILOT_ID }}"]
-            }) {
-              issue {
-                id
-                number
-                title
-                url
-                assignees(first: 10) {
-                  nodes {
-                    login
-                  }
-                }
+          # Create the GraphQL mutation with proper JSON escaping
+          # First escape the body content for JSON
+          ESCAPED_BODY=$(echo '${{ steps.extract.outputs.body }}' | jq -Rs .)
+          ESCAPED_TITLE=$(echo '${{ steps.extract.outputs.title }}' | jq -Rs .)
+
+          # Build the JSON payload
+          JSON_PAYLOAD=$(jq -n \
+            --arg repoId "${{ steps.copilot-check.outputs.REPO_ID }}" \
+            --arg title "${{ steps.extract.outputs.title }} for $DATE" \
+            --argjson body "$ESCAPED_BODY" \
+            --arg copilotId "${{ steps.copilot-check.outputs.COPILOT_ID }}" \
+            '{
+              query: "mutation($repoId: ID!, $title: String!, $body: String!, $copilotId: ID!) { createIssue(input: { repositoryId: $repoId, title: $title, body: $body, assigneeIds: [$copilotId] }) { issue { id number title url assignees(first: 10) { nodes { login } } } } }",
+              variables: {
+                repoId: $repoId,
+                title: $title,
+                body: $body,
+                copilotId: $copilotId
               }
-            }
-          }'
+            }')
 
           # Execute the mutation
           RESPONSE=$(curl -X POST \
             -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
-            --data-raw "{\"query\": \"$(echo $MUTATION | tr -d '\n' | sed 's/"/\\"/g')\"}" \
+            --data-raw "$JSON_PAYLOAD" \
             https://api.github.com/graphql)
 
           echo "Create issue response: $RESPONSE"
