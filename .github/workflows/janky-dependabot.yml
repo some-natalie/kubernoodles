@@ -1,4 +1,4 @@
-name: Update dependencies inside Dockerfiles
+name: Update dependencies with Copilot assignment
 
 on:
   workflow_dispatch: # build on demand
@@ -6,7 +6,7 @@ on:
     - cron: "27 5 * * 0" # build every Sunday at 5:27 AM UTC
 
 jobs:
-  create-issue:
+  create-and-assign-issue:
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -23,12 +23,112 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create issue
+      - name: Check if Copilot is enabled and get repository info
+        id: copilot-check
+        run: |
+          # Get repository ID and check for Copilot
+          REPO_QUERY='query {
+            repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
+              id
+              suggestedActors(capabilities: [CAN_BE_ASSIGNED], first: 100) {
+                nodes {
+                  login
+                  __typename
+                  ... on Bot {
+                    id
+                  }
+                  ... on User {
+                    id
+                  }
+                }
+              }
+            }
+          }'
+
+          RESPONSE=$(curl -X POST \
+            -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data-raw "{\"query\": \"$(echo $REPO_QUERY | tr -d '\n' | sed 's/"/\\"/g')\"}" \
+            https://api.github.com/graphql)
+
+          echo "GraphQL Response: $RESPONSE"
+
+          # Extract repository ID
+          REPO_ID=$(echo $RESPONSE | jq -r '.data.repository.id')
+          echo "REPO_ID=$REPO_ID" >> $GITHUB_OUTPUT
+
+          # Find Copilot bot ID
+          COPILOT_ID=$(echo $RESPONSE | jq -r '.data.repository.suggestedActors.nodes[] | select(.login == "copilot-swe-agent") | .id')
+          echo "COPILOT_ID=$COPILOT_ID" >> $GITHUB_OUTPUT
+
+          if [ "$COPILOT_ID" = "null" ] || [ -z "$COPILOT_ID" ]; then
+            echo "Copilot not found in suggested actors"
+            echo "COPILOT_ENABLED=false" >> $GITHUB_OUTPUT
+          else
+            echo "Copilot found with ID: $COPILOT_ID"
+            echo "COPILOT_ENABLED=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue and assign to Copilot
+        if: steps.copilot-check.outputs.COPILOT_ENABLED == 'true'
+        id: create-issue-copilot
+        run: |
+          # Get current date for title
+          DATE=$(date +%Y-%m-%d)
+
+          # Prepare the GraphQL mutation
+          MUTATION='mutation {
+            createIssue(input: {
+              repositoryId: "${{ steps.copilot-check.outputs.REPO_ID }}",
+              title: "${{ steps.extract.outputs.title }} for '"$DATE"'",
+              body: "${{ steps.extract.outputs.body }}",
+              assigneeIds: ["${{ steps.copilot-check.outputs.COPILOT_ID }}"]
+            }) {
+              issue {
+                id
+                number
+                title
+                url
+                assignees(first: 10) {
+                  nodes {
+                    login
+                  }
+                }
+              }
+            }
+          }'
+
+          # Execute the mutation
+          RESPONSE=$(curl -X POST \
+            -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data-raw "{\"query\": \"$(echo $MUTATION | tr -d '\n' | sed 's/"/\\"/g')\"}" \
+            https://api.github.com/graphql)
+
+          echo "Create issue response: $RESPONSE"
+
+          # Extract issue details
+          ISSUE_NUMBER=$(echo $RESPONSE | jq -r '.data.createIssue.issue.number')
+          ISSUE_URL=$(echo $RESPONSE | jq -r '.data.createIssue.issue.url')
+
+          echo "Created issue #$ISSUE_NUMBER: $ISSUE_URL"
+          echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+          echo "ISSUE_URL=$ISSUE_URL" >> $GITHUB_OUTPUT
+
+      - name: Fallback - Create issue without Copilot assignment
+        if: steps.copilot-check.outputs.COPILOT_ENABLED == 'false'
         uses: imjohnbo/issue-bot@572eed14422c4d6ca37e870f97e7da209422f5bd # v3.4.4
-        id: create-issue
+        id: create-issue-fallback
         with:
           title: "${{ steps.extract.outputs.title }} for ${{ env.date }}"
           body: ${{ steps.extract.outputs.body }}
-          assignees: "@copilot"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.copilot-check.outputs.COPILOT_ENABLED }}" == "true" ]; then
+            echo "✅ Issue created and assigned to Copilot: ${{ steps.create-issue-copilot.outputs.ISSUE_URL }}"
+          else
+            echo "⚠️ Copilot not available - issue created without assignment"
+          fi
