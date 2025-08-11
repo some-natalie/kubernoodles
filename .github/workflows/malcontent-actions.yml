@@ -31,7 +31,7 @@ jobs:
       new_ref: ${{ steps.action-info.outputs.new_ref }}
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
 
@@ -128,7 +128,7 @@ jobs:
     steps:
       # look at prior state
       - name: Checkout original code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: ${{ needs.extract-action-repo.outputs.old_action_org }}/${{ needs.extract-action-repo.outputs.old_action_repo }}
           ref: ${{ needs.extract-action-repo.outputs.old_ref }}
@@ -171,7 +171,7 @@ jobs:
 
       # look at current commit
       - name: Checkout the current code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: ${{ needs.extract-action-repo.outputs.new_action_org }}/${{ needs.extract-action-repo.outputs.new_action_repo }}
           ref: ${{ needs.extract-action-repo.outputs.new_ref }}
