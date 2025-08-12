@@ -55,6 +55,7 @@ RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
 
 # remove bundled nodejs and symlink to system nodejs
 RUN rm /home/runner/externals/node20/bin/node && ln -s /usr/bin/node /home/runner/externals/node20/bin/node
+RUN rm /home/runner/externals/node24/bin/node && ln -s /usr/bin/node /home/runner/externals/node24/bin/node
 
 # Install container hooks
 RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-container-hooks/releases/download/v${RUNNER_CONTAINER_HOOKS_VERSION}/actions-runner-hooks-k8s-${RUNNER_CONTAINER_HOOKS_VERSION}.zip \
