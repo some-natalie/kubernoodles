@@ -57,7 +57,7 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/kube-config
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
@@ -69,12 +69,11 @@ jobs:
             -f deployments/helm-ubi8-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.12.1
-
         env:
-          KUBECONFIG: /tmp/config
+          KUBECONFIG: /tmp/kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+        run: rm -f /tmp/kube-config
 
       - name: Wait 2 minutes to let the new pod come up
         run: sleep 120
@@ -114,16 +113,16 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/kube-config
 
       - name: Deploy
         run: |
           helm uninstall test-ubi8 --namespace "test-runners"
         env:
-          KUBECONFIG: /tmp/config
+          KUBECONFIG: /tmp/kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+        run: rm -f /tmp/kube-config
 
       - name: Output removal
         run: |
