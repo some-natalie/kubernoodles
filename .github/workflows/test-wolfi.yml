@@ -46,7 +46,7 @@ jobs:
 
   deploy:
     name: Deploy test image to `test-runners` namespace
-    runs-on: deploy-controller # use a self-hosted runner to deploy the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
     needs: [build]
     environment: test
 
@@ -91,7 +91,7 @@ jobs:
 
   remove-deploy:
     name: Delete test image deployment
-    runs-on: deploy-controller # use a self-hosted runner to remove the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
     needs: [test]
     environment: test
     if: always()
