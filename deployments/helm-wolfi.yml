@@ -31,7 +31,7 @@ template:
   spec:
     containers:
       - name: runner
-        image: ghcr.io/some-natalie/kubernoodles/wolfi-runner:latest
+        image: ghcr.io/some-natalie/kubernoodles/wolfi:latest
         command: ["/home/runner/run.sh"]
         securityContext:
           runAsUser: 100

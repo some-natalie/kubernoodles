@@ -31,7 +31,7 @@ template:
   spec:
     containers:
       - name: runner
-        image: ghcr.io/some-natalie/kubernoodles/wolfi-runner:test
+        image: ghcr.io/some-natalie/kubernoodles/wolfi:test
         imagePullPolicy: Always
         command: ["/home/runner/run.sh"]
         securityContext:
