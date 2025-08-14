@@ -31,7 +31,7 @@ template:
   spec:
     containers:
       - name: runner
-        image: ghcr.io/some-natalie/kubernoodles/wolfi-runner:test
+        image: ghcr.io/some-natalie/kubernoodles/wolfi:test
         imagePullPolicy: Always
         command: ["/home/runner/run.sh"]
         securityContext:
@@ -54,7 +54,8 @@ containerMode:
   type: "kubernetes"
   kubernetesModeWorkVolumeClaim:
     accessModes: ["ReadWriteOnce"]
-    storageClassName: "local-path"
+    # storageClassName: "local-path"
+    storageClassName: "k8s-mode"
     resources:
       requests:
         storage: 1Gi
