@@ -17,8 +17,8 @@ allowVolumeExpansion: true
 mountOptions:
   - dir_mode=0777
   - file_mode=0777
-  - uid=1001
-  - gid=1001
+  - uid=100
+  - gid=100
   - mfsymlinks
   - cache=strict
   - actimeo=30
