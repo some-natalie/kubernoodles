@@ -64,13 +64,17 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
+      - name: Create private key file
+        run: |
+          echo '${{ secrets.ARC_APP_PRIVATE_KEY }}' > private-key.pem
+
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
           helm install test-numbat-dind  \
             --namespace "test-runners" \
-            --set githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
-            --set githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
-            --set githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+            --set-string githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+            --set-string githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+            --set-file githubConfigSecret.github_app_private_key=private-key.pem \
             -f deployments/helm-numbat-dind-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.12.1
