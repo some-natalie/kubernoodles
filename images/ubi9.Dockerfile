@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/ubi9/ubi-init:9.6 AS build
 
 # Arguments
 ARG TARGETPLATFORM
-ARG RUNNER_VERSION=2.327.1
+ARG RUNNER_VERSION=2.328.0
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.7.0
 
 # Shell setup
