@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     name: Build test image
-    runs-on: ubuntu-24.04-arm # use the GitHub-hosted runner to build the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
 
     steps:
       - name: Set release id
@@ -46,13 +46,17 @@ jobs:
 
   deploy:
     name: Deploy test image to `test-runners` namespace
-    runs-on: deploy-controller # use a self-hosted runner to deploy the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
     needs: [build]
     environment: test
 
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/kube-config
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
@@ -65,7 +69,10 @@ jobs:
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
           --version 0.12.1
         env:
-          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
+          KUBECONFIG: /tmp/kube-config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/kube-config
 
   test:
     name: Run tests!
@@ -91,7 +98,7 @@ jobs:
 
   remove-deploy:
     name: Delete test image deployment
-    runs-on: deploy-controller # use a self-hosted runner to remove the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
     needs: [test]
     environment: test
     if: always()
@@ -100,11 +107,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
+      - name: Write out the kubeconfig info
+        run: |
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/kube-config
+
       - name: Deploy
         run: |
           helm uninstall test-wolfi --namespace "test-runners"
         env:
-          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
+          KUBECONFIG: /tmp/kube-config
+
+      - name: Remove kubeconfig info
+        run: rm -f /tmp/kube-config
 
       - name: Output removal
         run: |

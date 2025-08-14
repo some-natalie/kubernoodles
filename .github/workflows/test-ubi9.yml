@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build test image
-    runs-on: ubuntu-24.04-arm # use the GitHub-hosted runner to build the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
 
     steps:
       - name: Set release id
@@ -47,7 +47,7 @@ jobs:
 
   deploy:
     name: Deploy test image to `test-runners` namespace
-    runs-on: deploy-controller # use a self-hosted runner to deploy the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
     needs: [build]
     environment: test
 
@@ -57,7 +57,7 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/kube-config
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
@@ -69,12 +69,11 @@ jobs:
             -f deployments/helm-ubi9-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.12.1
-
         env:
-          KUBECONFIG: /tmp/config
+          KUBECONFIG: /tmp/kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+        run: rm -f /tmp/kube-config
 
       - name: Wait 2 minutes to let the new pod come up
         run: sleep 120
@@ -103,7 +102,7 @@ jobs:
 
   remove-deploy:
     name: Delete test image deployment
-    runs-on: deploy-controller # use a self-hosted runner to remove the image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
     needs: [test]
     environment: test
     if: always()
@@ -114,16 +113,16 @@ jobs:
 
       - name: Write out the kubeconfig info
         run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/config
+          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/kube-config
 
       - name: Deploy
         run: |
           helm uninstall test-ubi9 --namespace "test-runners"
         env:
-          KUBECONFIG: /tmp/config
+          KUBECONFIG: /tmp/kube-config
 
       - name: Remove kubeconfig info
-        run: rm -f /tmp/config
+        run: rm -f /tmp/kube-config
 
       - name: Output removal
         run: |
