@@ -1,5 +1,7 @@
 # GitHub Copilot Instructions for Kubernoodles
 
+**ALWAYS follow these instructions and only fallback to additional search and context gathering if the information here is incomplete or found to be in error.**
+
 This file provides instructions to GitHub Copilot for working effectively with the Kubernoodles repository.
 
 ## Repository Overview
@@ -10,6 +12,228 @@ Kubernoodles is a framework for managing custom self-hosted runners for GitHub A
 - **Kubernetes deployments**: Located in `/deployments/` - Kubernetes manifests for deploying runners
 - **Cluster configs**: Located in `/cluster-configs/` - Configuration files for different cluster setups
 - **Documentation**: Located in `/docs/` - Comprehensive guides and troubleshooting
+- **Tests**: Located in `/tests/` - End-to-end tests for validating runner images
+
+## Working Effectively with the Codebase
+
+### Development Environment Setup
+
+Do NOT try to set up a traditional local development environment. This is an infrastructure project that requires:
+- Docker for building container images
+- Access to external container registries (docker.io, quay.io, ghcr.io, registry.access.redhat.com, cgr.dev)
+- Kubernetes cluster for testing deployments
+- GitHub App credentials for runner registration
+
+### Building and Testing
+
+#### **CRITICAL BUILD TIMING**
+- **NEVER CANCEL builds or long-running commands** - Docker image builds take 15-45 minutes per image
+- Set timeouts to 60+ minutes for build commands
+- Multi-architecture builds (amd64 + arm64) take significantly longer
+- Test workflows take 15+ minutes (build→deploy→test→cleanup cycle)
+
+#### Build Commands
+```bash
+# Build a specific image (from repository root)
+docker build -f images/ubi8.Dockerfile -t test-runner:ubi8 .
+
+# Build with multi-architecture support
+docker buildx build --platform linux/amd64,linux/arm64 -f images/ubi8.Dockerfile -t test-runner:ubi8 .
+
+# Build all images (use the GitHub workflow instead)
+# See .github/workflows/build-latest.yml
+```
+
+#### Available Images
+
+Build any of these Dockerfiles in `/images/` (6 main production images):
+- `ubi8.Dockerfile` - Red Hat UBI 8 (rootful, no sudo)
+- `ubi9.Dockerfile` - Red Hat UBI 9 (rootful, no sudo)  
+- `ubi10.Dockerfile` - Red Hat UBI 10 (rootful, no sudo)
+- `rootless-ubuntu-jammy.Dockerfile` - Ubuntu 22.04 LTS with rootless Docker-in-Docker
+- `rootless-ubuntu-numbat.Dockerfile` - Ubuntu 24.04 LTS with rootless Docker-in-Docker  
+- `wolfi.Dockerfile` - Chainguard Wolfi (minimal, no sudo)
+
+**Additional specialized images:**
+- `ghes-demo.Dockerfile` - Demo image for GitHub Enterprise Server
+- `kaniko-build-test.Dockerfile` - Test image for Kaniko builds
+
+### Linting and Validation
+
+**ALWAYS validate changes before committing** using these commands:
+
+```bash
+# 1. Shell script linting (if modifying .sh files)
+shellcheck images/*.sh
+shellcheck images/software/*.sh
+
+# 2. The repository uses Super Linter via GitHub Actions
+# Trigger manually via GitHub UI or by creating PR
+# See .github/workflows/super-linter.yml
+
+# 3. Validate JSON files (if modifying deployments)
+find . -name "*.json" -exec python -m json.tool {} \;
+
+# 4. Basic Dockerfile syntax validation (will fail fast if major syntax errors)
+docker build -f images/ubi8.Dockerfile -t syntax-test . --target build 2>&1 | head -10
+```
+
+**Linting Configuration:**
+- `.github/linters/.hadolint.yaml` - Dockerfile linting rules
+- `.github/linters/.markdownlint.json` - Markdown formatting rules
+
+**The super-linter workflow validates:**
+- Dockerfile syntax and best practices (Hadolint)
+- Markdown formatting and links  
+- JSON syntax validation
+- Additional code quality checks
+
+### Testing Strategy
+
+This project uses **End-to-End testing only** - no unit tests. The test cycle is:
+1. Build Docker image and push to registry (15-45 minutes)
+2. Deploy to Kubernetes cluster as GitHub Actions runner (5-10 minutes)
+3. Run tests as GitHub Actions workflows (5-10 minutes)  
+4. Clean up deployment (2-5 minutes)
+
+**Total test cycle time: 25-70 minutes per image. NEVER CANCEL.**
+
+#### Test Workflow Structure
+```bash
+# Each test workflow follows this pattern:
+.github/workflows/test-{image}.yml
+├── build job    # Build and push test image
+├── deploy job   # Deploy to test Kubernetes namespace  
+├── test job     # Run actual tests (timeout: 15 minutes)
+└── cleanup job  # Remove deployment (runs even if tests fail)
+```
+
+#### Manual Validation Scenarios
+
+**After modifying Docker images:**
+1. Build the specific image locally (expect 15-45 minutes)
+2. Verify the image starts without errors
+3. Test that required software is installed correctly
+4. For rootless images: Verify Docker daemon starts in rootless mode
+5. For UBI images: Verify Podman/Buildah/Skopeo work correctly
+
+**After modifying deployments:**
+1. Deploy to test Kubernetes cluster
+2. Verify runner registers with GitHub successfully
+3. Run a basic workflow to test functionality
+4. Check resource limits and requests are appropriate
+
+**After modifying tests:**
+1. Run the specific test workflow
+2. Verify test results are accurate and meaningful
+3. Ensure cleanup happens properly
+
+**After modifying documentation:**
+1. Verify all links work correctly
+2. Test any example commands provided
+3. Ensure formatting is consistent
+
+### Common Development Tasks
+
+#### Repository Structure (key locations)
+```
+/images/                    # Docker images and build scripts
+  ├── software/            # Software installation scripts
+  ├── *.Dockerfile         # Image definitions
+  └── startup.sh           # Container startup scripts
+/deployments/              # Kubernetes Helm charts
+/cluster-configs/          # Cluster configuration files
+/tests/                    # End-to-end test definitions
+  ├── debug/               # Debug information tests
+  ├── docker/              # Docker functionality tests
+  ├── podman/              # Podman functionality tests
+  └── sudo-*/              # Sudo access tests
+/.github/workflows/        # Build, test, and deployment workflows
+/.github/linters/          # Linting configuration
+```
+
+#### Frequently Used Commands
+```bash
+# List all available Docker images to build
+find images -name "*.Dockerfile" -not -path "*/archive/*"
+
+# Check workflow status and build history
+ls .github/workflows/build-*.yml
+ls .github/workflows/test-*.yml
+
+# View current image versions and dependencies
+grep -r "ARG.*VERSION" images/*.Dockerfile
+
+# Validate Dockerfile syntax (basic check - will fail early if syntax issues)  
+docker build -f images/ubi8.Dockerfile -t syntax-test:latest . --no-cache --target build 2>&1 | head -20
+
+# Check test definitions
+ls tests/*/action.yml
+
+# Lint shell scripts in the repository  
+find images -name "*.sh" -exec shellcheck {} \;
+```
+
+#### Expected Command Outputs
+```bash
+# find images -name "*.Dockerfile" should show:
+images/ghes-demo.Dockerfile
+images/kaniko-build-test.Dockerfile  
+images/rootless-ubuntu-jammy.Dockerfile
+images/rootless-ubuntu-numbat.Dockerfile
+images/ubi8.Dockerfile
+images/ubi9.Dockerfile
+images/ubi10.Dockerfile
+images/wolfi.Dockerfile
+
+# ls tests/ should show:
+cache/  container/  debug/  docker/  podman/  sudo-fails/  sudo-works/
+```
+
+#### Dependency Management
+```bash
+# Check current versions in all images
+grep -r "ARG.*_VERSION" images/*.Dockerfile | sort
+
+# Verify version consistency across images (should show single version)
+grep "RUNNER_VERSION" images/*.Dockerfile | cut -d'=' -f2 | sort -u
+
+# Never update dependencies manually - use automated dependency bump workflow
+# See "AI Image Dependency Bump Workflow" section below for process
+```
+
+### Network Requirements and Enterprise Considerations
+
+This project is designed for enterprise environments and requires:
+- Access to multiple container registries (Red Hat, Docker Hub, GitHub, Chainguard)
+- Kubernetes cluster with appropriate RBAC permissions
+- GitHub App credentials for runner registration
+- Potential proxy/firewall configurations for restricted networks
+
+**Network failures are common** in restricted environments. The build process requires downloading from:
+- registry.access.redhat.com (for UBI images)
+- docker.io (for Ubuntu images)
+- cgr.dev (for Wolfi images)  
+- External package repositories (yum, apt, apk)
+
+If builds fail with network errors, this is expected in sandbox/restricted environments.
+
+### Troubleshooting Common Issues
+
+#### Build Failures
+- **Network timeouts**: Expected in restricted environments - builds require external registry access
+- **"repository not found"**: Check if base images are accessible from your network
+- **"dnf/apt update failed"**: Package repository access blocked by firewall/proxy
+
+#### Test Failures  
+- **"runner failed to connect"**: GitHub App credentials or network connectivity issues
+- **"pod failed to start"**: Resource limits, image pull failures, or Kubernetes RBAC issues
+- **"timeout waiting for pod"**: Kubernetes cluster performance or resource constraints
+
+#### Validation Failures
+- **Shellcheck warnings**: Generally safe to ignore SC1091 (sourcing files not in path)
+- **Hadolint warnings**: Review `.hadolint.yaml` for acceptable exceptions
+- **Markdown lint**: Check `.markdownlint.json` for formatting rules
 
 ## AI Image Dependency Bump Workflow
 
