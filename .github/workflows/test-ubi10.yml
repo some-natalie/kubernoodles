@@ -55,9 +55,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Write out the kubeconfig info
-        run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/kube-config
+      - name: Install Helm
+        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
+
+      - name: Configure Kubeconfig
+        uses: azure/k8s-set-context@212a19233d93f03eceaac31ae5a1d1acf650b6ef # v4.0.1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         run: |
@@ -69,11 +74,6 @@ jobs:
             -f deployments/helm-ubi10-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.12.1
-        env:
-          KUBECONFIG: /tmp/kube-config
-
-      - name: Remove kubeconfig info
-        run: rm -f /tmp/kube-config
 
       - name: Wait 2 minutes to let the new pod come up
         run: sleep 120
@@ -111,18 +111,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Write out the kubeconfig info
-        run: |
-          echo ${{ secrets.DEPLOY_ACCOUNT }} | base64 -d > /tmp/kube-config
+      - name: Install Helm
+        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
+
+      - name: Configure Kubeconfig
+        uses: azure/k8s-set-context@212a19233d93f03eceaac31ae5a1d1acf650b6ef # v4.0.1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
       - name: Deploy
         run: |
           helm uninstall test-ubi10 --namespace "test-runners"
-        env:
-          KUBECONFIG: /tmp/kube-config
-
-      - name: Remove kubeconfig info
-        run: rm -f /tmp/kube-config
 
       - name: Output removal
         run: |
