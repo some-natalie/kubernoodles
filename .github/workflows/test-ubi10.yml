@@ -75,9 +75,6 @@ jobs:
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.12.1
 
-      - name: Wait 2 minutes to let the new pod come up
-        run: sleep 120
-
   test:
     name: Run tests!
     runs-on: [test-ubi10]
