@@ -6,8 +6,6 @@ This is an _opinionated_ reference implementation, designed to be taken and modi
 
 :question: Are you a GitHub Enterprise admin that's new to GitHub Actions?  Don't know how to set up self-hosted runners at scale?  Start [here](https://some-natalie.dev/blog/arch-guide-to-selfhosted-actions/)!
 
-Pull requests welcome! :heart:
-
 ## Setup
 
 The [admin introduction](https://some-natalie.dev/blog/arch-guide-to-selfhosted-actions/) walks you through some key considerations on _how_ to think about implementing GitHub Actions at the enterprise scale, the implications of those decisions, and why this project is generally built out the way it is.
