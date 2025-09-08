@@ -55,7 +55,7 @@ Build any of these Dockerfiles in `/images/` (6 main production images):
 - `wolfi.Dockerfile` - Chainguard Wolfi (minimal, no sudo)
 
 **Additional specialized images:**
-- `ghes-demo.Dockerfile` - Demo image for GitHub Enterprise Server
+- `ghes-demo.Dockerfile` - Demo image for GitHub Enterprise Server.  Do not update or change anything in this file.
 - `kaniko-build-test.Dockerfile` - Test image for Kaniko builds
 
 ### Linting and Validation
