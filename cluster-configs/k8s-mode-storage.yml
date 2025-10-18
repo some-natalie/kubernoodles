@@ -12,7 +12,7 @@ apiVersion: storage.k8s.io/v1
 metadata:
   name: k8s-mode
   namespace: test-runners
-provisioner: file.csi.azure.com # replace with "kubernetes.io/azure-file" if aks version is less than 1.21
+provisioner: local-path # "file.csi.azure.com" for aks or "kubernetes.io/azure-file" if aks version is less than 1.21
 allowVolumeExpansion: true
 mountOptions:
   - dir_mode=0777
@@ -41,7 +41,7 @@ apiVersion: storage.k8s.io/v1
 metadata:
   name: k8s-mode
   namespace: ghec-runners
-provisioner: file.csi.azure.com # replace with "kubernetes.io/azure-file" if aks version is less than 1.21
+provisioner: local-path # "file.csi.azure.com" for aks or "kubernetes.io/azure-file" if aks version is less than 1.21
 allowVolumeExpansion: true
 mountOptions:
   - dir_mode=0777
