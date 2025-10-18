@@ -32,7 +32,6 @@ template:
     containers:
       - name: runner
         image: ghcr.io/some-natalie/kubernoodles/wolfi:test
-        imagePullPolicy: Always
         command: ["/home/runner/run.sh"]
         securityContext:
           runAsUser: 100
@@ -49,6 +48,16 @@ template:
         volumeMounts:
           - name: work
             mountPath: /home/runner/_work
+    volumes:
+      - name: work
+        ephemeral:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              storageClassName: "local-path"
+              resources:
+                requests:
+                  storage: 1Gi
 
 containerMode:
   type: "kubernetes"
