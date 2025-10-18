@@ -48,16 +48,6 @@ template:
         volumeMounts:
           - name: work
             mountPath: /home/runner/_work
-    volumes:
-      - name: work
-        ephemeral:
-          volumeClaimTemplate:
-            spec:
-              accessModes: ["ReadWriteOnce"]
-              storageClassName: "local-path"
-              resources:
-                requests:
-                  storage: 1Gi
 
 containerMode:
   type: "kubernetes"
