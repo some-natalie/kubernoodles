@@ -35,7 +35,7 @@ template:
     initContainers:
       - name: init-dind-externals
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         command:
           ["cp", "-r", "/home/runner/externals/.", "/home/runner/tmpDir/"]
         volumeMounts:
@@ -45,7 +45,7 @@ template:
         image: docker:dind-rootless
         env:
           - name: DOCKER_GROUP_GID
-            value: "1001" # align to the UID in the runner
+            value: "1000" # align to the UID in the runner
           - name: DOCKER_HOST
             value: unix:///run/user/1000/docker.sock
         securityContext:
@@ -71,7 +71,7 @@ template:
     containers:
       - name: runner
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         command: ["/home/runner/run.sh"]
         env:
           - name: DOCKER_HOST
