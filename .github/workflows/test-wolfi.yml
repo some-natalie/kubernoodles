@@ -78,7 +78,7 @@ jobs:
             --namespace "arc-systems" \
             --create-namespace \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller \
-            --set image.tag=0.12.1
+            --set image.tag=0.13.0
 
       - name: Create private key file
         run: |
@@ -93,7 +93,7 @@ jobs:
           --set-file githubConfigSecret.github_app_private_key=private-key.pem \
           -f deployments/helm-wolfi-test.yml \
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-          --version 0.12.1
+          --version 0.13.0
 
       - name: Sleep for 5 minutes to run tests on the runners
         shell: bash
