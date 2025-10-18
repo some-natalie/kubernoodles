@@ -66,6 +66,8 @@ jobs:
       - name: Set up local storage
         shell: bash
         run: |
+          kubectl create namespace "test-runners"
+          kubectl create namespace "ghec-runners"
           kubectl apply -f ./cluster-configs/k8s-mode-storage.yml
           kubectl apply -f ./cluster-configs/runner-role.yml
 
@@ -80,11 +82,6 @@ jobs:
             --create-namespace \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller \
             --set image.tag=0.12.1
-
-      - name: Create namespaces
-        shell: bash
-        run: |
-          kubectl create namespace "test-runners"
 
       - name: Create private key file
         shell: bash
