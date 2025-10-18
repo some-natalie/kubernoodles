@@ -113,7 +113,7 @@ jobs:
   test:
     name: Run tests!
     runs-on: [test-wolfi]
-    needs: [deploy]
+    needs: [build]
     timeout-minutes: 5
 
     steps:

@@ -114,7 +114,7 @@ jobs:
   test:
     name: Run tests!
     runs-on: [test-jammy-dind]
-    needs: [deploy]
+    needs: [build]
     timeout-minutes: 5
 
     steps:
