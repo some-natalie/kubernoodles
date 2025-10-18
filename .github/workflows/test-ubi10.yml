@@ -18,9 +18,11 @@ jobs:
 
     steps:
       - name: Set release id
+        shell: bash
         run: echo "SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Set up build summary
+        shell: bash
         run: |
           echo '### Build summary 🚀' >> $GITHUB_STEP_SUMMARY
           echo ' ' >> $GITHUB_STEP_SUMMARY
@@ -55,20 +57,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
+      # set up minikube
+      - name: Set up minikube on the runner
+        uses: medyagh/setup-minikube@5162ff23a2613f64e1f7298e5bb47514db073347 # latest
+
+      # set up cluster configs
+      # local storage and the runner role for the k8s mode runner hooks
+      - name: Set up local storage
+        shell: bash
+        run: |
+          kubectl create namespace "test-runners"
+          kubectl create namespace "ghec-runners"
+          kubectl apply -f ./cluster-configs/k8s-mode-storage.yml
+          kubectl apply -f ./cluster-configs/runner-role.yml
+
       - name: Install Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
 
-      - name: Configure Kubeconfig
-        uses: azure/k8s-set-context@212a19233d93f03eceaac31ae5a1d1acf650b6ef # v4.0.1
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+      - name: Deploy ARC
+        shell: bash
+        run: |
+          helm install arc \
+            --namespace "arc-systems" \
+            --create-namespace \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller \
+            --set image.tag=0.12.1
 
       - name: Create private key file
+        shell: bash
         run: |
           echo '${{ secrets.ARC_APP_PRIVATE_KEY }}' > private-key.pem
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
+        shell: bash
         run: |
           helm install test-ubi10  \
             --namespace "test-runners" \
@@ -79,14 +100,30 @@ jobs:
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.12.1
 
+      - name: Sleep for 5 minutes to run tests on the runners
+        shell: bash
+        run: sleep 300
+
+      - name: Remove the runner deployment
+        shell: bash
+        run: |
+          helm uninstall test-ubi10 --namespace "test-runners"
+
+      - name: Output removal
+        shell: bash
+        run: |
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
+
   test:
     name: Run tests!
     runs-on: [test-ubi10]
-    needs: [deploy]
-    timeout-minutes: 15
+    needs: [build]
+    timeout-minutes: 5
 
     steps:
       - name: Setup test summary
+        shell: bash
         run: |
           echo '### Test summary 🧪' >> $GITHUB_STEP_SUMMARY
           echo ' ' >> $GITHUB_STEP_SUMMARY
@@ -100,32 +137,3 @@ jobs:
 
       - name: Sudo fails
         uses: ./tests/sudo-fails
-
-  remove-deploy:
-    name: Delete test image deployment
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
-    needs: [test]
-    environment: test
-    if: always()
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Install Helm
-        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
-
-      - name: Configure Kubeconfig
-        uses: azure/k8s-set-context@212a19233d93f03eceaac31ae5a1d1acf650b6ef # v4.0.1
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
-      - name: Deploy
-        run: |
-          helm uninstall test-ubi10 --namespace "test-runners"
-
-      - name: Output removal
-        run: |
-          echo ' ' >> $GITHUB_STEP_SUMMARY
-          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
