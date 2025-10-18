@@ -100,9 +100,9 @@ jobs:
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.12.1
 
-      - name: Sleep for 15 minutes to run tests on the runners
+      - name: Sleep for 5 minutes to run tests on the runners
         shell: bash
-        run: sleep 900
+        run: sleep 300
 
       - name: Remove the runner deployment
         shell: bash
@@ -119,7 +119,7 @@ jobs:
     name: Run tests!
     runs-on: [test-ubi8]
     needs: [build]
-    timeout-minutes: 15
+    timeout-minutes: 5
 
     steps:
       - name: Setup test summary
