@@ -19,10 +19,13 @@ githubConfigUrl: "https://github.com/some-natalie/kubernoodles"
 ### GitHub PAT Configuration
 # github_token: ""
 
-## maxRunners is the max number of runners the auto scaling runner set will scale up to.
+# runnerGroup: "default"
+
+## maxRunners is the max number of runners the autoscaling runner set will scale up to.
 maxRunners: 5
 
-## minRunners is the min number of runners the auto scaling runner set will scale down to.
+## minRunners is the min number of idle runners. The target number of runners created will be
+## calculated as a sum of minRunners and the number of jobs assigned to the scale set.
 minRunners: 1
 
 # runnerGroup: "default"
@@ -32,23 +35,23 @@ template:
     initContainers:
       - name: init-dind-externals
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Never
         command:
           ["cp", "-r", "/home/runner/externals/.", "/home/runner/tmpDir/"]
         volumeMounts:
           - name: dind-externals
             mountPath: /home/runner/tmpDir
       - name: dind
-        image: docker:dind
-        args:
-          - dockerd
-          - --host=unix:///var/run/docker.sock
-          - --group=$(DOCKER_GROUP_GID)
+        image: docker:dind-rootless
         env:
           - name: DOCKER_GROUP_GID
-            value: "1000"
+            value: "1001" # align to the UID in the runner
+          - name: DOCKER_HOST
+            value: unix:///run/user/1000/docker.sock
         securityContext:
           privileged: true
+          runAsUser: 1000
+          runAsGroup: 1000
         restartPolicy: Always
         startupProbe:
           exec:
@@ -68,10 +71,11 @@ template:
     containers:
       - name: runner
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest
+        imagePullPolicy: Never
         command: ["/home/runner/run.sh"]
         env:
           - name: DOCKER_HOST
-            value: unix:///var/run/docker.sock
+            value: unix:///run/user/1000/docker.sock
           - name: RUNNER_WAIT_FOR_DOCKER_IN_SECONDS
             value: "120"
         volumeMounts:
@@ -86,3 +90,5 @@ template:
         emptyDir: {}
       - name: dind-externals
         emptyDir: {}
+
+namespaceOverride: ""
