@@ -46,7 +46,7 @@ template:
           - --group=$(DOCKER_GROUP_GID)
         env:
           - name: DOCKER_GROUP_GID
-            value: "123"
+            value: "1000"
         securityContext:
           privileged: true
         restartPolicy: Always
@@ -68,7 +68,6 @@ template:
     containers:
       - name: runner
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest
-        imagePullPolicy: IfNotPresent
         command: ["/home/runner/run.sh"]
         env:
           - name: DOCKER_HOST
