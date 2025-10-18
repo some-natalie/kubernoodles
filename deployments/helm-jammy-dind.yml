@@ -34,10 +34,37 @@ template:
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest
         imagePullPolicy: IfNotPresent
         command:
-          ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
+          ["cp", "-r", "/home/runner/externals/.", "/home/runner/tmpDir/"]
         volumeMounts:
           - name: dind-externals
             mountPath: /home/runner/tmpDir
+      - name: dind
+        image: docker:dind
+        args:
+          - dockerd
+          - --host=unix:///var/run/docker.sock
+          - --group=$(DOCKER_GROUP_GID)
+        env:
+          - name: DOCKER_GROUP_GID
+            value: "123"
+        securityContext:
+          privileged: true
+        restartPolicy: Always
+        startupProbe:
+          exec:
+            command:
+              - docker
+              - info
+          initialDelaySeconds: 0
+          failureThreshold: 24
+          periodSeconds: 5
+        volumeMounts:
+          - name: work
+            mountPath: /home/runner/_work
+          - name: dind-sock
+            mountPath: /var/run
+          - name: dind-externals
+            mountPath: /home/runner/externals
     containers:
       - name: runner
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:latest
@@ -45,33 +72,18 @@ template:
         command: ["/home/runner/run.sh"]
         env:
           - name: DOCKER_HOST
-            value: tcp://localhost:2376
-          - name: DOCKER_TLS_VERIFY
-            value: "1"
-          - name: DOCKER_CERT_PATH
-            value: /certs/client
+            value: unix:///var/run/docker.sock
+          - name: RUNNER_WAIT_FOR_DOCKER_IN_SECONDS
+            value: "120"
         volumeMounts:
           - name: work
             mountPath: /home/runner/_work
-          - name: dind-cert
-            mountPath: /certs/client
-            readOnly: true
-      - name: dind
-        image: docker.io/docker:dind
-        imagePullPolicy: IfNotPresent
-        securityContext:
-          privileged: true
-        volumeMounts:
-          - name: work
-            mountPath: /home/runner/_work
-          - name: dind-cert
-            mountPath: /certs/client
-          - name: dind-externals
-            mountPath: /home/runner/externals
+          - name: dind-sock
+            mountPath: /var/run
     volumes:
       - name: work
         emptyDir: {}
-      - name: dind-cert
+      - name: dind-sock
         emptyDir: {}
       - name: dind-externals
         emptyDir: {}
