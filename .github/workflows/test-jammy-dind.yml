@@ -99,17 +99,17 @@ jobs:
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.13.0
 
-      - name: Wait a minute and print debug info
-        shell: bash
-        run: |
-          sleep 60
-          kubectl get pods -n "test-runners"
-          kubectl describe pods -n "test-runners" -v=9
-          # more logs
-          for pod in $(kubectl get pods -n "test-runners" -o jsonpath='{.items[*].metadata.name}'); do
-            echo "Logs for pod: $pod"
-            kubectl logs "$pod" -n "test-runners" --all-containers=true || echo "No logs for pod: $pod"
-          done
+      # - name: Wait a minute and print debug info
+      #   shell: bash
+      #   run: |
+      #     sleep 60
+      #     kubectl get pods -n "test-runners"
+      #     kubectl describe pods -n "test-runners" -v=9
+      #     # more logs
+      #     for pod in $(kubectl get pods -n "test-runners" -o jsonpath='{.items[*].metadata.name}'); do
+      #       echo "Logs for pod: $pod"
+      #       kubectl logs "$pod" -n "test-runners" --all-containers=true || echo "No logs for pod: $pod"
+      #     done
 
       - name: Sleep for 5 minutes to run tests on the runners
         shell: bash
