@@ -58,6 +58,9 @@ jobs:
       # set up minikube
       - name: Set up minikube on the runner
         uses: medyagh/setup-minikube@5162ff23a2613f64e1f7298e5bb47514db073347 # latest
+        with:
+          driver: none
+          container-runtime: docker
 
       # set up cluster configs
       # local storage and the runner role for the k8s mode runner hooks
