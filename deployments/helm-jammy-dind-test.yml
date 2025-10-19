@@ -43,6 +43,10 @@ template:
             mountPath: /home/runner/tmpDir
       - name: dind
         image: docker:dind
+        args:
+          - dockerd
+          - --host=unix:///var/run/docker.sock
+          - --group=$(DOCKER_GROUP_GID)
         env:
           - name: DOCKER_GROUP_GID
             value: "1000" # align to the UID in the runner
@@ -50,10 +54,6 @@ template:
             value: unix:///var/run/docker.sock
         securityContext:
           privileged: true
-          seccompProfile:
-            type: Unconfined
-          apparmorProfile:
-            type: Unconfined
         restartPolicy: Always
         startupProbe:
           exec:

@@ -42,16 +42,18 @@ template:
           - name: dind-externals
             mountPath: /home/runner/tmpDir
       - name: dind
-        image: docker:dind-rootless
+        image: docker:dind
+        args:
+          - dockerd
+          - --host=unix:///var/run/docker.sock
+          - --group=$(DOCKER_GROUP_GID)
         env:
           - name: DOCKER_GROUP_GID
             value: "1000" # align to the UID in the runner
           - name: DOCKER_HOST
-            value: unix:///run/user/1000/docker.sock
+            value: unix:///var/run/docker.sock
         securityContext:
           privileged: true
-          runAsUser: 1000
-          runAsGroup: 1000
         restartPolicy: Always
         startupProbe:
           exec:
@@ -75,7 +77,7 @@ template:
         command: ["/home/runner/run.sh"]
         env:
           - name: DOCKER_HOST
-            value: unix:///run/user/1000/docker.sock
+            value: unix:///var/run/docker.sock
           - name: RUNNER_WAIT_FOR_DOCKER_IN_SECONDS
             value: "120"
         volumeMounts:
