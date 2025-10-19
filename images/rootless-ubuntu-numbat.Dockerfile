@@ -60,7 +60,7 @@ RUN apt-get update \
 RUN deluser --remove-home ubuntu || true
 
 # Runner user
-RUN adduser --disabled-password --gecos "" --uid 1001 runner
+RUN adduser --disabled-password --gecos "" --uid 1000 runner
 
 # Make and set the working directory
 RUN mkdir -p /home/runner \
