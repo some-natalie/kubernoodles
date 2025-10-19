@@ -56,11 +56,17 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       # set up minikube
-      - name: Set up minikube on the runner
-        uses: medyagh/setup-minikube@5162ff23a2613f64e1f7298e5bb47514db073347 # latest
-        with:
-          driver: none
-          container-runtime: docker
+      # - name: Set up minikube on the runner
+      #   uses: medyagh/setup-minikube@5162ff23a2613f64e1f7298e5bb47514db073347 # latest
+      # set up k3s
+      - name: Install k3s
+        shell: bash
+        run: |
+          curl -sfL https://get.k3s.io | sh -
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          sudo chmod 644 $KUBECONFIG
+          sleep 30
+          kubectl get nodes
 
       # set up cluster configs
       # local storage and the runner role for the k8s mode runner hooks
