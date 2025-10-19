@@ -52,8 +52,11 @@ template:
           privileged: true
           runAsUser: 1000
           runAsGroup: 1000
-        annotations:
-          container.apparmor.security.beta.kubernetes.io/dind: unconfined
+          allowPrivilegeEscalation: true
+          seccompProfile:
+            type: Unconfined
+          apparmorProfile:
+            type: Unconfined
         restartPolicy: Always
         startupProbe:
           exec:
@@ -83,8 +86,6 @@ template:
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
-        annotations:
-          container.apparmor.security.beta.kubernetes.io/runner: unconfined
         volumeMounts:
           - name: work
             mountPath: /home/runner/_work
