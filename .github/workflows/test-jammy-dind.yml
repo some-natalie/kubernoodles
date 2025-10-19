@@ -105,6 +105,7 @@ jobs:
           sleep 60
           kubectl get pods -n "test-runners"
           kubectl describe pods -n "test-runners" -v=9
+          # more logs
           for pod in $(kubectl get pods -n "test-runners" -o jsonpath='{.items[*].metadata.name}'); do
             echo "Logs for pod: $pod"
             kubectl logs "$pod" -n "test-runners" --all-containers=true || echo "No logs for pod: $pod"
