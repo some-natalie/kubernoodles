@@ -52,6 +52,8 @@ template:
           privileged: true
           runAsUser: 1000
           runAsGroup: 1000
+        annotations:
+          container.apparmor.security.beta.kubernetes.io/dind: unconfined
         restartPolicy: Always
         startupProbe:
           exec:
@@ -78,6 +80,11 @@ template:
             value: unix:///run/user/1000/docker.sock
           - name: RUNNER_WAIT_FOR_DOCKER_IN_SECONDS
             value: "120"
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        annotations:
+          container.apparmor.security.beta.kubernetes.io/runner: unconfined
         volumeMounts:
           - name: work
             mountPath: /home/runner/_work
