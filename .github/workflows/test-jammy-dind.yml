@@ -78,7 +78,7 @@ jobs:
           kubectl apply -f ./cluster-configs/k8s-mode-storage.yml
           kubectl apply -f ./cluster-configs/runner-role.yml
         env:
-          KUBECONFIG: /etc/rancher/k3s/k3s.yamlß
+          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
       - name: Install Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
