@@ -96,6 +96,13 @@ jobs:
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.13.0
 
+      - name: Wait a minute and print debug info
+        shell: bash
+        run: |
+          sleep 60
+          kubectl get pods -n "test-runners"
+          kubectl describe pods -n "test-runners" -v=9
+
       - name: Sleep for 5 minutes to run tests on the runners
         shell: bash
         run: sleep 300
