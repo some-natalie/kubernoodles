@@ -77,6 +77,8 @@ jobs:
           kubectl create namespace "ghec-runners"
           kubectl apply -f ./cluster-configs/k8s-mode-storage.yml
           kubectl apply -f ./cluster-configs/runner-role.yml
+        env:
+          KUBECONFIG: /etc/rancher/k3s/k3s.yamlß
 
       - name: Install Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
@@ -89,6 +91,8 @@ jobs:
             --create-namespace \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller \
             --set image.tag=0.13.0
+        env:
+          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
       - name: Create private key file
         run: |
@@ -104,6 +108,8 @@ jobs:
             -f deployments/helm-jammy-dind-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.13.0
+        env:
+          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
       - name: Wait a minute and print debug info
         shell: bash
@@ -111,6 +117,8 @@ jobs:
           sleep 60
           kubectl get pods -n "test-runners"
           kubectl describe pods -n "test-runners" -v=9
+        env:
+          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
       - name: Sleep for 5 minutes to run tests on the runners
         shell: bash
@@ -120,6 +128,8 @@ jobs:
         shell: bash
         run: |
           helm uninstall test-jammy-dind --namespace "test-runners"
+        env:
+          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
       - name: Output removal
         shell: bash
