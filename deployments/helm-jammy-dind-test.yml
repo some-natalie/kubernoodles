@@ -19,10 +19,13 @@ githubConfigUrl: "https://github.com/some-natalie/kubernoodles"
 ### GitHub PAT Configuration
 # github_token: ""
 
-## maxRunners is the max number of runners the auto scaling runner set will scale up to.
+# runnerGroup: "default"
+
+## maxRunners is the max number of runners the autoscaling runner set will scale up to.
 maxRunners: 5
 
-## minRunners is the min number of runners the auto scaling runner set will scale down to.
+## minRunners is the min number of idle runners. The target number of runners created will be
+## calculated as a sum of minRunners and the number of jobs assigned to the scale set.
 minRunners: 1
 
 # runnerGroup: "default"
@@ -32,46 +35,62 @@ template:
     initContainers:
       - name: init-dind-externals
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command:
-          ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
+          ["cp", "-r", "/home/runner/externals/.", "/home/runner/tmpDir/"]
         volumeMounts:
           - name: dind-externals
             mountPath: /home/runner/tmpDir
+      - name: dind
+        image: docker:dind
+        args:
+          - dockerd
+          - --host=unix:///var/run/docker.sock
+          - --group=$(DOCKER_GROUP_GID)
+        env:
+          - name: DOCKER_GROUP_GID
+            value: "1000" # align to the UID in the runner
+          - name: DOCKER_HOST
+            value: unix:///var/run/docker.sock
+        securityContext:
+          privileged: true
+        restartPolicy: Always
+        startupProbe:
+          exec:
+            command:
+              - docker
+              - info
+          initialDelaySeconds: 0
+          failureThreshold: 24
+          periodSeconds: 5
+        volumeMounts:
+          - name: work
+            mountPath: /home/runner/_work
+          - name: dind-sock
+            mountPath: /var/run
+          - name: dind-externals
+            mountPath: /home/runner/externals
     containers:
       - name: runner
         image: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-jammy:test
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ["/home/runner/run.sh"]
         env:
           - name: DOCKER_HOST
-            value: tcp://localhost:2376
-          - name: DOCKER_TLS_VERIFY
-            value: "1"
-          - name: DOCKER_CERT_PATH
-            value: /certs/client
+            value: unix:///var/run/docker.sock
+          - name: RUNNER_WAIT_FOR_DOCKER_IN_SECONDS
+            value: "120"
         volumeMounts:
           - name: work
             mountPath: /home/runner/_work
-          - name: dind-cert
-            mountPath: /certs/client
-            readOnly: true
-      - name: dind
-        image: docker.io/docker:dind
-        imagePullPolicy: Always
-        securityContext:
-          privileged: true
-        volumeMounts:
-          - name: work
-            mountPath: /home/runner/_work
-          - name: dind-cert
-            mountPath: /certs/client
-          - name: dind-externals
-            mountPath: /home/runner/externals
+          - name: dind-sock
+            mountPath: /var/run
     volumes:
       - name: work
         emptyDir: {}
-      - name: dind-cert
+      - name: dind-sock
         emptyDir: {}
       - name: dind-externals
         emptyDir: {}
+
+namespaceOverride: ""

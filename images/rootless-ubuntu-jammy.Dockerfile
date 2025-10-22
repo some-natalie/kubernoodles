@@ -55,6 +55,9 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+# Delete the existing user at 1000
+RUN deluser --remove-home ubuntu || true
+
 # Runner user
 RUN adduser --disabled-password --gecos "" --uid 1000 runner
 
