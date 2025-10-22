@@ -54,7 +54,8 @@ containerMode:
   kubernetesModeWorkVolumeClaim:
     accessModes: ["ReadWriteOnce"]
     # storageClassName: "local-path"
-    storageClassName: "k8s-mode"
+    # storageClassName: "k8s-mode"
+    storageClassName: "standard" # minikube testing in Actions
     resources:
       requests:
         storage: 1Gi
