@@ -90,7 +90,7 @@ jobs:
           --namespace "test-runners" \
           --set-string githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
           --set-string githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
-          --set-string githubConfigSecret.github_app_private_key="${{ secrets.PRIVATE_KEY }}" \
+          --set-string githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
           -f deployments/helm-wolfi-test.yml \
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
           --version 0.13.0
