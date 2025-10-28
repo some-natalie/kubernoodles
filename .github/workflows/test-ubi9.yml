@@ -83,11 +83,6 @@ jobs:
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller \
             --set image.tag=0.13.0
 
-      - name: Create private key file
-        shell: bash
-        run: |
-          echo '${{ secrets.ARC_APP_PRIVATE_KEY }}' > private-key.pem
-
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         shell: bash
         run: |
@@ -95,7 +90,7 @@ jobs:
             --namespace "test-runners" \
             --set-string githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
             --set-string githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
-            --set-file githubConfigSecret.github_app_private_key=private-key.pem \
+            --set-string githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
             -f deployments/helm-ubi9-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version 0.13.0
