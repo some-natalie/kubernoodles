@@ -23,6 +23,6 @@ For each of these projects, update the version in the Dockerfiles below _if and 
 - images/ubi8.Dockerfile
 - images/wolfi.Dockerfile
 
-Once updated, open a draft PR and assign review to @some-natalie.  Comment in that draft PR that closing it will close the issue.
+If there are updates, open a draft PR and assign review to @some-natalie.  Comment in that draft PR that closing it will close the issue.
 
 If there are no updates, close this issue.

@@ -1,9 +1,9 @@
-name: Update dependencies with Copilot assignment
+name: 🤖 Update dependencies with Copilot assignment
 
 on:
-  workflow_dispatch: # build on demand
+  workflow_dispatch: # run on demand
   schedule:
-    - cron: "27 5 * * 0" # build every Sunday at 5:27 AM UTC
+    - cron: "27 5 * * 0" # run every Sunday at 5:27 AM UTC
 # set up octo-sts to get the correct token that's user scoped
 jobs:
   create-and-assign-issue:
