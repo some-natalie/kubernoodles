@@ -13,7 +13,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
       - name: Get the issue fields from the template
         uses: imjohnbo/extract-issue-template-fields@fcdd71b8add0dbd44221bcc368924a7722db96d2 # v1.0.3
