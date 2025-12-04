@@ -105,6 +105,7 @@ jobs:
           RESPONSE=$(curl -X POST \
             -H "Authorization: bearer ${{ secrets.COPILOT_USER }}" \
             -H "Content-Type: application/json" \
+            -H "GraphQL-Features: issues_copilot_assignment_api_support" \
             --data-raw "$JSON_PAYLOAD" \
             https://api.github.com/graphql)
 
