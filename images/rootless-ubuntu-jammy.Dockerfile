@@ -1,11 +1,11 @@
 FROM ubuntu:22.04 AS build
 
 # GitHub runner arguments
-ARG RUNNER_VERSION=2.330.0
+ARG RUNNER_VERSION=2.331.0
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.8.0
 
 # Docker and Compose arguments
-ARG DOCKER_VERSION=29.1.3
+ARG DOCKER_VERSION=29.1.4
 ARG COMPOSE_VERSION=v5.0.1
 
 # Dumb-init version
