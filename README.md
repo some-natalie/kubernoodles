@@ -20,7 +20,7 @@ The [customization](https://some-natalie.dev/blog/kubernoodles-pt-5) guide has a
 
 ## Choosing the image(s)
 
-There are currently 5 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are ephemeral.  If you're copy/pasting out of the [deployments](deployments), you should be set ... provided you give it the right repository/organization/enterprise to use!
+There are currently 6 images that are "prebuilt" by this project, although you can certainly use others or build your own!  All images assume that they are ephemeral.  If you're copy/pasting out of the [deployments](deployments), you should be set ... provided you give it the right repository/organization/enterprise to use!
 
 <!-- START_SECTION:table -->
 | image name | base image | CVE count<br>(crit/high/med+below) | archs | virtualization? | sudo? | notes |
