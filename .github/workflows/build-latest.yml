@@ -7,13 +7,14 @@ on:
 
 jobs:
   build-all:
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
+    runs-on: ubuntu-24.04-arm # use the GitHub-hosted ARM runner to build the image
     permissions:
       contents: write # for uploading the SBOM to the release
       packages: write # for uploading the finished container
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
       id-token: write # to complete the identity challenge with sigstore/fulcio when running outside of PRs
       attestations: write # to create the attestations for the container
+      artifact-metadata: write # for writing the build attestations
     strategy:
       matrix:
         os:
