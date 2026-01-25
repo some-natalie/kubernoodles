@@ -5,10 +5,10 @@ This script updates the date and CVE scan results in the README.md file.
 """
 
 # Imports
-from collections import Counter
 import datetime
 import json
 import os
+from collections import Counter
 
 # Constants
 image_list = [
@@ -24,7 +24,7 @@ image_list = [
     {
         "shortname": "ubi9",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/ubi9:latest",
-        "baseimage": "[ubi9-init:9.6](https://catalog.redhat.com/software/containers/ubi9-init/6183297540a2d8e95c82e8bd)",
+        "baseimage": "[ubi9-init:9.7](https://catalog.redhat.com/en/software/containers/ubi9-init/6183297540a2d8e95c82e8bd)",
         "architectures": "x86_64<br>arm64",
         "virtualization": ":x:",
         "sudo": ":x:",
@@ -33,7 +33,7 @@ image_list = [
     {
         "shortname": "ubi10",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/ubi10:latest",
-        "baseimage": "[ubi10-init:10.0](https://catalog.redhat.com/software/containers/ubi10-init/66f2aabb701371ba5f56497a?image=686bd755edf0de590015a72d&container-tabs=overview)",
+        "baseimage": "[ubi10-init:10.1](https://catalog.redhat.com/en/software/containers/ubi10-init/66f2aabb701371ba5f56497a)",
         "architectures": "x86_64<br>arm64",
         "virtualization": ":x:",
         "sudo": ":x:",
@@ -105,8 +105,9 @@ if __name__ == "__main__":
 
         # Delete the old date block
         del readme[
-            readme.index("<!-- START_SECTION:date -->\n")
-            + 1 : readme.index("<!-- END_SECTION:date -->\n")
+            readme.index("<!-- START_SECTION:date -->\n") + 1 : readme.index(
+                "<!-- END_SECTION:date -->\n"
+            )
         ]
 
         # Make the new date block
@@ -124,8 +125,9 @@ if __name__ == "__main__":
 
         # Delete the old cve block
         del readme[
-            readme.index("<!-- START_SECTION:table -->\n")
-            + 1 : readme.index("<!-- END_SECTION:table -->\n")
+            readme.index("<!-- START_SECTION:table -->\n") + 1 : readme.index(
+                "<!-- END_SECTION:table -->\n"
+            )
         ]
 
         # Make the new cve block
