@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-all:
-    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
+    runs-on: ubuntu-24.04-arm # use the GitHub-hosted ARM runner to build the image
     permissions:
       contents: write # for uploading the SBOM to the release
       packages: write # for uploading the finished container
