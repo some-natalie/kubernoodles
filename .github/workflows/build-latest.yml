@@ -28,16 +28,6 @@ jobs:
     continue-on-error: true
 
     steps:
-      - name: Free up disk space
-        run: |
-          sudo apt-get -qq purge build-essential "ghc*"
-          sudo apt-get clean
-          # cleanup docker images not used by us
-          docker system prune -af
-          # free up a lot of stuff from /usr/local
-          sudo rm -rf /usr/local
-          df -h
-
       - name: Checkout the repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
