@@ -25,17 +25,17 @@ There are currently 6 images that are "prebuilt" by this project, although you c
 <!-- START_SECTION:table -->
 | image name | base image | CVE count<br>(crit/high/med+below) | archs | virtualization? | sudo? | notes |
 |---|---|---|---|---|---|---|
-| ubi8 | [ubi8-init:8.10](https://catalog.redhat.com/software/containers/ubi8-init/5c6aea74dd19c77a158f0892) | 2/29/763 | x86_64<br>arm64 | :x: | :x: | n/a |
-| ubi9 | [ubi9-init:9.7](https://catalog.redhat.com/en/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | 2/29/726 | x86_64<br>arm64 | :x: | :x: | n/a |
-| ubi10 | [ubi10-init:10.1](https://catalog.redhat.com/en/software/containers/ubi10-init/66f2aabb701371ba5f56497a) | 2/40/323 | x86_64<br>arm64 | :x: | :x: | n/a |
-| rootless-ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) (22.04 LTS) | 2/30/258 | x86_64<br>arm64 | rootless Docker-in-Docker | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
-| rootless-ubuntu-numbat | [ubuntu:numbat](https://hub.docker.com/_/ubuntu) (24.04 LTS) | 2/31/203 | x86_64<br>arm64 | rootless Docker-in-Docker | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
+| ubi8 | [ubi8-init:8.10](https://catalog.redhat.com/software/containers/ubi8-init/5c6aea74dd19c77a158f0892) | 5/25/752 | x86_64<br>arm64 | :x: | :x: | n/a |
+| ubi9 | [ubi9-init:9.7](https://catalog.redhat.com/en/software/containers/ubi9-init/6183297540a2d8e95c82e8bd) | 5/26/727 | x86_64<br>arm64 | :x: | :x: | n/a |
+| ubi10 | [ubi10-init:10.1](https://catalog.redhat.com/en/software/containers/ubi10-init/66f2aabb701371ba5f56497a) | 5/37/326 | x86_64<br>arm64 | :x: | :x: | n/a |
+| rootless-ubuntu-jammy | [ubuntu:jammy](https://hub.docker.com/_/ubuntu) (22.04 LTS) | 13/35/256 | x86_64<br>arm64 | rootless Docker-in-Docker | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
+| rootless-ubuntu-numbat | [ubuntu:numbat](https://hub.docker.com/_/ubuntu) (24.04 LTS) | 13/36/200 | x86_64<br>arm64 | rootless Docker-in-Docker | :x: | [common rootless problems](docs/tips-and-tricks.md#rootless-images) |
 | wolfi:latest | [wolfi-base:latest](https://images.chainguard.dev/directory/image/wolfi-base/versions) | 2/19/6 | x86_64<br>arm64 | :x: | :x: | n/a |
 <!-- END_SECTION:table -->
 
 <!-- START_SECTION:date -->
 > [!NOTE]
-> CVE count was done on 08 February 2026 with the latest versions of [grype](https://github.com/anchore/grype) and runner image tags.
+> CVE count was done on 15 February 2026 with the latest versions of [grype](https://github.com/anchore/grype) and runner image tags.
 <!-- END_SECTION:date -->
 
 ## Design goals and compromises
