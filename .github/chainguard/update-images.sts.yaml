@@ -1,0 +1,8 @@
+issuer: https://token.actions.githubusercontent.com
+subject: repo:some-natalie/kubernoodles:ref:refs/heads/update-image-deps-.*
+claim_pattern:
+  job_workflow_ref: some-natalie/website/.github/workflows/update-image-deps.yml@.*
+
+permissions:
+  contents: write
+  pull-requests: write
