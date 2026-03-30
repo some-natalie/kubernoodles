@@ -35,7 +35,8 @@ RUN dnf update -y \
 # Red Hat moved lttng to a separate repo in UBI 10, use Rocky EL 10 instead
 RUN curl -f -L -o lttng-ust.rpm https://dl.rockylinux.org/stg/rocky/10/CRB/$(arch)/os/Packages/l/lttng-ust-2.13.7-5.el10.$(arch).rpm \
   && dnf install -y ./lttng-ust.rpm \
-  && rm lttng-ust.rpm
+  && rm lttng-ust.rpm \
+  && dnf clean all
 
 # This is to mimic the OpenShift behaviour of adding the dynamic user to group 0.
 RUN useradd -G 0 $USERNAME
