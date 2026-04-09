@@ -80,9 +80,9 @@ RUN curl -f -L -o runner-container-hooks.zip https://github.com/actions/runner-c
 FROM scratch AS final
 
 LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
-LABEL org.opencontainers.image.path="images/ubi9.Dockerfile"
-LABEL org.opencontainers.image.title="ubi9"
-LABEL org.opencontainers.image.description="A RedHat UBI 9 based runner image for GitHub Actions"
+LABEL org.opencontainers.image.path="images/ubi10.Dockerfile"
+LABEL org.opencontainers.image.title="ubi10"
+LABEL org.opencontainers.image.description="A RedHat UBI 10 based runner image for GitHub Actions"
 LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
