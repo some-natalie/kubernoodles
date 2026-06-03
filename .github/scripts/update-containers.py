@@ -21,6 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DOCKERFILES = [
     "images/rootless-ubuntu-jammy.Dockerfile",
     "images/rootless-ubuntu-numbat.Dockerfile",
+    "images/rootless-ubuntu-resolute.Dockerfile",
     "images/ubi10.Dockerfile",
     "images/ubi9.Dockerfile",
     "images/ubi8.Dockerfile",
