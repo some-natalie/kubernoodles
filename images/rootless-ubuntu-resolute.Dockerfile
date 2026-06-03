@@ -29,6 +29,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Install base software
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
+  adduser \
   apt-transport-https \
   apt-utils \
   ca-certificates \
