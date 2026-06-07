@@ -39,8 +39,7 @@ RUN apt-get update \
   iproute2 \
   iptables \
   jq \
-  libicu-dev \
-  libicu \
+  libicu78 \
   libyaml-dev \
   locales \
   lsb-release \
