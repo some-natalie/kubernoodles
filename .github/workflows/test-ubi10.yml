@@ -81,7 +81,7 @@ jobs:
             --namespace "arc-systems" \
             --create-namespace \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller \
-            --set image.tag=0.13.0
+            --set image.tag=0.14.2
 
       - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
         shell: bash
@@ -93,7 +93,7 @@ jobs:
             --set-string githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
             -f deployments/helm-ubi10-test.yml \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
-            --version 0.13.0
+            --version 0.14.2
 
       - name: Sleep for 5 minutes to run tests on the runners
         shell: bash
