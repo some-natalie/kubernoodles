@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi-init:9.7 AS build
+FROM registry.access.redhat.com/ubi9/ubi-init:9.8 AS build
 
 # Arguments
 ARG TARGETPLATFORM

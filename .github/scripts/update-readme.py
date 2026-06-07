@@ -24,7 +24,7 @@ image_list = [
     {
         "shortname": "ubi9",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/ubi9:latest",
-        "baseimage": "[ubi9-init:9.7](https://catalog.redhat.com/en/software/containers/ubi9-init/6183297540a2d8e95c82e8bd)",
+        "baseimage": "[ubi9-init:9.8](https://catalog.redhat.com/en/software/containers/ubi9-init/6183297540a2d8e95c82e8bd)",
         "architectures": "x86_64<br>arm64",
         "virtualization": ":x:",
         "sudo": ":x:",
@@ -33,7 +33,7 @@ image_list = [
     {
         "shortname": "ubi10",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/ubi10:latest",
-        "baseimage": "[ubi10-init:10.1](https://catalog.redhat.com/en/software/containers/ubi10-init/66f2aabb701371ba5f56497a)",
+        "baseimage": "[ubi10-init:10.2](https://catalog.redhat.com/en/software/containers/ubi10-init/66f2aabb701371ba5f56497a)",
         "architectures": "x86_64<br>arm64",
         "virtualization": ":x:",
         "sudo": ":x:",
