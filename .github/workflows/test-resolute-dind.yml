@@ -1,0 +1,152 @@
+name: 🧪 Test Ubuntu Resolute (26.04 LTS) runner
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "images/rootless-ubuntu-resolute.Dockerfile"
+      - "images/**.sh"
+      - "images/software/*"
+      - ".github/workflows/test-resolute-dind.yml"
+
+jobs:
+  build:
+    name: Build test image
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
+
+    steps:
+      - name: Set release id
+        run: echo "SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Set up build summary
+        run: |
+          echo '### Build summary 🚀' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '- Changes that produced this build [here](${{ github.server_url }}/${{ github.repository }}/commit/${{ env.SHA_SHORT }}) ' >> $GITHUB_STEP_SUMMARY
+          echo '- Full code at this point in time [here](${{ github.server_url }}/${{ github.repository }}/tree/${{ env.SHA_SHORT }})' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Login to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          file: "images/rootless-ubuntu-resolute.Dockerfile"
+          push: true
+          tags: ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-resolute:test
+
+  deploy:
+    name: Deploy test image to `test-runners` namespace
+    runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
+    needs: [build]
+    environment: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # set up minikube
+      - name: Set up minikube on the runner
+        uses: medyagh/setup-minikube@e9e035a86bbc3caea26a450bd4dbf9d0c453682e # latest
+        with:
+          driver: docker
+          container-runtime: docker
+
+      # set up cluster configs
+      # local storage and the runner role for the k8s mode runner hooks
+      - name: Set up local storage
+        shell: bash
+        run: |
+          kubectl create namespace "test-runners"
+          kubectl create namespace "ghec-runners"
+          kubectl apply -f ./cluster-configs/k8s-mode-storage.yml
+          kubectl apply -f ./cluster-configs/runner-role.yml
+
+      - name: Install Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+
+      - name: Deploy ARC
+        shell: bash
+        run: |
+          helm install arc \
+            --namespace "arc-systems" \
+            --create-namespace \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller \
+            --set image.tag=0.14.2
+
+      - name: Update deployment (using latest chart of actions-runner-controller-charts/auto-scaling-runner-set)
+        shell: bash
+        run: |
+          helm install test-resolute-dind  \
+            --namespace "test-runners" \
+            --set-string githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
+            --set-string githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
+            --set-string githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
+            -f deployments/helm-resolute-dind-test.yml \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
+            --version 0.14.2
+
+      - name: Sleep for 5 minutes to run tests on the runners
+        shell: bash
+        run: sleep 300
+
+      - name: Remove the runner deployment
+        shell: bash
+        run: |
+          helm uninstall test-resolute-dind --namespace "test-runners"
+
+      - name: Output removal
+        shell: bash
+        run: |
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '🧹 Test deployment removed' >> $GITHUB_STEP_SUMMARY
+
+  test:
+    name: Run tests!
+    runs-on: [test-resolute-dind]
+    needs: [build]
+    timeout-minutes: 5
+
+    steps:
+      - name: Setup test summary
+        run: |
+          echo '### Test summary 🧪' >> $GITHUB_STEP_SUMMARY
+          echo ' ' >> $GITHUB_STEP_SUMMARY
+          echo '- ✅ runner builds and deploys' >> $GITHUB_STEP_SUMMARY
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Print debug info
+        uses: ./tests/debug
+
+      - name: Sudo fails
+        uses: ./tests/sudo-fails
+
+      - name: Docker tests
+        uses: ./tests/docker
+
+      - name: Container Action test
+        id: container
+        continue-on-error: true
+        uses: ./tests/container
+
+      - name: Log container success (if applicable)
+        if: steps.container.outcome == 'success'
+        run: |
+          echo '- ✅ container action succeeded' >> $GITHUB_STEP_SUMMARY
+
+      - name: Log container failure (if applicable)
+        if: steps.container.outcome == 'failure'
+        run: |
+          echo '- ❌ container action failed' >> $GITHUB_STEP_SUMMARY

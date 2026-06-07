@@ -21,6 +21,7 @@ jobs:
           [
             rootless-ubuntu-jammy,
             rootless-ubuntu-numbat,
+            rootless-ubuntu-resolute,
             ubi8,
             ubi9,
             ubi10,

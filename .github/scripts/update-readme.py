@@ -58,6 +58,15 @@ image_list = [
         "notes": "[common rootless problems](docs/tips-and-tricks.md#rootless-images)",
     },
     {
+        "shortname": "rootless-ubuntu-resolute",
+        "fulltag": "ghcr.io/some-natalie/kubernoodles/rootless-ubuntu-resolute:latest",
+        "baseimage": "[ubuntu:numbat](https://hub.docker.com/_/ubuntu) (26.04 LTS)",
+        "architectures": "x86_64<br>arm64",
+        "virtualization": "rootless Docker-in-Docker",
+        "sudo": ":x:",
+        "notes": "[common rootless problems](docs/tips-and-tricks.md#rootless-images)",
+    },
+    {
         "shortname": "wolfi:latest",
         "fulltag": "ghcr.io/some-natalie/kubernoodles/wolfi:latest",
         "baseimage": "[wolfi-base:latest](https://images.chainguard.dev/directory/image/wolfi-base/versions)",
