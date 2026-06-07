@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi10-init:10.1 AS build
+FROM registry.access.redhat.com/ubi10-init:10.2 AS build
 
 # Arguments
 ARG TARGETPLATFORM
