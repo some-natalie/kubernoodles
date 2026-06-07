@@ -133,9 +133,9 @@ FROM scratch AS final
 
 # Label all the things!!
 LABEL org.opencontainers.image.source="https://github.com/some-natalie/kubernoodles"
-LABEL org.opencontainers.image.path="images/rootless-ubuntu-numbat.Dockerfile"
-LABEL org.opencontainers.image.title="rootless-ubuntu-numbat"
-LABEL org.opencontainers.image.description="An Ubuntu Numbat (24.04 LTS) based runner image for GitHub Actions, rootless"
+LABEL org.opencontainers.image.path="images/rootless-ubuntu-resolute.Dockerfile"
+LABEL org.opencontainers.image.title="rootless-ubuntu-resolute"
+LABEL org.opencontainers.image.description="An Ubuntu Resolute (26.04 LTS) based runner image for GitHub Actions, rootless"
 LABEL org.opencontainers.image.authors="Natalie Somersall (@some-natalie)"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.documentation="https://github.com/some-natalie/kubernoodles/README.md"
