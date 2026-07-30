@@ -6,32 +6,11 @@ on:
     - cron: "30 22 * * 1" # Weekly at 22:30 UTC on Mondays
 
 jobs:
-  clean-ghcr:
-    name: Delete old unused container images
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-focal
-          - rootless-ubuntu-focal
-          - ubuntu-jammy
-          - rootless-ubuntu-jammy
-          - rootless-ubuntu-numbat
-          - rootless-ubuntu-resolute
-          - podman
-          - ubi8
-          - ubi9
-          - ubi10
-          - wolfi
-    steps:
-      - name: Delete untagged container images older than 2 months
-        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
-        with:
-          package-name: kubernoodles/${{ matrix.runner }}
-          package-type: "container"
-          min-versions-to-keep: 8
-          delete-only-untagged-versions: "true"
+  # The ghcr cleanup job is gone on purpose.  Our images are multi-arch, so the
+  # `latest` tag belongs to an OCI index whose per-arch child manifests are
+  # untagged by design.  `delete-only-untagged-versions` reaped those children
+  # and left `latest` pointing at manifests that no longer existed, breaking
+  # `docker pull` with `manifest unknown` every Monday.
 
   stale:
     name: Destalinate!
