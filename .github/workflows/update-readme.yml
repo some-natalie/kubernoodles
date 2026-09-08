@@ -17,10 +17,12 @@ jobs:
         shell: bash
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sudo sh -s -- -b /usr/local/bin
+      - name: Setup uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
       - name: Get latest grype scan results for latest images, insert into README.md
         shell: bash
         run: |
-          python3 ./.github/scripts/update-readme.py
+          uv run ./.github/scripts/update-readme.py
       - name: Commit and push changes (if any)
         env:
           CI_COMMIT_MESSAGE: update readme with latest CVE data

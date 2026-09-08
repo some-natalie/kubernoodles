@@ -1,2 +1,5 @@
 # deployment files used for local testing
 deployments/local-*
+
+# python bytecode from running the script self-checks
+__pycache__/
