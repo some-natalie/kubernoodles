@@ -45,11 +45,13 @@ jobs:
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           file: "images/ubi10.Dockerfile"
-          push: true
+          # Fork PRs have a read-only token and cannot publish to the upstream GHCR namespace.
+          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ghcr.io/some-natalie/kubernoodles/ubi10:test
 
   deploy:
     name: Deploy test image to `test-runners` namespace
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest # use the GitHub-hosted runner to deploy to test
     needs: [build]
     environment: test
@@ -116,6 +118,7 @@ jobs:
 
   test:
     name: Run tests!
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [test-ubi10]
     needs: [build]
     timeout-minutes: 5
