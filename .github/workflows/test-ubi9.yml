@@ -10,11 +10,13 @@ on:
       - "images/**.sh"
       - "images/software/*"
       - "deployments/helm-ubi9.yml"
+      - ".github/workflows/smoke-runner-image.yml"
       - ".github/workflows/test-ubi9.yml"
 
 jobs:
   build:
     name: Build test image
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest # use the GitHub-hosted runner to build the image
 
     steps:
@@ -45,9 +47,16 @@ jobs:
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           file: "images/ubi9.Dockerfile"
-          # Fork PRs have a read-only token and cannot publish to the upstream GHCR namespace.
-          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+          push: true
           tags: ghcr.io/some-natalie/kubernoodles/ubi9:test
+
+  smoke:
+    name: Smoke test temporary image
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+    uses: ./.github/workflows/smoke-runner-image.yml
+    with:
+      dockerfile: images/ubi9.Dockerfile
+      profile: deployments/helm-ubi9.yml
 
   deploy:
     name: Deploy test image to `test-runners` namespace

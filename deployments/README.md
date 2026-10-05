@@ -20,6 +20,12 @@ sidecar remains unchanged. When editing a runner, change its profile, not a
 separate test copy. Helm applies command-line overrides on top of `-f`, and
 the corresponding image test workflow runs when its profile changes.
 
+Fork pull requests cannot publish to the upstream container registry or access
+the GitHub App secret for runner registration. Their image workflows instead
+build a temporary image, load it into Minikube, render this profile with the
+temporary image, and run a non-privileged smoke pod. Upstream-authorized runs
+continue to deploy ARC and run the full tests on registered runners.
+
 More details as noted:
 
 - The Docker image in use here is public, but in order to avoid rate-limiting in public registries, the `imagePullSecrets` is still set to a secret in the `runners` namespace.  You will have to set this for private registries.
