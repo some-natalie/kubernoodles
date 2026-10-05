@@ -8,6 +8,7 @@ on:
     paths:
       - "images/wolfi.Dockerfile"
       - "images/**.sh"
+      - "deployments/helm-wolfi.yml"
       - ".github/workflows/test-wolfi.yml"
 
 jobs:
@@ -88,7 +89,9 @@ jobs:
           --set-string githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
           --set-string githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
           --set-string githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-          -f deployments/helm-wolfi-test.yml \
+          -f deployments/helm-wolfi.yml \
+          --set-string 'template.spec.containers[0].image=ghcr.io/some-natalie/kubernoodles/wolfi:test' \
+          --set-string containerMode.kubernetesModeWorkVolumeClaim.storageClassName=standard \
           oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
           --version "$(cat deployments/arc-version.txt)"
 

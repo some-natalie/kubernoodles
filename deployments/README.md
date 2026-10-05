@@ -2,6 +2,24 @@
 
 This folder contains all the deployment files for the Kubernetes cluster.  A deployment is a discrete group of runners that can have unique hardware, scaling functions, or scope (repository, organization, or enterprise wide.  These are defined by [actions-runner-controller](https://github.com/actions/actions-runner-controller) and there's more information in the linked documentation.
 
+## Runner profiles
+
+Each `helm-<runner>.yml` file is the single source of truth for that runner's
+pod template, image, and scaling settings. Production deployments use the
+profile directly (see [manual-deploy.yml](../.github/workflows/manual-deploy.yml)).
+The image test workflows use the same profile with Helm `--set-string`
+overrides for the `:test` image tag. UBI tests also set
+`template.spec.containers[0].imagePullPolicy=Always`; the Wolfi test sets
+`containerMode.kubernetesModeWorkVolumeClaim.storageClassName=standard` for
+Minikube instead of the production `k8s-mode` storage class.
+
+For example, the Jammy test workflow passes both
+`template.spec.initContainers[0].image` and
+`template.spec.containers[0].image` with the `:test` tag; the Docker-in-Docker
+sidecar remains unchanged. When editing a runner, change its profile, not a
+separate test copy. Helm applies command-line overrides on top of `-f`, and
+the corresponding image test workflow runs when its profile changes.
+
 More details as noted:
 
 - The Docker image in use here is public, but in order to avoid rate-limiting in public registries, the `imagePullSecrets` is still set to a secret in the `runners` namespace.  You will have to set this for private registries.

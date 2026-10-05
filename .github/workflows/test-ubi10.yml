@@ -9,6 +9,7 @@ on:
       - "images/ubi10.Dockerfile"
       - "images/**.sh"
       - "images/software/*"
+      - "deployments/helm-ubi10.yml"
       - ".github/workflows/test-ubi10.yml"
 
 jobs:
@@ -92,7 +93,9 @@ jobs:
             --set-string githubConfigSecret.github_app_id="${{ vars.ARC_APP_ID }}" \
             --set-string githubConfigSecret.github_app_installation_id="${{ vars.ARC_INSTALL_ID }}" \
             --set-string githubConfigSecret.github_app_private_key="${{ secrets.ARC_APP_PRIVATE_KEY }}" \
-            -f deployments/helm-ubi10-test.yml \
+            -f deployments/helm-ubi10.yml \
+            --set-string 'template.spec.containers[0].image=ghcr.io/some-natalie/kubernoodles/ubi10:test' \
+            --set 'template.spec.containers[0].imagePullPolicy=Always' \
             oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
             --version "$(cat deployments/arc-version.txt)"
 
