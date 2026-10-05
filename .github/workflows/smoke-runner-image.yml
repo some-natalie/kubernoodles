@@ -65,6 +65,7 @@ jobs:
       - name: Start a smoke pod from the temporary image
         shell: bash
         run: |
+          # shellcheck disable=SC2016 # The pod expands this script, not this shell.
           kubectl run runner-image-smoke \
             --image=kubernoodles/runner-smoke:pr \
             --image-pull-policy=Never \
