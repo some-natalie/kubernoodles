@@ -21,6 +21,7 @@ jobs:
     permissions:
       contents: read
     outputs:
+      action_changed: ${{ steps.action-lines.outputs.action_changed }}
       old_action_org: ${{ steps.action-info.outputs.old_action_org }}
       new_action_org: ${{ steps.action-info.outputs.new_action_org }}
       old_action_repo: ${{ steps.action-info.outputs.old_action_repo }}
@@ -44,13 +45,21 @@ jobs:
 
       - name: Extract old and new Action lines
         shell: bash
+        id: action-lines
         run: |
-          OLD_LINE=$(grep '^-' pr.diff | grep 'uses:' | tail -1)
-          NEW_LINE=$(grep '^+' pr.diff | grep 'uses:' | tail -1)
+          OLD_LINE=$(grep '^-' pr.diff | grep 'uses:' | tail -1 || true)
+          NEW_LINE=$(grep '^+' pr.diff | grep 'uses:' | tail -1 || true)
+          if [[ -z "$OLD_LINE" || -z "$NEW_LINE" ]]; then
+            echo "action_changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No paired Action reference changes; skipping differential analysis."
+            exit 0
+          fi
+          echo "action_changed=true" >> "$GITHUB_OUTPUT"
           echo "OLD_ACTION_LINE=$OLD_LINE" >> "$GITHUB_ENV"
           echo "NEW_ACTION_LINE=$NEW_LINE" >> "$GITHUB_ENV"
 
       - name: Parse Action repo and refs
+        if: steps.action-lines.outputs.action_changed == 'true'
         shell: bash
         id: action-info
         run: |
@@ -121,6 +130,7 @@ jobs:
   malcontent:
     name: Malware analysis using malcontent
     needs: extract-action-repo
+    if: needs.extract-action-repo.outputs.action_changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read

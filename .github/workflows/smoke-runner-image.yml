@@ -1,0 +1,87 @@
+name: Smoke test temporary runner image
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        required: true
+        type: string
+      profile:
+        required: true
+        type: string
+      dind:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Run temporary image in Minikube
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Minikube
+        uses: medyagh/setup-minikube@e9e035a86bbc3caea26a450bd4dbf9d0c453682e # latest
+        with:
+          driver: docker
+          container-runtime: docker
+
+      - name: Build and load the temporary image
+        shell: bash
+        run: |
+          docker build -f "${{ inputs.dockerfile }}" -t kubernoodles/runner-smoke:pr .
+          minikube image load kubernoodles/runner-smoke:pr
+
+      - name: Install Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+
+      - name: Render the runner scale set
+        shell: bash
+        run: |
+          args=(
+            -f "${{ inputs.profile }}"
+            --set-string 'githubConfigSecret.github_token=smoke-test'
+            --set-string 'controllerServiceAccount.name=smoke-controller'
+            --set-string 'controllerServiceAccount.namespace=arc-systems'
+            --set-string 'template.spec.containers[0].image=kubernoodles/runner-smoke:pr'
+            --set-string 'template.spec.containers[0].imagePullPolicy=Never'
+          )
+          if [[ "${{ inputs.dind }}" == "true" ]]; then
+            args+=(
+              --set-string 'template.spec.initContainers[0].image=kubernoodles/runner-smoke:pr'
+              --set-string 'template.spec.initContainers[0].imagePullPolicy=Never'
+            )
+          fi
+          helm template runner-smoke \
+            oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set \
+            --version "$(cat deployments/arc-version.txt)" \
+            "${args[@]}" > /dev/null
+
+      # Do not register a GitHub runner: fork PRs cannot receive the GitHub App secret.
+      - name: Start a smoke pod from the temporary image
+        shell: bash
+        run: |
+          # shellcheck disable=SC2016 # The pod expands this script, not this shell.
+          kubectl run runner-image-smoke \
+            --image=kubernoodles/runner-smoke:pr \
+            --image-pull-policy=Never \
+            --restart=Never \
+            --command -- /bin/bash -ec '
+              test -x /home/runner/run.sh
+              test -f /home/runner/k8s/index.js
+              test "$(id -u)" -ne 0
+              echo "Runner image smoke checks passed"
+            '
+          kubectl wait pod/runner-image-smoke \
+            --for=jsonpath='{.status.phase}'=Succeeded --timeout=120s
+          kubectl logs pod/runner-image-smoke
+
+      - name: Show pod diagnostics on failure
+        if: failure()
+        run: |
+          kubectl describe pod runner-image-smoke || true
+          kubectl logs pod/runner-image-smoke || true
