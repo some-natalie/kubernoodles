@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/ubi8/ubi-init:8.10 AS build
 
 # Arguments
 ARG TARGETPLATFORM
-ARG RUNNER_VERSION=2.338.1
+ARG RUNNER_VERSION=2.338.2
 ARG RUNNER_CONTAINER_HOOKS_VERSION=0.8.1
 
 # Shell setup
