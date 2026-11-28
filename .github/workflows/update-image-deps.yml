@@ -22,7 +22,12 @@ jobs:
       - name: Check ubi-probe.py still behaves
         run: uv run .github/scripts/test_ubi_probe.py
 
+      - name: Check update-containers.py GitHub authentication
+        run: uv run .github/scripts/test_update_containers.py
+
       - name: Update container dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: uv run .github/scripts/update-containers.py
 
       - name: Bump UBI base image minor versions
