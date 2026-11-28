@@ -18,8 +18,10 @@ Sources:
 """
 
 import json
+import os
 import re
 import urllib.request
+from urllib.parse import urlparse
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -43,13 +45,18 @@ ARC_CHART_PREFIX = "gha-runner-scale-set-"
 
 
 def _fetch(url: str) -> bytes:
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "kubernoodles-updater",
+    }
+    token = os.environ.get("GITHUB_TOKEN")
+    if urlparse(url).hostname == "api.github.com" and token:
+        headers["Authorization"] = f"Bearer {token}"
+
     req = urllib.request.Request(
         url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "kubernoodles-updater",
-        },
+        headers=headers,
     )
     with urllib.request.urlopen(req) as resp:
         return resp.read()
